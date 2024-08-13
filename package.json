@@ -24,6 +24,7 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/mongoose": "^10.0.10",
     "@nestjs/platform-express": "^10.0.0",
+    "@types/qs": "^6.9.15",
     "dotenv": "^16.4.5",
     "mongoose": "^8.5.2",
     "qs": "^6.13.0",
