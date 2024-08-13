@@ -1,17 +1,21 @@
-class BaseUserOutputType {
-    login: string
-    email: string
+import { UserDocument } from '../../../domain/user.entity';
+
+export class UserOutputModel {
+  id: string;
+  login: string;
+  email: string;
+  createdAt: string;
 }
 
-class DetailedUserOutputType extends BaseUserOutputType {
-    id: string
-    createdAt: string
-}
+// MAPPERS
 
-export class UserPaginationOutputType {
-    pagesCount: number
-    page: number
-    pageSize: number
-    totalCount: number
-    items: DetailedUserOutputType[]
-}
+export const UserOutputModelMapper = (user: UserDocument): UserOutputModel => {
+  const outputModel = new UserOutputModel();
+
+  outputModel.id = user.id;
+  outputModel.login = user.login;
+  outputModel.email = user.email;
+  outputModel.createdAt = user.createdAt.toISOString();
+
+  return outputModel;
+};
