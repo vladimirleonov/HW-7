@@ -5,7 +5,7 @@ export class PaginationOutput<D> {
   public readonly page: number;
   public readonly pageSize: number;
   public readonly totalCount: number;
-  public readonly items: D[]
+  public readonly items: D[];
 
   constructor(items: D[], page: number, pageSize: number, totalCount: number) {
     this.items = items;
