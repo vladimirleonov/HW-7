@@ -8,7 +8,7 @@ import {
   UserOutputModelMapper,
 } from '../api/models/output/get-users.output.model';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from '../domain/user.entity';
+import { User, UserDocument } from '../domain/user.entity';
 import { FilterQuery, Model } from 'mongoose';
 
 @Injectable()
@@ -46,6 +46,15 @@ export class UsersQueryRepository {
     //   items: users.map((user: User) => this.mapToDetailedUser(user))
     // }
     return this._getResult(filter, pagination);
+  }
+  async findById (id: string): Promise<UserOutputModel | null> {
+    const user: UserDocument = await this.userModel.findById(id);
+
+    if(user === null) {
+      return null;
+    }
+
+    return UserOutputModelMapper(user);
   }
   private async _getResult(
     filter: any,
