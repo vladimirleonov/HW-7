@@ -18,10 +18,10 @@ export class PaginationOutput<D> {
 }
 
 export class Pagination {
-  private readonly sortBy: string;
-  private readonly sortDirection: SortDirectionType;
-  private readonly pageNumber: number;
-  private readonly pageSize: number;
+  public readonly sortBy: string;
+  public readonly sortDirection: SortDirectionType;
+  public readonly pageNumber: number;
+  public readonly pageSize: number;
 
   constructor(query: ParsedQs, sortProperties: string[]) {
     this.sortBy = this.getSortBy(query, sortProperties);

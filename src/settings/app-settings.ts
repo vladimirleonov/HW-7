@@ -51,12 +51,13 @@ class APISettings {
 
   constructor(private readonly envVariables: EnvironmentVariable) {
     // Application
-    this.APP_PORT = this.getNumberOrDefault(envVariables.APP_PORT, 7840);
+    this.APP_PORT = this.getNumberOrDefault(envVariables.APP_PORT, 3001);
     this.HASH_ROUNDS = this.getNumberOrDefault(envVariables.HASH_ROUNDS, 10);
 
     // Database
     this.MONGO_CONNECTION_URI =
-      envVariables.MONGO_CONNECTION_URI ?? 'mongodb://localhost/nest';
+      envVariables.MONGO_CONNECTION_URI ??
+      'mongodb+srv://vladimir777:4kuughy1HAimmtzO@cluster0.fgdxrtr.mongodb.net/blogger_db?retryWrites=true&w=majority&appName=Cluster0';
   }
 
   private getNumberOrDefault(value: string, defaultValue: number): number {

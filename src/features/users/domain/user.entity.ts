@@ -69,14 +69,15 @@ export class User {
   })
   email: string;
   @Prop({
-    type: String,
+    type: Date,
     // validate: {
     //   validator: isValidISOString,
     //   message: "createdAt must be a valid ISO string",
     // },
     required: true,
   })
-  createdAt: string;
+  createdAt: Date;
+  // createdAt: string;
   // emailConfirmation: {
   //   type: emailConfirmationSchema,
   //   required: true

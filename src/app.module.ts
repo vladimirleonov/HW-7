@@ -5,6 +5,7 @@ import { UsersService } from './features/users/application/users.service';
 import { UsersRepository } from './features/users/infrastructure/users.repository';
 import { UsersQueryRepository } from './features/users/infrastructure/users.query-repository';
 import { User, UserSchema } from './features/users/domain/user.entity';
+import { appSettings } from './settings/app-settings';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -14,9 +15,7 @@ const usersProviders: Provider[] = [
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      'mongodb+srv://vladimir777:4kuughy1HAimmtzO@cluster0.fgdxrtr.mongodb.net/blogger_db?retryWrites=true&w=majority&appName=Cluster0',
-    ),
+    MongooseModule.forRoot(appSettings.api.MONGO_CONNECTION_URI),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [UsersController],
