@@ -95,6 +95,15 @@ export class PaginationWithSearchLoginAndEmailTerm extends Pagination {
   }
 }
 
+export class PaginationWithSearchNameTerm extends Pagination {
+  public readonly searchNameTerm: string | null;
+
+  constructor(query: ParsedQs, sortProperties: string[]) {
+    super(query, sortProperties);
+    this.searchNameTerm = query.earchNameTerm?.toString() || null;
+  }
+}
+
 // TYPES
 
 export type SortDirectionType = 'desc' | 'asc';

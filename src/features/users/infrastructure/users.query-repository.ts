@@ -6,7 +6,7 @@ import {
 import {
   UserOutputModel,
   UserOutputModelMapper,
-} from '../api/models/output/get-users.output.model';
+} from '../api/models/output/users.output.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../domain/user.entity';
 import { FilterQuery, Model } from 'mongoose';
@@ -25,7 +25,7 @@ export class UsersQueryRepository {
       ? { email: { $regex: pagination.searchEmailTerm, $options: 'i' } }
       : {};
 
-    const orFilters: FilterQuery<User> = [
+    const orFilters: FilterQuery<User>[] = [
       searchLoginTermFilter,
       searchEmailTermFilter,
     ].filter((filter: FilterQuery<User>) => Object.keys(filter).length > 0);
@@ -47,21 +47,22 @@ export class UsersQueryRepository {
     // }
     return this._getResult(filter, pagination);
   }
-  async findById (id: string): Promise<UserOutputModel | null> {
+  async findById(id: string): Promise<UserOutputModel | null> {
     const user: UserDocument = await this.userModel.findById(id);
 
-    if(user === null) {
+    if (user === null) {
       return null;
     }
 
     return UserOutputModelMapper(user);
   }
+  // TODO: change type any
   private async _getResult(
     filter: any,
     pagination: PaginationWithSearchLoginAndEmailTerm,
   ): Promise<PaginationOutput<UserOutputModel>> {
     // pagination: pageNumber, pageSize, sortDirection, sortBy, searchLoginTerm, searchEmailTerm
-    const users = await this.userModel
+    const users: UserDocument[] = await this.userModel
       .find(filter)
       .sort({
         [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
@@ -70,10 +71,10 @@ export class UsersQueryRepository {
       .limit(pagination.pageSize);
 
     const totalCount: number = await this.userModel.countDocuments(users);
-    const mappedPosts: UserOutputModel[] = users.map(UserOutputModelMapper);
+    const mappedUsers: UserOutputModel[] = users.map(UserOutputModelMapper);
 
     return new PaginationOutput<UserOutputModel>(
-      mappedPosts,
+      mappedUsers,
       pagination.pageNumber,
       pagination.pageSize,
       totalCount,

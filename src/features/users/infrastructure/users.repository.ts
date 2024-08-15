@@ -7,9 +7,16 @@ import { Model } from 'mongoose';
 export class UsersRepository {
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
   async save(user: UserDocument): Promise<UserDocument> {
-    return user.save()
+    return user.save();
   }
-  async findUserByField(field: string, value: string): Promise<UserDocument | null> {
-    return this.userModel.findOne({[field]: value})
+  async findByField(
+    field: string,
+    value: string,
+  ): Promise<UserDocument | null> {
+    return this.userModel.findOne({ [field]: value });
+  }
+  async delete(id: string): Promise<boolean> {
+    const deletedInfo = await this.userModel.deleteOne({ _id: id });
+    return deletedInfo.deletedCount === 1;
   }
 }
