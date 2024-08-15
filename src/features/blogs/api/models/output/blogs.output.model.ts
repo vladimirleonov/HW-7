@@ -1,6 +1,6 @@
 import { BlogDocument } from '../../../domain/blog.entity';
 
-export class BlogsOutputModel {
+export class BlogOutputModel {
   id: string;
   name: string;
   description: string;
@@ -11,10 +11,8 @@ export class BlogsOutputModel {
 
 // MAPPERS
 
-export const BlogsOutputModelMapper = (
-  blog: BlogDocument,
-): BlogsOutputModel => {
-  const outputModel = new BlogsOutputModel();
+export const BlogOutputModelMapper = (blog: BlogDocument): BlogOutputModel => {
+  const outputModel = new BlogOutputModel();
 
   outputModel.id = blog.id;
   outputModel.name = blog.name;

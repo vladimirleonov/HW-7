@@ -11,4 +11,12 @@ export class BlogsRepository {
   async save(blog: BlogDocument): Promise<BlogDocument> {
     return blog.save();
   }
+  async findById(id: string): Promise<BlogDocument | null> {
+    return this.blogModel.findById(id);
+  }
+  async delete(id: string): Promise<boolean> {
+    const result = await this.blogModel.deleteOne({ _id: id });
+
+    return result.deletedCount === 1;
+  }
 }

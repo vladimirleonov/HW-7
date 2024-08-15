@@ -7,8 +7,8 @@ import {
   PaginationWithSearchNameTerm,
 } from '../../../../base/models/pagination.base.model';
 import {
-  BlogsOutputModel,
-  BlogsOutputModelMapper,
+  BlogOutputModel,
+  BlogOutputModelMapper,
 } from '../api/models/output/blogs.output.model';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class BlogsQueryRepository {
   ) {}
   async getAll(
     pagination: PaginationWithSearchNameTerm,
-  ): Promise<PaginationOutput<BlogsOutputModel>> {
+  ): Promise<PaginationOutput<BlogOutputModel>> {
     const searchNameTermFilter: FilterQuery<Blog> = pagination.searchNameTerm
       ? { name: { $regex: pagination.searchNameTerm, $options: 'i' } }
       : {};
@@ -51,7 +51,7 @@ export class BlogsQueryRepository {
   async _getResult(
     filter: any,
     pagination: PaginationWithSearchNameTerm,
-  ): Promise<PaginationOutput<BlogsOutputModel>> {
+  ): Promise<PaginationOutput<BlogOutputModel>> {
     const blogs: BlogDocument[] = await this.blogModel
       .find(filter)
       .sort({
@@ -61,22 +61,22 @@ export class BlogsQueryRepository {
       .limit(pagination.pageSize);
 
     const totalCount: number = await this.blogModel.countDocuments(blogs);
-    const mappedBlogs: BlogsOutputModel[] = blogs.map(BlogsOutputModelMapper);
+    const mappedBlogs: BlogOutputModel[] = blogs.map(BlogOutputModelMapper);
 
-    return new PaginationOutput<BlogsOutputModel>(
+    return new PaginationOutput<BlogOutputModel>(
       mappedBlogs,
       pagination.pageNumber,
       pagination.pageSize,
       totalCount,
     );
   }
-  async findById(id: string): Promise<BlogsOutputModel> {
+  async findById(id: string): Promise<BlogOutputModel | null> {
     const blog: BlogDocument = await this.blogModel.findById(id);
 
     if (blog === null) {
       return null;
     }
 
-    return BlogsOutputModelMapper(blog);
+    return BlogOutputModelMapper(blog);
   }
 }
