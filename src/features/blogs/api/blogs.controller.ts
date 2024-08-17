@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service';
 import {
+  Pagination,
   PaginationOutput,
   PaginationWithSearchNameTerm,
 } from '../../../../base/models/pagination.base.model';
@@ -22,6 +23,8 @@ import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { BlogCreateModel } from './models/input/create-blog.input.model';
 import { BlogUpdateModel } from './models/input/update-blog.input.model';
+import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
+import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -32,6 +35,7 @@ export class BlogsController {
   constructor(
     private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
+    private readonly postQueryRepository: PostsQueryRepository,
   ) {}
 
   @Get()
@@ -62,6 +66,17 @@ export class BlogsController {
     }
 
     return blog;
+  }
+
+  // TODO: change any type
+  @Get(':blogId/posts')
+  async getBlogPosts(@Query() query: any, @Param('blogId') blogId: string) {
+    const pagination: Pagination = new Pagination(query, []);
+
+    const blogPosts: PaginationOutput<PostOutputModel> =
+      await this.postQueryRepository.getAllBlogPosts(pagination, blogId);
+
+    return blogPosts;
   }
 
   @Post()

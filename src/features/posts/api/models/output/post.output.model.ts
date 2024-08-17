@@ -1,4 +1,5 @@
 import { PostDocument } from '../../../domain/post.entity';
+import mongoose, { Mongoose } from 'mongoose';
 
 export class PostOutputModel {
   id: string;
@@ -15,13 +16,11 @@ export class PostOutputModel {
 export const PostOutputModelMapper = (post: PostDocument): PostOutputModel => {
   const outputModel: PostOutputModel = new PostOutputModel();
 
-  console.log('PostDocument', post);
-
   outputModel.id = post.id;
   outputModel.title = post.title;
   outputModel.shortDescription = post.shortDescription;
   outputModel.content = post.content;
-  outputModel.blogId = post.id;
+  outputModel.blogId = post.blogId.toString();
   outputModel.blogName = post.blogName;
   outputModel.createdAt = post.createdAt.toISOString();
 

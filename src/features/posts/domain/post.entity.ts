@@ -24,10 +24,10 @@ export class Post {
   })
   content: string;
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Types.ObjectId,
     required: true,
   })
-  blogId: mongoose.Schema.Types.ObjectId;
+  blogId: mongoose.Types.ObjectId;
   @Prop({
     type: String,
     maxlength: 1000,

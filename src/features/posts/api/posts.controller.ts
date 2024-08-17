@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
-  Post,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
-  Query, Put,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
 import { PostsService } from '../application/posts.service';
 import {
@@ -17,6 +20,7 @@ import { PostOutputModel } from './models/output/post.output.model';
 import { PostsQueryRepository } from '../infrastructure/posts.query-repository';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { PostCreateModel } from './models/input/create-post.input.model';
+import { PostUpdateModel } from './models/input/update-post.input.model';
 
 @Controller('posts')
 export class PostsController {
@@ -38,7 +42,7 @@ export class PostsController {
     const pagination: Pagination = new Pagination(query, []);
 
     const posts: PaginationOutput<PostOutputModel> =
-      await this.postsQueryRepository.getAll(pagination);
+      await this.postsQueryRepository.getAllPosts(pagination);
 
     return posts;
   }
@@ -115,7 +119,46 @@ export class PostsController {
   }
 
   @Put(':id')
-  async update(@Body ) {
+  @HttpCode(204)
+  async update(@Param('id') id: string, @Body() updateModel: PostUpdateModel) {
+    // if (!req.user || !req.user.userId) {
+    //   res.status(HTTP_CODES.UNAUTHORIZED).send()
+    //   return
+    // }
 
+    const { title, shortDescription, content, blogId } = updateModel;
+
+    const result: Result<boolean> = await this.postsService.update(
+      id,
+      title,
+      shortDescription,
+      content,
+      blogId,
+    );
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: result.extensions[0].message,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  async delete(@Param('id') id: string) {
+    const result: Result<boolean> = await this.postsService.delete(id);
+    if (result.status === ResultStatus.NotFound) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: result.extensions[0].message,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }
