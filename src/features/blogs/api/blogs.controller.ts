@@ -25,6 +25,8 @@ import { BlogCreateModel } from './models/input/create-blog.input.model';
 import { BlogUpdateModel } from './models/input/update-blog.input.model';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
+import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
+import { PostsService } from '../../posts/application/posts.service';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -35,6 +37,7 @@ export class BlogsController {
   constructor(
     private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
+    private readonly postService: PostsService,
     private readonly postQueryRepository: PostsQueryRepository,
   ) {}
 
@@ -70,7 +73,28 @@ export class BlogsController {
 
   // TODO: change any type
   @Get(':blogId/posts')
-  async getBlogPosts(@Query() query: any, @Param('blogId') blogId: string) {
+  async getAllBlogPosts(@Query() query: any, @Param('blogId') blogId: string) {
+    // let userId = null
+    // if (req.headers.authorization) {
+    //   const result: Result<JwtPayload | null> = await this.authService.checkAccessToken(req.headers.authorization)
+    //   if (result.status === ResultStatus.Success) {
+    //     userId = result.data!.userId
+    //   }
+    // }
+
+    // TODO: ask is it ok?
+    const blog: BlogOutputModel =
+      await this.blogsQueryRepository.findById(blogId);
+    if (!blog) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: `Blog with id ${blogId} not found`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     const pagination: Pagination = new Pagination(query, []);
 
     const blogPosts: PaginationOutput<PostOutputModel> =
@@ -107,6 +131,48 @@ export class BlogsController {
     }
 
     return createdBlog;
+  }
+
+  @Post(':blogId/posts')
+  async createPostForBlog(
+    @Param('blogId') blogId: string,
+    @Body() createModel: PostForBlogCreateModel,
+  ) {
+    const { title, shortDescription, content } = createModel;
+
+    const result: Result<string | null> = await this.postService.create(
+      title,
+      shortDescription,
+      content,
+      blogId,
+    );
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          message: result.extensions[0].message,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const createdId: string = result.data;
+
+    const post: PostOutputModel | null =
+      await this.postQueryRepository.findById(createdId);
+    if (!post) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Something went wrong',
+          // error: result.status,
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return post;
   }
 
   @Put(':id')

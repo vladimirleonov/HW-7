@@ -48,8 +48,6 @@ export class PostsQueryRepository {
     //userId?: string,
     blogId?: string,
   ): any {
-    console.log(pagination);
-    console.log(blogId);
     const filterByBlogId: FilterQuery<Post> = blogId
       ? { blogId: new mongoose.Types.ObjectId(blogId) }
       : {};
@@ -85,7 +83,6 @@ export class PostsQueryRepository {
     filter: any,
     pagination: Pagination,
   ): Promise<PaginationOutput<PostOutputModel>> {
-    console.log(filter);
     const posts: PostDocument[] = await this.postModel
       .find(filter)
       .sort({
@@ -93,8 +90,6 @@ export class PostsQueryRepository {
       })
       .skip(pagination.getSkipItemsCount())
       .limit(pagination.pageSize);
-
-    console.log(posts);
 
     const totalCount: number = await this.postModel.countDocuments(filter);
 

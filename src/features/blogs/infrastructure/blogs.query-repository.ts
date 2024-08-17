@@ -71,6 +71,7 @@ export class BlogsQueryRepository {
     );
   }
   async findById(id: string): Promise<BlogOutputModel | null> {
+    console.log(id);
     const blog: BlogDocument = await this.blogModel.findById(id);
 
     if (blog === null) {

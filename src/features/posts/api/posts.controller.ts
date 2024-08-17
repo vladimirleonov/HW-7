@@ -79,7 +79,7 @@ export class PostsController {
   }
 
   @Post()
-  async createPost(@Body() createModel: PostCreateModel) {
+  async create(@Body() createModel: PostCreateModel) {
     const { title, shortDescription, content, blogId } = createModel;
 
     const result: Result<string | null> = await this.postsService.create(
