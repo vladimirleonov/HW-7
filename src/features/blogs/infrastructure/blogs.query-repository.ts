@@ -9,7 +9,7 @@ import {
 import {
   BlogOutputModel,
   BlogOutputModelMapper,
-} from '../api/models/output/blogs.output.model';
+} from '../api/models/output/blog.output.model';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -60,7 +60,7 @@ export class BlogsQueryRepository {
       .skip(pagination.getSkipItemsCount())
       .limit(pagination.pageSize);
 
-    const totalCount: number = await this.blogModel.countDocuments(blogs);
+    const totalCount: number = await this.blogModel.countDocuments(filter);
     const mappedBlogs: BlogOutputModel[] = blogs.map(BlogOutputModelMapper);
 
     return new PaginationOutput<BlogOutputModel>(

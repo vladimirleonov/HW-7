@@ -12,7 +12,7 @@ export class BlogsService {
     @InjectModel(Blog.name) private readonly blogModel: Model<Blog>,
   ) {}
   async create(name: string, description: string, websiteUrl: string) {
-    // ??? how to create user correctly
+    // ??? how to create blog correctly
     const newBlog: BlogDocument = new this.blogModel({
       name: name,
       description: description,

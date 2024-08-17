@@ -12,7 +12,6 @@ export class PaginationOutput<D> {
     this.page = page;
     this.pageSize = pageSize;
     this.totalCount = totalCount;
-
     this.pagesCount = Math.ceil(totalCount / pageSize);
   }
 }

@@ -11,7 +11,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
-import { UserOutputModel } from './models/output/users.output.model';
+import { UserOutputModel } from './models/output/user.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
 import {
   PaginationOutput,

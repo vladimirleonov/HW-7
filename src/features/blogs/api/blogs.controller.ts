@@ -16,7 +16,7 @@ import {
   PaginationOutput,
   PaginationWithSearchNameTerm,
 } from '../../../../base/models/pagination.base.model';
-import { BlogOutputModel } from './models/output/blogs.output.model';
+import { BlogOutputModel } from './models/output/blog.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
 import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
@@ -47,7 +47,7 @@ export class BlogsController {
   }
 
   @Get(':id')
-  async getById(@Param('id') id: string) {
+  async getOne(@Param('id') id: string) {
     const blog: BlogOutputModel | null =
       await this.blogsQueryRepository.findById(id);
 

@@ -12,6 +12,11 @@ import { BlogsService } from './features/blogs/application/blogs.service';
 import { BlogsRepository } from './features/blogs/infrastructure/blogs.repository';
 import { BlogsQueryRepository } from './features/blogs/infrastructure/blogs.query-repository';
 import { Blog, BlogSchema } from './features/blogs/domain/blog.entity';
+import { Post, PostSchema } from './features/posts/domain/post.entity';
+import { PostsController } from './features/posts/api/posts.controller';
+import { PostsService } from './features/posts/application/posts.service';
+import { PostsRepository } from './features/posts/infrastructure/posts.repository';
+import { PostsQueryRepository } from './features/posts/infrastructure/posts.query-repository';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -25,6 +30,12 @@ const blogsProviders: Provider[] = [
   BlogsQueryRepository,
 ];
 
+const postsProviders: Provider[] = [
+  PostsService,
+  PostsRepository,
+  PostsQueryRepository,
+];
+
 const authProviders: Provider[] = [AuthService];
 
 @Module({
@@ -33,13 +44,15 @@ const authProviders: Provider[] = [AuthService];
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Blog.name, schema: BlogSchema },
+      { name: Post.name, schema: PostSchema },
     ]),
   ],
-  controllers: [UsersController, BlogsController],
+  controllers: [UsersController, BlogsController, PostsController],
   providers: [
     ...authProviders,
     ...usersProviders,
     ...blogsProviders,
+    ...postsProviders,
     {
       provide: AppSettings,
       useValue: appSettings,

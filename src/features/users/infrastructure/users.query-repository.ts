@@ -6,7 +6,7 @@ import {
 import {
   UserOutputModel,
   UserOutputModelMapper,
-} from '../api/models/output/users.output.model';
+} from '../api/models/output/user.output.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../domain/user.entity';
 import { FilterQuery, Model } from 'mongoose';
@@ -70,7 +70,7 @@ export class UsersQueryRepository {
       .skip(pagination.getSkipItemsCount())
       .limit(pagination.pageSize);
 
-    const totalCount: number = await this.userModel.countDocuments(users);
+    const totalCount: number = await this.userModel.countDocuments(filter);
     const mappedUsers: UserOutputModel[] = users.map(UserOutputModelMapper);
 
     return new PaginationOutput<UserOutputModel>(
