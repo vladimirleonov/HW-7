@@ -5,9 +5,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(
-    @InjectModel(Blog.name) private readonly blogModel: Model<Blog>,
-  ) {}
+  constructor(@InjectModel(Blog.name) private blogModel: Model<Blog>) {}
   async save(blog: BlogDocument): Promise<BlogDocument> {
     return blog.save();
   }

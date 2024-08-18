@@ -21,6 +21,10 @@ import { PostsQueryRepository } from '../infrastructure/posts.query-repository';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { PostCreateModel } from './models/input/create-post.input.model';
 import { PostUpdateModel } from './models/input/update-post.input.model';
+import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
+
+export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
+  ['title', 'blogName'];
 
 @Controller('posts')
 export class PostsController {
@@ -39,7 +43,10 @@ export class PostsController {
     //   }
     // }
 
-    const pagination: Pagination = new Pagination(query, []);
+    const pagination: Pagination = new Pagination(
+      query,
+      POSTS_SORTING_PROPERTIES,
+    );
 
     const posts: PaginationOutput<PostOutputModel> =
       await this.postsQueryRepository.getAllPosts(pagination);
@@ -56,8 +63,6 @@ export class PostsController {
     //     userId = result.data!.userId
     //   }
     // }
-
-    console.log(id);
 
     const post: PostOutputModel | null =
       await this.postsQueryRepository.findById(

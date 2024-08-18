@@ -13,9 +13,7 @@ import {
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(
-    @InjectModel(Blog.name) private readonly blogModel: Model<Blog>,
-  ) {}
+  constructor(@InjectModel(Blog.name) private blogModel: Model<Blog>) {}
   async getAll(
     pagination: PaginationWithSearchNameTerm,
   ): Promise<PaginationOutput<BlogOutputModel>> {
@@ -71,7 +69,6 @@ export class BlogsQueryRepository {
     );
   }
   async findById(id: string): Promise<BlogOutputModel | null> {
-    console.log(id);
     const blog: BlogDocument = await this.blogModel.findById(id);
 
     if (blog === null) {

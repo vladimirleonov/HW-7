@@ -27,9 +27,11 @@ import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-rep
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
 import { PostsService } from '../../posts/application/posts.service';
+import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
+  'createdAt',
 ];
 
 @Controller('blogs')
@@ -57,7 +59,6 @@ export class BlogsController {
   async getOne(@Param('id') id: string) {
     const blog: BlogOutputModel | null =
       await this.blogsQueryRepository.findById(id);
-
     if (!blog) {
       throw new HttpException(
         {
@@ -82,7 +83,7 @@ export class BlogsController {
     //   }
     // }
 
-    // TODO: ask is it ok?
+    // TODO: ask if is it ok?
     const blog: BlogOutputModel =
       await this.blogsQueryRepository.findById(blogId);
     if (!blog) {
@@ -95,7 +96,10 @@ export class BlogsController {
       );
     }
 
-    const pagination: Pagination = new Pagination(query, []);
+    const pagination: Pagination = new Pagination(
+      query,
+      POSTS_SORTING_PROPERTIES,
+    );
 
     const blogPosts: PaginationOutput<PostOutputModel> =
       await this.postQueryRepository.getAllBlogPosts(pagination, blogId);

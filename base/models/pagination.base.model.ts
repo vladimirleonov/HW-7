@@ -99,7 +99,7 @@ export class PaginationWithSearchNameTerm extends Pagination {
 
   constructor(query: ParsedQs, sortProperties: string[]) {
     super(query, sortProperties);
-    this.searchNameTerm = query.earchNameTerm?.toString() || null;
+    this.searchNameTerm = query.searchNameTerm?.toString() || null;
   }
 }
 

@@ -3,6 +3,44 @@ import mongoose, { HydratedDocument } from 'mongoose';
 
 export type PostDocument = HydratedDocument<Post>;
 
+// like
+
+export enum LikeStatus {
+  Like = 'Like',
+  Dislike = 'Dislike',
+  None = 'None',
+}
+
+@Schema()
+export class Like {
+  @Prop({
+    type: Date,
+    // validate: {
+    //   validator: isValidISOString,
+    //   message: "createdAt must be a valid ISO string",
+    // },
+    required: true,
+  })
+  createdAt: Date;
+
+  @Prop({
+    type: String,
+    enum: LikeStatus,
+    required: true,
+  })
+  status: string;
+
+  @Prop({
+    type: String,
+    required: true,
+  })
+  authorId: string;
+}
+
+export const likeSchema = SchemaFactory.createForClass(Like);
+
+//
+
 @Schema()
 export class Post {
   @Prop({
@@ -11,23 +49,27 @@ export class Post {
     required: true,
   })
   title: string;
+
   @Prop({
     type: String,
     maxlength: 100,
     required: true,
   })
   shortDescription: string;
+
   @Prop({
     type: String,
     maxlength: 1000,
     required: true,
   })
   content: string;
+
   @Prop({
-    type: mongoose.Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
   })
   blogId: mongoose.Types.ObjectId;
+
   @Prop({
     type: String,
     maxlength: 1000,
@@ -35,21 +77,27 @@ export class Post {
   })
   blogName: string;
 
-  // likes: {
-  //   type: [likeSchema],
-  //   required: true
-  // },
-  // likesCount: {
-  //   type: Number,
-  //   default: 0,
-  //   min: 0,
-  //   required: true
-  // },
-  // dislikesCount: {
-  //   type: Number,
-  //   default: 0,
-  //   required: true
-  // },
+  @Prop({
+    type: [likeSchema],
+    required: true,
+  })
+  likes: Like[];
+
+  @Prop({
+    type: Number,
+    default: 0,
+    min: 0,
+    required: true,
+  })
+  likesCount: number;
+
+  @Prop({
+    type: Number,
+    default: 0,
+    required: true,
+  })
+  dislikesCount: number;
+
   @Prop({
     type: Date,
     // validate: {

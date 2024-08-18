@@ -17,6 +17,9 @@ import { PostsController } from './features/posts/api/posts.controller';
 import { PostsService } from './features/posts/application/posts.service';
 import { PostsRepository } from './features/posts/infrastructure/posts.repository';
 import { PostsQueryRepository } from './features/posts/infrastructure/posts.query-repository';
+import { TestingService } from './features/testing/application/testing.service';
+import { TestingRepository } from './features/testing/infrastructure/testing.repository';
+import { TestingController } from './features/testing/api/testing.controller';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -36,6 +39,8 @@ const postsProviders: Provider[] = [
   PostsQueryRepository,
 ];
 
+const testingProviders: Provider[] = [TestingService, TestingRepository];
+
 const authProviders: Provider[] = [AuthService];
 
 @Module({
@@ -47,12 +52,18 @@ const authProviders: Provider[] = [AuthService];
       { name: Post.name, schema: PostSchema },
     ]),
   ],
-  controllers: [UsersController, BlogsController, PostsController],
+  controllers: [
+    UsersController,
+    BlogsController,
+    PostsController,
+    TestingController,
+  ],
   providers: [
     ...authProviders,
     ...usersProviders,
     ...blogsProviders,
     ...postsProviders,
+    ...testingProviders,
     {
       provide: AppSettings,
       useValue: appSettings,

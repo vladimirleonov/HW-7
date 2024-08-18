@@ -1,5 +1,12 @@
-import { PostDocument } from '../../../domain/post.entity';
-import mongoose, { Mongoose } from 'mongoose';
+import { Like, LikeStatus, PostDocument } from '../../../domain/post.entity';
+
+// TODO: change LikeStatus to another file
+class ExtendedLikesInfo {
+  likesCount: number = 0;
+  dislikesCount: number = 0;
+  myStatus: LikeStatus = LikeStatus.None;
+  newestLikes: Like[] = [];
+}
 
 export class PostOutputModel {
   id: string;
@@ -9,13 +16,22 @@ export class PostOutputModel {
   blogId: string;
   blogName: string;
   createdAt: string;
+  extendedLikesInfo: ExtendedLikesInfo;
+  constructor(extendedLikesInfo: ExtendedLikesInfo) {
+    this.extendedLikesInfo = extendedLikesInfo;
+  }
 }
 
 // MAPPERS
 
 export const PostOutputModelMapper = (post: PostDocument): PostOutputModel => {
-  const outputModel: PostOutputModel = new PostOutputModel();
+  const extendedLikesInfo: ExtendedLikesInfo = new ExtendedLikesInfo();
+  extendedLikesInfo.likesCount = post.likesCount;
+  extendedLikesInfo.dislikesCount = post.dislikesCount;
+  extendedLikesInfo.myStatus = LikeStatus.None;
+  extendedLikesInfo.newestLikes = [];
 
+  const outputModel: PostOutputModel = new PostOutputModel(extendedLikesInfo);
   outputModel.id = post.id;
   outputModel.title = post.title;
   outputModel.shortDescription = post.shortDescription;

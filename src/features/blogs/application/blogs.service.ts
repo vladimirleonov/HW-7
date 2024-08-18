@@ -9,10 +9,10 @@ import { InjectModel } from '@nestjs/mongoose';
 export class BlogsService {
   constructor(
     private readonly blogsRepository: BlogsRepository,
-    @InjectModel(Blog.name) private readonly blogModel: Model<Blog>,
+    @InjectModel(Blog.name) private blogModel: Model<Blog>,
   ) {}
   async create(name: string, description: string, websiteUrl: string) {
-    // ??? how to create blog correctly
+    // TODO: how to create correctly ???
     const newBlog: BlogDocument = new this.blogModel({
       name: name,
       description: description,
@@ -61,7 +61,6 @@ export class BlogsService {
   }
   async delete(id: string): Promise<Result<boolean>> {
     const isDeleted: boolean = await this.blogsRepository.delete(id);
-    console.log(isDeleted);
     if (isDeleted) {
       return {
         status: ResultStatus.Success,
