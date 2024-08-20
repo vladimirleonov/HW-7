@@ -45,7 +45,11 @@ const authProviders: Provider[] = [AuthService];
 
 @Module({
   imports: [
-    MongooseModule.forRoot(appSettings.api.MONGO_CONNECTION_URI),
+    MongooseModule.forRoot(
+      appSettings.env.isTesting()
+        ? appSettings.api.MONGO_CONNECTION_URI_FOR_TESTS
+        : appSettings.api.MONGO_CONNECTION_URI,
+    ),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Blog.name, schema: BlogSchema },

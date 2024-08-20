@@ -48,6 +48,7 @@ class APISettings {
 
   // Database
   public readonly MONGO_CONNECTION_URI: string;
+  public readonly MONGO_CONNECTION_URI_FOR_TESTS: string;
 
   constructor(private readonly envVariables: EnvironmentVariable) {
     // Application
@@ -58,6 +59,8 @@ class APISettings {
     this.MONGO_CONNECTION_URI =
       envVariables.MONGO_CONNECTION_URI ??
       'mongodb+srv://vladimir777:4kuughy1HAimmtzO@cluster0.fgdxrtr.mongodb.net/blogger_db?retryWrites=true&w=majority&appName=Cluster0';
+    this.MONGO_CONNECTION_URI_FOR_TESTS =
+      envVariables.MONGO_CONNECTION_URI_FOR_TESTS ?? 'mongodb://localhost/test';
   }
 
   private getNumberOrDefault(value: string, defaultValue: number): number {

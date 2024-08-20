@@ -6,6 +6,7 @@ import { appSettings } from './settings/app-settings';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Применяем все настройки приложения (pipes, guards, filters, ...)
   applyAppSettings(app);
 
   await app.listen(appSettings.api.APP_PORT, () => {
