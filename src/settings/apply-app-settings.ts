@@ -3,6 +3,8 @@ import {
   INestApplication,
   ValidationPipe,
 } from '@nestjs/common';
+import { useContainer } from 'class-validator';
+import { AppModule } from '../app.module';
 // import { HttpExceptionFilter } from '../common/exception-filters/http-exception-filter';
 // import { appSettings } from './app-settings';
 // import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
@@ -13,6 +15,13 @@ const APP_PREFIX = '/api';
 
 // Используем данную функцию в main.ts и в e2e тестах
 export const applyAppSettings = (app: INestApplication) => {
+  // Для внедрения зависимостей в validator constraint
+  // {fallbackOnErrors: true} требуется, поскольку Nest генерирует исключение,
+  // когда DI не имеет необходимого класса.
+  // Настраивает `class-validator` для использования контейнера внедрения зависимостей
+  // NestJS для разрешения зависимостей валидаторов.
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
   // Применение глобальных Interceptors
   //app.useGlobalInterceptors(new LoggingInterceptor());
 
