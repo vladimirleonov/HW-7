@@ -1781,10 +1781,10 @@ cjs-module-lexer@^1.0.0:
   resolved "https://registry.npmjs.org/cjs-module-lexer/-/cjs-module-lexer-1.3.1.tgz#c485341ae8fd999ca4ee5af2d7a1c9ae01e0099c"
   integrity sha512-a3KdPAANPbNE4ZUv9h6LckSl9zLsYOP4MBmhIPkRaeyybt+r4UghLvq+xw/YwUcC1gqylCkL4rdVs3Lwupjm4Q==
 
-class-transform@^0.7.0:
-  version "0.7.0"
-  resolved "https://registry.npmjs.org/class-transform/-/class-transform-0.7.0.tgz#1b4788570be65da78c56f882e046ddb85ff0c141"
-  integrity sha512-j5O1TkgxsR836BOgyG83i5gKH3yaqdxMIbwviV3qJpcjGh1Vfil1CjtXn8RHgvtLvbosUutoewa+RA3Qty4SFA==
+class-transformer@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.npmjs.org/class-transformer/-/class-transformer-0.5.1.tgz#24147d5dffd2a6cea930a3250a677addf96ab336"
+  integrity sha512-SQa1Ws6hUbfC98vKGxZH3KFY0Y1lm5Zm0SY8XX9zbK7FJCyVEac3ATW0RIpwzW+oOfmHE5PMPufDG9hCfoEOMw==
 
 class-validator@^0.14.1:
   version "0.14.1"

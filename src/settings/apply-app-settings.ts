@@ -31,7 +31,7 @@ export const applyAppSettings = (app: INestApplication) => {
   // setSwagger(app);
 
   // Применение глобальных pipes
-  // setAppPipes(app);
+  setAppPipes(app);
 
   // Применение глобальных exceptions filters
   // setAppExceptionsFilters(app);

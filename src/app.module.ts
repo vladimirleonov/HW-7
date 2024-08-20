@@ -20,6 +20,7 @@ import { PostsQueryRepository } from './features/posts/infrastructure/posts.quer
 import { TestingService } from './features/testing/application/testing.service';
 import { TestingRepository } from './features/testing/infrastructure/testing.repository';
 import { TestingController } from './features/testing/api/testing.controller';
+import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -68,10 +69,27 @@ const authProviders: Provider[] = [AuthService];
     ...blogsProviders,
     ...postsProviders,
     ...testingProviders,
+    LoginIsExistConstraint,
     {
       provide: AppSettings,
       useValue: appSettings,
     },
+    /* {
+        provide: UsersService,
+        useClass: UsersService,
+    },*/
+    /*{
+        provide: UsersService,
+        useValue: {method: () => {}},
+    },*/
+    // Регистрация с помощью useFactory (необходимы зависимости из ioc, подбор провайдера, ...)
+    // {
+    //   provide: UsersService,
+    //   useFactory: (repo: UsersRepository, authService: AuthService) => {
+    //     return new UsersService(repo, authService);
+    //   },
+    //   inject: [UsersRepository, AuthService]
+    // }
   ],
 })
 export class AppModule {}
