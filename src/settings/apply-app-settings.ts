@@ -1,7 +1,7 @@
 import {
-  //BadRequestException,
+  BadRequestException,
   INestApplication,
-  //ValidationPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 // import { HttpExceptionFilter } from '../common/exception-filters/http-exception-filter';
 // import { appSettings } from './app-settings';
@@ -61,36 +61,36 @@ const setAppPrefix = (app: INestApplication) => {
 //   }
 // };
 
-// const setAppPipes = (app: INestApplication) => {
-//   app.useGlobalPipes(
-//     new ValidationPipe({
-//       // Для работы трансформации входящих данных
-//       transform: true,
-//       // Выдавать первую ошибку для каждого поля
-//       stopAtFirstError: true,
-//       // Перехватываем ошибку, кастомизируем её и выкидываем 400 с собранными данными
-//       exceptionFactory: (errors) => {
-//         const customErrors = [];
-//         console.log(errors);
-//
-//         errors.forEach((e) => {
-//           const constraintKeys = Object.keys(e.constraints);
-//
-//           constraintKeys.forEach((cKey) => {
-//             const msg = e.constraints[cKey];
-//
-//             customErrors.push({ key: e.property, message: msg });
-//           });
-//         });
-//
-//         // customErrors = [{key: "email", message: "Bad length"}, {key: "name", message: "Bad name"}]
-//
-//         // Error 400
-//         throw new BadRequestException(customErrors);
-//       },
-//     }),
-//   );
-// };
+const setAppPipes = (app: INestApplication) => {
+  app.useGlobalPipes(
+    new ValidationPipe({
+      // Для работы трансформации входящих данных
+      transform: true,
+      // Выдавать первую ошибку для каждого поля
+      stopAtFirstError: true,
+      // Перехватываем ошибку, кастомизируем её и выкидываем 400 с собранными данными
+      exceptionFactory: (errors) => {
+        const customErrors = [];
+        console.log(errors);
+
+        errors.forEach((e) => {
+          const constraintKeys = Object.keys(e.constraints);
+
+          constraintKeys.forEach((cKey) => {
+            const msg = e.constraints[cKey];
+
+            customErrors.push({ key: e.property, message: msg });
+          });
+        });
+
+        // customErrors = [{key: "email", message: "Bad length"}, {key: "name", message: "Bad name"}]
+
+        // Error 400
+        throw new BadRequestException(customErrors);
+      },
+    }),
+  );
+};
 
 // const setAppExceptionsFilters = (app: INestApplication) => {
 //   app.useGlobalFilters(new HttpExceptionFilter());

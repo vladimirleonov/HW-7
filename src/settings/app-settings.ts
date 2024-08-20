@@ -63,7 +63,7 @@ class APISettings {
       envVariables.MONGO_CONNECTION_URI_FOR_TESTS ?? 'mongodb://localhost/test';
   }
 
-  private getNumberOrDefault(value: string, defaultValue: number): number {
+  private getNumberOrDefault(value: any, defaultValue: number): number {
     const parsedValue = Number(value);
 
     if (isNaN(parsedValue)) {
