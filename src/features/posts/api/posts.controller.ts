@@ -22,6 +22,7 @@ import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { PostCreateModel } from './models/input/create-post.input.model';
 import { PostUpdateModel } from './models/input/update-post.input.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
+import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName'];
@@ -55,7 +56,7 @@ export class PostsController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string) {
+  async getOne(@Param('id', new ParseMongoIdPipe()) id: string) {
     // let userId = null
     // if (req.headers.authorization) {
     //   const result: Result<JwtPayload | null> = await this.authService.checkAccessToken(req.headers.authorization)
@@ -125,7 +126,10 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(204)
-  async update(@Param('id') id: string, @Body() updateModel: PostUpdateModel) {
+  async update(
+    @Param('id', new ParseMongoIdPipe()) id: string,
+    @Body() updateModel: PostUpdateModel,
+  ) {
     // if (!req.user || !req.user.userId) {
     //   res.status(HTTP_CODES.UNAUTHORIZED).send()
     //   return
@@ -154,7 +158,7 @@ export class PostsController {
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
     const result: Result<boolean> = await this.postsService.delete(id);
     if (result.status === ResultStatus.NotFound) {
       throw new HttpException(

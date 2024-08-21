@@ -20,6 +20,7 @@ import {
 import { UsersQueryRepository } from '../infrastructure/users.query-repository';
 import { UserCreateModel } from './models/input/create-user.input.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -89,7 +90,7 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
     const result: Result<boolean> = await this.usersService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {

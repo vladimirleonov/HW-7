@@ -28,6 +28,7 @@ import { PostOutputModel } from '../../posts/api/models/output/post.output.model
 import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
 import { PostsService } from '../../posts/application/posts.service';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
+import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -56,7 +57,7 @@ export class BlogsController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') id: string) {
+  async getOne(@Param('id', new ParseMongoIdPipe()) id: string) {
     const blog: BlogOutputModel | null =
       await this.blogsQueryRepository.findById(id);
     if (!blog) {
@@ -74,7 +75,10 @@ export class BlogsController {
 
   // TODO: change any type
   @Get(':blogId/posts')
-  async getAllBlogPosts(@Query() query: any, @Param('blogId') blogId: string) {
+  async getAllBlogPosts(
+    @Query() query: any,
+    @Param('blogId', new ParseMongoIdPipe()) blogId: string,
+  ) {
     // let userId = null
     // if (req.headers.authorization) {
     //   const result: Result<JwtPayload | null> = await this.authService.checkAccessToken(req.headers.authorization)
@@ -139,7 +143,7 @@ export class BlogsController {
 
   @Post(':blogId/posts')
   async createPostForBlog(
-    @Param('blogId') blogId: string,
+    @Param('blogId', new ParseMongoIdPipe()) blogId: string,
     @Body() createModel: PostForBlogCreateModel,
   ) {
     const { title, shortDescription, content } = createModel;
@@ -181,7 +185,10 @@ export class BlogsController {
 
   @Put(':id')
   @HttpCode(204)
-  async update(@Param('id') id: string, @Body() updateModel: BlogUpdateModel) {
+  async update(
+    @Param('id', new ParseMongoIdPipe()) id: string,
+    @Body() updateModel: BlogUpdateModel,
+  ) {
     const { name, description, websiteUrl } = updateModel;
 
     const result: Result<boolean> = await this.blogsService.update(
@@ -204,7 +211,7 @@ export class BlogsController {
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
     const result: Result<boolean> = await this.blogsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
