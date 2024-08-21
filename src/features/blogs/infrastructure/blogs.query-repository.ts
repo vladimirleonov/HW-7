@@ -69,7 +69,7 @@ export class BlogsQueryRepository {
     );
   }
   async findById(id: string): Promise<BlogOutputModel | null> {
-    const blog: BlogDocument = await this.blogModel.findById(id);
+    const blog: BlogDocument | null = await this.blogModel.findById(id);
 
     if (blog === null) {
       return null;

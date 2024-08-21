@@ -19,17 +19,3 @@ export class UserCreateModel {
   @EmailIsExist()
   email: string;
 }
-
-const userEmailInputValidator = body('email')
-  .isString()
-  .withMessage('email is missing or not a string')
-  .trim()
-  .isLength({ min: 1 })
-  .withMessage('email is required')
-  .matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/);
-
-export const userInputValidator = [
-  userLoginInputValidator,
-  userPasswordInputValidator,
-  userEmailInputValidator,
-];

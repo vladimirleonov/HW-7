@@ -84,7 +84,7 @@ export class BlogsController {
     // }
 
     // TODO: ask if is it ok?
-    const blog: BlogOutputModel =
+    const blog: BlogOutputModel | null =
       await this.blogsQueryRepository.findById(blogId);
     if (!blog) {
       throw new HttpException(
@@ -155,13 +155,13 @@ export class BlogsController {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
         },
         HttpStatus.NOT_FOUND,
       );
     }
 
-    const createdId: string = result.data;
+    const createdId: string = result.data!;
 
     const post: PostOutputModel | null =
       await this.postQueryRepository.findById(createdId);
@@ -195,7 +195,7 @@ export class BlogsController {
       throw new HttpException(
         {
           statusCode: HttpStatus.NOT_FOUND,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
         },
         HttpStatus.NOT_FOUND,
       );
@@ -211,7 +211,7 @@ export class BlogsController {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
         },
         HttpStatus.NOT_FOUND,
       );

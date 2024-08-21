@@ -75,8 +75,8 @@ class APISettings {
 }
 
 const env = new EnvironmentSettings(
-  (Environments.includes(process.env.ENV?.trim())
-    ? process.env.ENV.trim()
+  (Environments.includes((process.env.ENV as string)?.trim())
+    ? (process.env.ENV as string).trim()
     : 'DEVELOPMENT') as EnvironmentsTypes,
 );
 

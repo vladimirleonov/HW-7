@@ -98,13 +98,13 @@ export class PostsController {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
         },
         HttpStatus.NOT_FOUND,
       );
     }
 
-    const createdId: string = result.data;
+    const createdId: string = result.data!;
 
     const post: PostOutputModel | null =
       await this.postsQueryRepository.findById(createdId);
@@ -145,7 +145,7 @@ export class PostsController {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
         },
         HttpStatus.NOT_FOUND,
       );
@@ -160,7 +160,7 @@ export class PostsController {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
         },
         HttpStatus.NOT_FOUND,
       );

@@ -16,7 +16,7 @@ export class EmailIsExistConstraint implements ValidatorConstraintInterface {
 
   // validation logic
   async validate(email: string, validationArguments?: ValidationArguments) {
-    const user = await this.usersRepository.findByField('email', email); // Checking if comment belongs to selected user
+    const user = await this.usersRepository.findByField('email', email); // Checking if user with email already exists
 
     if (!user) {
       return true;

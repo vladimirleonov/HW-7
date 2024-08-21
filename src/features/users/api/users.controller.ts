@@ -60,14 +60,14 @@ export class UsersController {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
           // error: result.status,
         },
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    const createdUserId: string = result.data;
+    const createdUserId: string = result.data!;
 
     const createdUser: UserOutputModel | null =
       await this.usersQueryRepository.findById(createdUserId);
@@ -96,7 +96,7 @@ export class UsersController {
       throw new HttpException(
         {
           statusCode: HttpStatus.NOT_FOUND,
-          message: result.extensions[0].message,
+          message: result.extensions![0].message,
           error: result.status,
         },
         HttpStatus.NOT_FOUND,

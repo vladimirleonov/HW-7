@@ -21,6 +21,7 @@ import { TestingService } from './features/testing/application/testing.service';
 import { TestingRepository } from './features/testing/infrastructure/testing.repository';
 import { TestingController } from './features/testing/api/testing.controller';
 import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
+import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -70,6 +71,7 @@ const authProviders: Provider[] = [AuthService];
     ...postsProviders,
     ...testingProviders,
     LoginIsExistConstraint,
+    EmailIsExistConstraint,
     {
       provide: AppSettings,
       useValue: appSettings,

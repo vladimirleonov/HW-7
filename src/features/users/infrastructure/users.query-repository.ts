@@ -48,7 +48,7 @@ export class UsersQueryRepository {
     return this._getResult(filter, pagination);
   }
   async findById(id: string): Promise<UserOutputModel | null> {
-    const user: UserDocument = await this.userModel.findById(id);
+    const user: UserDocument | null = await this.userModel.findById(id);
 
     if (user === null) {
       return null;

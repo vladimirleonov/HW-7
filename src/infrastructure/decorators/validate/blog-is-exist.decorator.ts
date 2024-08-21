@@ -5,34 +5,34 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 import { Injectable } from '@nestjs/common';
-import { UsersRepository } from '../../../features/users/infrastructure/users.repository';
 import { ValidationArguments } from 'class-validator/types/validation/ValidationArguments';
+import { BlogsRepository } from '../../../features/blogs/infrastructure/blogs.repository';
 
 // Обязательна регистрация в ioc
-@ValidatorConstraint({ name: 'LoginIsExist', async: true })
+@ValidatorConstraint({ name: 'BlogIsExist', async: true })
 @Injectable()
-export class LoginIsExistConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly usersRepository: UsersRepository) {}
+export class BlogIsExistConstraint implements ValidatorConstraintInterface {
+  constructor(private readonly blogsRepository: BlogsRepository) {}
 
   // validation logic
-  async validate(login: string, validationArguments?: ValidationArguments) {
-    const user = await this.usersRepository.findByField('login', login); // Checking if user with login already exists
+  async validate(blogId: string, validationArguments?: ValidationArguments) {
+    const blog = await this.blogsRepository.findById(blogId); // Checking if blog exist
 
-    if (!user) {
-      return true;
+    if (!blog) {
+      return false;
     }
-    return false;
+    return true;
   }
 
   // default error message
   defaultMessage(validationArguments?: ValidationArguments): string {
-    return `Login ${validationArguments?.value} already exists`;
+    return `Blog  with id ${validationArguments?.value} does not exist`;
   }
 }
 
 // decorator
 // https://github.com/typestack/class-validator?tab=readme-ov-file#custom-validation-decorators
-export function LoginIsExist(
+export function BlogIsExist(
   property?: string,
   validationOptions?: ValidationOptions,
 ) {
@@ -42,7 +42,7 @@ export function LoginIsExist(
       propertyName: propertyName,
       options: validationOptions,
       constraints: [property],
-      validator: LoginIsExistConstraint,
+      validator: BlogIsExistConstraint,
     });
   };
 }

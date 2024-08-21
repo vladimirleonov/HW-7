@@ -40,7 +40,7 @@ export const applyAppSettings = (app: INestApplication) => {
   // setSwagger(app);
 
   // Применение глобальных pipes
-  setAppPipes(app);
+  // setAppPipes(app);
 
   // Применение глобальных exceptions filters
   // setAppExceptionsFilters(app);
@@ -80,19 +80,29 @@ const setAppPipes = (app: INestApplication) => {
       // Перехватываем ошибку, кастомизируем её и выкидываем 400 с собранными данными
       exceptionFactory: (errors) => {
         const customErrors = [];
-        console.log(errors);
+
+        console.log('errors', errors);
 
         errors.forEach((e) => {
-          const constraintKeys = Object.keys(e.constraints);
+          /*   {
+               isEmail: "Error email",
+               isLength: "Error max length
+             }
+             */
 
-          constraintKeys.forEach((cKey) => {
-            const msg = e.constraints[cKey];
+          const constraintKeys = Object.keys(e.constraints as any);
 
+          console.log('e.constraints', e.constraints);
+          console.log('constraintKeys', constraintKeys);
+
+          constraintKeys.forEach((cKey, index) => {
+            // if (index >= 1) return;
+            const msg = e.constraints?.[cKey] as any;
+
+            // @ts-ignore
             customErrors.push({ key: e.property, message: msg });
           });
         });
-
-        // customErrors = [{key: "email", message: "Bad length"}, {key: "name", message: "Bad name"}]
 
         // Error 400
         throw new BadRequestException(customErrors);
