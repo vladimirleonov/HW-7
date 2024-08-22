@@ -6,7 +6,10 @@ import {
 import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
 import cookieParser from 'cookie-parser';
-import { HttpExceptionFilter } from '../infrastructure/exception-filters/http-exception-filter';
+import {
+  ErrorExceptionFilter,
+  HttpExceptionFilter,
+} from '../infrastructure/exception-filters/http-exception-filter';
 // import { appSettings } from './app-settings';
 // import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
 
@@ -117,5 +120,5 @@ const setAppPipes = (app: INestApplication) => {
 // { key: e.property, message: msg }
 
 const setAppExceptionsFilters = (app: INestApplication) => {
-  app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalFilters(new HttpExceptionFilter(), new ErrorExceptionFilter());
 };

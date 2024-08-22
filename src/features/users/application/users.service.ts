@@ -5,6 +5,8 @@ import { Model } from 'mongoose';
 import { UsersRepository } from '../infrastructure/users.repository';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { AuthService } from '../../auth/application/auth.service';
+import { randomUUID } from 'node:crypto';
+import { add } from 'date-fns';
 
 @Injectable()
 export class UsersService {
@@ -50,6 +52,15 @@ export class UsersService {
       password: generatedPasswordHash,
       email: email,
       createdAt: new Date(),
+      emailConfirmation: {
+        confirmationCode: randomUUID(),
+        expirationDate: new Date(),
+        isConfirmed: false,
+      },
+      passwordRecovery: {
+        recoveryCode: '',
+        expirationDate: new Date(),
+      },
     });
 
     const createdUser: UserDocument = await this.usersRepository.save(newUser);
