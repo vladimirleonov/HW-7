@@ -45,6 +45,8 @@ class APISettings {
   // Application
   public readonly APP_PORT: number;
   public readonly HASH_ROUNDS: number;
+  public readonly ADMIN_LOGIN: string;
+  public readonly ADMIN_PASSWORD: string;
 
   // Database
   public readonly MONGO_CONNECTION_URI: string;
@@ -57,6 +59,8 @@ class APISettings {
     // Application
     this.APP_PORT = this.getNumberOrDefault(envVariables.APP_PORT, 3001);
     this.HASH_ROUNDS = this.getNumberOrDefault(envVariables.HASH_ROUNDS, 10);
+    this.ADMIN_LOGIN = envVariables.ADMIN_LOGIN ?? 'admin';
+    this.ADMIN_PASSWORD = envVariables.ADMIN_PASSWORD ?? 'qwerty';
 
     // Database
     this.MONGO_CONNECTION_URI =

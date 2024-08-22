@@ -15,7 +15,6 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    console.log(exception);
     if (!appSettings.env.isProduction()) {
       response
         .status(500)
@@ -34,7 +33,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
 
-    console.log(exception.getResponse());
+    // 404
     if (exception.getStatus() === HttpStatus.BAD_REQUEST) {
       const errorsResponse = {
         errorsMessages: [],
@@ -57,6 +56,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
 
       response.status(status).send(errorsResponse);
+    }
+
+    // 401
+    if (exception.getStatus() === HttpStatus.UNAUTHORIZED) {
+      response.status(HttpStatus.UNAUTHORIZED).send();
+      return;
     }
 
     response.status(status).json({

@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from '../application/users.service';
 import { UserOutputModel } from './models/output/user.output.model';
@@ -21,11 +22,13 @@ import { UsersQueryRepository } from '../infrastructure/users.query-repository';
 import { UserCreateModel } from './models/input/create-user.input.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
+import { BasicAuthGuard } from '../../../infrastructure/guards/basic-auth.guard';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
 
 @Controller('users')
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
