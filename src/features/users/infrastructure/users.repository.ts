@@ -15,6 +15,13 @@ export class UsersRepository {
   ): Promise<UserDocument | null> {
     return this.userModel.findOne({ [field]: value });
   }
+  async findUserByLoginOrEmailField(
+    loginOrEmail: string,
+  ): Promise<UserDocument | null> {
+    return this.userModel.findOne({
+      $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
+  }
   async delete(id: string): Promise<boolean> {
     const deletedInfo = await this.userModel.deleteOne({ _id: id });
     return deletedInfo.deletedCount === 1;

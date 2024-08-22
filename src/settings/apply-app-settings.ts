@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
-// import { HttpExceptionFilter } from '../common/exception-filters/http-exception-filter';
+import cookieParser from 'cookie-parser';
+import { HttpExceptionFilter } from '../infrastructure/exception-filters/http-exception-filter';
 // import { appSettings } from './app-settings';
 // import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
 
@@ -21,6 +22,9 @@ export const applyAppSettings = (app: INestApplication) => {
   // Настраивает `class-validator` для использования контейнера внедрения зависимостей
   // NestJS для разрешения зависимостей валидаторов.
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  // Apply cookie-parser middleware globally
+  app.use(cookieParser());
 
   // Применение глобальных Interceptors
   //app.useGlobalInterceptors(new LoggingInterceptor());
@@ -40,10 +44,10 @@ export const applyAppSettings = (app: INestApplication) => {
   // setSwagger(app);
 
   // Применение глобальных pipes
-  // setAppPipes(app);
+  setAppPipes(app);
 
   // Применение глобальных exceptions filters
-  // setAppExceptionsFilters(app);
+  setAppExceptionsFilters(app);
 };
 
 const setAppPrefix = (app: INestApplication) => {
@@ -79,38 +83,39 @@ const setAppPipes = (app: INestApplication) => {
       stopAtFirstError: true,
       // Перехватываем ошибку, кастомизируем её и выкидываем 400 с собранными данными
       exceptionFactory: (errors) => {
-        const customErrors = [];
-
-        console.log('errors', errors);
+        const customErrors = []; // { key: e.property, message: e.msg }
 
         errors.forEach((e) => {
-          /*   {
-               isEmail: "Error email",
-               isLength: "Error max length
-             }
-             */
+          // console.log(e);
 
-          const constraintKeys = Object.keys(e.constraints as any);
+          const constraintsKeys = Object.keys(e.constraints as any);
+          // console.log(constraintsKeys);
 
-          console.log('e.constraints', e.constraints);
-          console.log('constraintKeys', constraintKeys);
+          constraintsKeys.forEach((cKey: string, index: number) => {
+            if (index >= 1) return;
+            // console.log(e.property);
+            // console.log(e!.constraints![ckey]);
 
-          constraintKeys.forEach((cKey, index) => {
-            // if (index >= 1) return;
             const msg = e.constraints?.[cKey] as any;
 
             // @ts-ignore
-            customErrors.push({ key: e.property, message: msg });
+            customErrors.push({
+              key: e.property,
+              message: msg,
+            });
           });
         });
 
         // Error 400
+        //console.log(customErrors);
         throw new BadRequestException(customErrors);
       },
     }),
   );
 };
 
-// const setAppExceptionsFilters = (app: INestApplication) => {
-//   app.useGlobalFilters(new HttpExceptionFilter());
-// };
+// { key: e.property, message: msg }
+
+const setAppExceptionsFilters = (app: INestApplication) => {
+  app.useGlobalFilters(new HttpExceptionFilter());
+};

@@ -22,6 +22,9 @@ import { TestingRepository } from './features/testing/infrastructure/testing.rep
 import { TestingController } from './features/testing/api/testing.controller';
 import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';
+import { UtilsService } from '../base/application/utils.service';
+import { JwtService } from '../base/application/jwt.service';
+import { CryptoService } from '../base/application/crypto.service';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -44,6 +47,8 @@ const postsProviders: Provider[] = [
 const testingProviders: Provider[] = [TestingService, TestingRepository];
 
 const authProviders: Provider[] = [AuthService];
+
+const basicProviders: Provider[] = [UtilsService, JwtService, CryptoService];
 
 @Module({
   imports: [
@@ -72,6 +77,7 @@ const authProviders: Provider[] = [AuthService];
     ...testingProviders,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
+    ...basicProviders,
     {
       provide: AppSettings,
       useValue: appSettings,

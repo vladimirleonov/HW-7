@@ -1,49 +1,59 @@
-// import mongoose from "mongoose"
-// import {EmailConfirmation, PasswordRecovery, User} from "../db-types/user-db-types"
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
 
 // const isValidISOString = (value: string) => {
 //   const isoRegex: RegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/
 //   return isoRegex.test(value)
 // }
 
-// const emailConfirmationSchema = new mongoose.Schema<EmailConfirmation>({
-//   confirmationCode: {
-//     type: String,
-//     maxlength: 40,
-//     required: true
-//   },
-//   expirationDate: {
-//     type: String,
-//     validate: {
-//       validator: isValidISOString,
-//       message: "expirationDate must be a valid ISO string",
-//     },
-//     required: true
-//   },
-//   isConfirmed: {
-//     type: Boolean,
-//     required: true
-//   }
-// }, { _id: false })
+@Schema()
+class EmailConfirmation {
+  @Prop({
+    type: String,
+    maxlength: 40,
+    required: true,
+  })
+  confirmationCode: string;
 
-// const passwordRecoverySchema = new mongoose.Schema<PasswordRecovery>({
-//   recoveryCode: {
-//     type: String,
-//     maxlength: 40
-//   },
-//   expirationDate: {
-//     type: String,
-//     // validate: {
-//     //     validator: isValidISOString,
-//     //     message: "expirationDate must be a valid ISO string",
-//     // }
-//   }
-// }, { _id: false })
+  @Prop({
+    type: String,
+    // validate: {
+    //   validator: isValidISOString,
+    //   message: 'expirationDate must be a valid ISO string',
+    // },
+    required: true,
+  })
+  expirationDate: string;
 
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+  @Prop({
+    type: Boolean,
+    required: true,
+  })
+  isConfirmed: boolean;
+}
 
-export type UserDocument = HydratedDocument<User>;
+@Schema()
+class PasswordRecovery {
+  @Prop({
+    type: String,
+    maxlength: 40,
+  })
+  recoveryCode: string;
+
+  @Prop({
+    type: Date,
+    // validate: {
+    //     validator: isValidISOString,
+    //     message: "expirationDate must be a valid ISO string",
+    // }
+  })
+  expirationDate: Date;
+}
+
+export const EmailConfirmationSchema =
+  SchemaFactory.createForClass(EmailConfirmation);
+export const PasswordRecoverySchema =
+  SchemaFactory.createForClass(PasswordRecovery);
 
 @Schema()
 export class User {
@@ -55,6 +65,7 @@ export class User {
     required: true,
   })
   login: string;
+
   @Prop({
     type: String,
     minlength: 1,
@@ -62,12 +73,14 @@ export class User {
     required: true,
   })
   password: string;
+
   @Prop({
     type: String,
     match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
     required: true,
   })
   email: string;
+
   @Prop({
     type: Date,
     // validate: {
@@ -78,13 +91,20 @@ export class User {
   })
   createdAt: Date;
   // createdAt: string;
-  // emailConfirmation: {
-  //   type: emailConfirmationSchema,
-  //   required: true
-  // },
-  // passwordRecovery: {
-  //   type: passwordRecoverySchema
-  // },
+
+  @Prop({
+    type: EmailConfirmationSchema,
+    required: true,
+  })
+  emailConfirmation: EmailConfirmation;
+
+  @Prop({
+    type: PasswordRecoverySchema,
+  })
+  passwordRecovery: PasswordRecovery;
 }
+
+export type UserDocument = HydratedDocument<User>;
+export type EmailConfirmationDocument = HydratedDocument<EmailConfirmation>;
 
 export const UserSchema = SchemaFactory.createForClass(User);
