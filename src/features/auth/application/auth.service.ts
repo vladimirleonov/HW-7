@@ -345,6 +345,67 @@ export class AuthService {
       data: null,
     };
   }
+  async checkAccessToken(
+    authHeader: string,
+  ): Promise<Result<JwtPayload | null>> {
+    if (!authHeader.startsWith('Bearer ')) {
+      return {
+        status: ResultStatus.Unauthorized,
+        extensions: [
+          { field: 'accessToken', message: 'Access token not provided' },
+        ],
+        data: null,
+      };
+    }
+
+    const token: string = authHeader.split(' ')[1];
+    if (!token) {
+      return {
+        status: ResultStatus.Unauthorized,
+        extensions: [
+          { field: 'accessToken', message: 'Access token not provided' },
+        ],
+        data: null,
+      };
+    }
+
+    let payload: JwtPayload;
+    try {
+      payload = this.jwtService.verifyToken(token) as JwtPayload;
+      if (!payload || !payload.userId) {
+        return {
+          status: ResultStatus.Unauthorized,
+          extensions: [
+            { field: 'accessToken', message: 'Invalid access token!' },
+          ],
+          data: null,
+        };
+      }
+    } catch (err) {
+      console.error('verifyToken', err);
+      return {
+        status: ResultStatus.Unauthorized,
+        extensions: [{ field: 'accessToken', message: 'Invalid access token' }],
+        data: null,
+      };
+    }
+
+    const user: UserDocument | null = await this.userRepository.findById(
+      payload.userId,
+    );
+    if (!user) {
+      return {
+        status: ResultStatus.Unauthorized,
+        extensions: [{ field: 'accessToken', message: 'User not found' }],
+        data: null,
+      };
+    }
+
+    return {
+      status: ResultStatus.Success,
+      data: payload,
+    };
+  }
   async checkRefreshToken(token: string): Promise<Result<JwtPayload | null>> {
     const payload: JwtPayload = this.jwtService.verifyToken(
       token,

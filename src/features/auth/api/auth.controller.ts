@@ -20,6 +20,9 @@ import { RegistrationModel } from './models/input/registration.input.model';
 import { RefreshTokenGuard } from '../../../infrastructure/guards/refresh-token.guard';
 import { ConfirmRegistrationModel } from './models/input/confirm-registration.model';
 import { RegistrationEmailResendingModel } from './models/input/registration-email-resending.model';
+import { AuthMeOutputModel } from './models/output/auth-me.output';
+import { UsersQueryRepository } from '../../users/infrastructure/users.query-repository';
+import { AuthGuard } from '../../../infrastructure/guards/auth.guard';
 
 export interface RequestWithCookies extends Request {
   cookies: { [key: string]: string };
@@ -35,11 +38,18 @@ export interface RequestWithDeviceAndCookies extends Request {
   };
 }
 
+export interface RequestWithUser extends Request {
+  user: {
+    userId: string;
+  };
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly utilsService: UtilsService,
+    private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
   @Post('registration')
@@ -145,6 +155,24 @@ export class AuthController {
     res.status(HttpStatus.OK).send({
       accessToken: result.data?.accessToken,
     });
+  }
+
+  @Post('me')
+  @UseGuards(AuthGuard)
+  async authMe(@Req() req: RequestWithUser, @Res() res: Response) {
+    if (!req.user || !req.user.userId) {
+      throw new UnauthorizedException();
+    }
+
+    const user: AuthMeOutputModel | null =
+      await this.usersQueryRepository.findAuthenticatedUserById(
+        req.user.userId,
+      );
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    res.status(HttpStatus.OK).send(user);
   }
 
   @Post('logout')

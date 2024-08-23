@@ -10,10 +10,15 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../domain/user.entity';
 import { FilterQuery, Model } from 'mongoose';
+import {
+  AuthMeOutputModel,
+  AuthMeOutputModelMapper,
+} from '../../auth/api/models/output/auth-me.output';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private UserModel: Model<User>) {}
+
   async getAll(
     pagination: PaginationWithSearchLoginAndEmailTerm,
   ): Promise<PaginationOutput<UserOutputModel>> {
@@ -47,8 +52,9 @@ export class UsersQueryRepository {
     // }
     return this._getResult(filter, pagination);
   }
+
   async findById(id: string): Promise<UserOutputModel | null> {
-    const user: UserDocument | null = await this.userModel.findById(id);
+    const user: UserDocument | null = await this.UserModel.findById(id);
 
     if (user === null) {
       return null;
@@ -57,20 +63,27 @@ export class UsersQueryRepository {
     return UserOutputModelMapper(user);
   }
   // TODO: change type any
+
+  async findAuthenticatedUserById(
+    id: string,
+  ): Promise<AuthMeOutputModel | null> {
+    const user: UserDocument | null = await this.UserModel.findOne({ _id: id });
+    return user ? AuthMeOutputModelMapper(user) : null;
+  }
+
   private async _getResult(
     filter: any,
     pagination: PaginationWithSearchLoginAndEmailTerm,
   ): Promise<PaginationOutput<UserOutputModel>> {
     // pagination: pageNumber, pageSize, sortDirection, sortBy, searchLoginTerm, searchEmailTerm
-    const users: UserDocument[] = await this.userModel
-      .find(filter)
+    const users: UserDocument[] = await this.UserModel.find(filter)
       .sort({
         [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
       })
       .skip(pagination.getSkipItemsCount())
       .limit(pagination.pageSize);
 
-    const totalCount: number = await this.userModel.countDocuments(filter);
+    const totalCount: number = await this.UserModel.countDocuments(filter);
     const mappedUsers: UserOutputModel[] = users.map(UserOutputModelMapper);
 
     return new PaginationOutput<UserOutputModel>(
