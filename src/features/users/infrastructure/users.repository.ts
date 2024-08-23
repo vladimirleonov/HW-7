@@ -8,11 +8,21 @@ export class UsersRepository {
   async save(user: UserDocument): Promise<UserDocument> {
     return user.save();
   }
+  async findById(id: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({ _id: id });
+  }
   async findByField(
     field: string,
     value: string,
   ): Promise<UserDocument | null> {
     return this.UserModel.findOne({ [field]: value });
+  }
+  async findUserByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
+      ['emailConfirmation.confirmationCode']: confirmationCode,
+    });
   }
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({ email: email });
@@ -20,7 +30,7 @@ export class UsersRepository {
   async findByLogin(login: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({ login: login });
   }
-  async findUserByLoginOrEmailField(
+  async findByLoginOrEmailField(
     loginOrEmail: string,
   ): Promise<UserDocument | null> {
     return this.UserModel.findOne({

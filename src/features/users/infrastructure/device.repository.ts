@@ -12,6 +12,17 @@ export class DeviceRepository {
   async save(device: DeviceDocument): Promise<DeviceDocument> {
     return device.save();
   }
+  async deleteOneByDeviceIdAndIAt(
+    deviceId: string,
+    iat: string,
+  ): Promise<boolean> {
+    const deletedInfo = await this.DeviceModel.deleteOne({
+      deviceId: { $eq: deviceId },
+      iat: { $eq: iat },
+    });
+
+    return deletedInfo.deletedCount === 1;
+  }
   // async findByField(
   //   field: string,
   //   value: string,

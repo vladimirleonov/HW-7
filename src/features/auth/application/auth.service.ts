@@ -94,6 +94,7 @@ export class AuthService {
         }),
         isConfirmed: false,
       },
+      // TODO: can set default value in schema not to write '' here
       passwordRecovery: {
         recoveryCode: '',
         expirationDate: '',
@@ -105,6 +106,110 @@ export class AuthService {
     this.nodemailerService.sendEmail(
       newUser.email,
       registrationEmailTemplate(newUser.emailConfirmation.confirmationCode!),
+      'Registration Confirmation',
+    );
+
+    return {
+      status: ResultStatus.Success,
+      data: null,
+    };
+  }
+  async confirmRegistration(code: string): Promise<Result> {
+    const existingUser: UserDocument | null =
+      await this.userRepository.findUserByConfirmationCode(code);
+    console.log('existingUser', existingUser);
+    if (!existingUser) {
+      return {
+        status: ResultStatus.BadRequest,
+        extensions: [{ field: 'code', message: 'Invalid confirmation code' }],
+        data: null,
+      };
+    }
+
+    if (
+      existingUser.emailConfirmation.expirationDate < new Date().toISOString()
+    ) {
+      return {
+        status: ResultStatus.BadRequest,
+        extensions: [
+          { field: 'code', message: 'Confirmation code has expired' },
+        ],
+        data: null,
+      };
+    }
+
+    if (existingUser.emailConfirmation.isConfirmed) {
+      return {
+        status: ResultStatus.BadRequest,
+        extensions: [
+          { field: 'code', message: 'User account already confirmed' },
+        ],
+        data: null,
+      };
+    }
+
+    //const isConfirmed: boolean = true
+    //const userId: string = existingUser._id.toString()
+    //await this.userMongoRepository.updateIsConfirmed(userId, isConfirmed)
+
+    existingUser.emailConfirmation.isConfirmed = true;
+    await this.userRepository.save(existingUser);
+
+    return {
+      status: ResultStatus.Success,
+      data: null,
+    };
+  }
+  async registrationEmailResending(email: string): Promise<Result> {
+    const existingUser: UserDocument | null =
+      await this.userRepository.findByEmail(email);
+    if (!existingUser) {
+      return {
+        status: ResultStatus.BadRequest,
+        extensions: [{ field: 'email', message: 'Invalid email' }],
+        data: null,
+      };
+    }
+
+    // hw-9 error in test -> comment this code
+    // if (existingUser.emailConfirmation.isConfirmed) {
+    //     return {
+    //         status: ResultStatus.BadRequest,
+    //         extensions: [{field: 'email', message: 'Email already confirmed'}],
+    //         data: null
+    //     }
+    // }
+
+    const confirmationCode: string = randomUUID();
+    const expirationDate: string = add(new Date(), {
+      hours: 1,
+      minutes: 30,
+    }).toISOString();
+
+    // const userId: string = existingUser._id.toString()
+    // await this.userMongoRepository.updateEmailConfirmationInfo(userId, confirmationCode, expirationDate)
+
+    existingUser.emailConfirmation.confirmationCode = confirmationCode;
+    existingUser.emailConfirmation.expirationDate = expirationDate;
+
+    await this.userRepository.save(existingUser);
+
+    // async updateEmailConfirmationInfo(id: string, confirmationCode: string, expirationDate: string): Promise<boolean> {
+    //         const updatedInfo: UpdateResult<User> = await UserModel.updateOne(
+    //         {_id: new ObjectId(id)},
+    //         {
+    //             $set: {
+    //                 ['emailConfirmation.confirmationCode']: confirmationCode,
+    //                 ['emailConfirmation.expirationDate']: expirationDate
+    //             }
+    //         }
+    //     )
+    //     return updatedInfo.matchedCount === 1
+    // }
+
+    await this.nodemailerService.sendEmail(
+      email,
+      registrationEmailTemplate(confirmationCode),
       'Registration Confirmation',
     );
 
@@ -136,7 +241,7 @@ export class AuthService {
 
     //check user exit and password the same
     const user: UserDocument | null =
-      await this.userRepository.findUserByLoginOrEmailField(dto.loginOrEmail);
+      await this.userRepository.findByLoginOrEmailField(dto.loginOrEmail);
     if (
       !user ||
       !(await this.cryptoService.compare(dto.password, user.password))
@@ -215,6 +320,60 @@ export class AuthService {
     return {
       status: ResultStatus.Unauthorized,
       data: null,
+    };
+  }
+  async logout(deviceId, iat): Promise<Result> {
+    // delete user device
+    const isDeleted: boolean =
+      await this.deviceRepository.deleteOneByDeviceIdAndIAt(deviceId, iat);
+    if (!isDeleted) {
+      return {
+        status: ResultStatus.Unauthorized,
+        // TODO: check error message
+        extensions: [
+          {
+            field: 'refreshToken',
+            message: 'Invalid or expired refresh token',
+          },
+        ],
+        data: null,
+      };
+    }
+
+    return {
+      status: ResultStatus.Success,
+      data: null,
+    };
+  }
+  async checkRefreshToken(token: string): Promise<Result<JwtPayload | null>> {
+    const payload: JwtPayload = this.jwtService.verifyToken(
+      token,
+    ) as JwtPayload;
+    if (!payload || !payload.deviceId || !payload.userId) {
+      return {
+        status: ResultStatus.Unauthorized,
+        extensions: [
+          { field: 'refreshToken', message: 'Invalid refresh token' },
+        ],
+        data: null,
+      };
+    }
+
+    //? check if user exist by userId (may also check match user to deviceId)
+    const user: UserDocument | null = await this.userRepository.findById(
+      payload.userId,
+    );
+    if (!user) {
+      return {
+        status: ResultStatus.Unauthorized,
+        extensions: [{ field: 'accessToken', message: 'User not found' }],
+        data: null,
+      };
+    }
+
+    return {
+      status: ResultStatus.Success,
+      data: payload,
     };
   }
   async generatePasswordHash(password: string): Promise<string> {

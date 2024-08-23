@@ -7,6 +7,8 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { LoginModel } from './models/input/login.input.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
@@ -15,9 +17,22 @@ import { AuthService } from '../application/auth.service';
 import { Request, Response } from 'express';
 import { LoginDto } from '../application/dto/login.dto';
 import { RegistrationModel } from './models/input/registration.input.model';
+import { RefreshTokenGuard } from '../../../infrastructure/guards/refresh-token.guard';
+import { ConfirmRegistrationModel } from './models/input/confirm-registration.model';
+import { RegistrationEmailResendingModel } from './models/input/registration-email-resending.model';
 
 export interface RequestWithCookies extends Request {
   cookies: { [key: string]: string };
+}
+
+export interface RequestWithDeviceAndCookies extends Request {
+  cookies: { [key: string]: string };
+  device: {
+    userId: string;
+    deviceId: string;
+    //?
+    iat: string;
+  };
 }
 
 @Controller('auth')
@@ -26,6 +41,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly utilsService: UtilsService,
   ) {}
+
   @Post('registration')
   @HttpCode(204)
   async registration(@Body() registrationModel: RegistrationModel) {
@@ -41,6 +57,50 @@ export class AuthController {
       return result.extensions;
     }
   }
+
+  @Post('registration-confirmation')
+  @HttpCode(204)
+  async confirmRegistration(
+    @Body() confirmRegistrationModel: ConfirmRegistrationModel,
+  ) {
+    const { code } = confirmRegistrationModel;
+
+    console.log('code', code);
+    const result: Result<boolean | null> =
+      await this.authService.confirmRegistration(code);
+    console.log(result);
+    if (result.status === ResultStatus.BadRequest) {
+      new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: result.extensions![0].message,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Post('registration-email-resending')
+  @HttpCode(204)
+  async registrationEmailResending(
+    @Body() registrationEmailResendingModel: RegistrationEmailResendingModel,
+  ) {
+    const { email } = registrationEmailResendingModel;
+
+    const result: Result =
+      await this.authService.registrationEmailResending(email);
+
+    if (result.status === ResultStatus.BadRequest) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: result.extensions,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   @Post('login')
   async login(
     @Req() req: RequestWithCookies,
@@ -63,6 +123,7 @@ export class AuthController {
     );
 
     const result = await this.authService.login(dto);
+    console.log(result);
     if (result.status === ResultStatus.BadRequest) {
       throw new HttpException(
         {
@@ -74,9 +135,7 @@ export class AuthController {
       );
     }
 
-    const accessToken = result.data?.accessToken;
-
-    res.cookie('refreshToken', accessToken, {
+    res.cookie('refreshToken', result.data?.refreshToken, {
       httpOnly: true, // cookie can only be accessed via http or https
       secure: true,
       //secure: process.env.NODE_ENV === 'production', // send cookie only over https
@@ -84,7 +143,32 @@ export class AuthController {
     });
 
     res.status(HttpStatus.OK).send({
-      accessToken: accessToken,
+      accessToken: result.data?.accessToken,
     });
+  }
+
+  @Post('logout')
+  @UseGuards(RefreshTokenGuard)
+  async logout(@Req() req: RequestWithDeviceAndCookies, @Res() res: Response) {
+    const deviceId: string | undefined = req.device?.deviceId;
+    const iat: string | undefined = req.device?.iat;
+    if (!deviceId || !iat) {
+      throw new UnauthorizedException();
+    }
+
+    const result: Result = await this.authService.logout(deviceId, iat);
+    if (result.status === ResultStatus.Unauthorized) {
+      // console.error('Invalid or expired refresh token', result.extensions);
+      throw new UnauthorizedException();
+    }
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      //secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.status(HttpStatus.NO_CONTENT).send();
   }
 }
