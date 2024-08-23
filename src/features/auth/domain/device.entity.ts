@@ -1,14 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Model } from 'mongoose';
 
 @Schema()
 export class Device {
   @Prop({
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     maxLength: 50,
     required: true,
   })
-  userId: string;
+  userId: mongoose.Types.ObjectId;
 
   @Prop({
     type: String,
@@ -46,6 +46,8 @@ export class Device {
   exp: string;
 }
 
-export type DeviceDocument = HydratedDocument<Device>;
-
 export const DeviceSchema = SchemaFactory.createForClass(Device);
+
+// Types
+export type DeviceDocument = HydratedDocument<Device>;
+export type DeviceModelType = Model<DeviceDocument>; //& DeviceModelStaticType;

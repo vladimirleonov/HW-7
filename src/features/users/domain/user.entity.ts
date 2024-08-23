@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 
 // const isValidISOString = (value: string) => {
 //   const isoRegex: RegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/
@@ -104,7 +104,9 @@ export class User {
   passwordRecovery: PasswordRecovery;
 }
 
+//Types
 export type UserDocument = HydratedDocument<User>;
 export type EmailConfirmationDocument = HydratedDocument<EmailConfirmation>;
+export type UserModelType = Model<User>;
 
 export const UserSchema = SchemaFactory.createForClass(User);

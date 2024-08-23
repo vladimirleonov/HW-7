@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  HttpCode,
   HttpException,
   HttpStatus,
   Post,
@@ -12,6 +13,8 @@ import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { UtilsService } from '../../../../base/application/utils.service';
 import { AuthService } from '../application/auth.service';
 import { Request, Response } from 'express';
+import { LoginDto } from '../application/dto/login.dto';
+import { RegistrationModel } from './models/input/registration.input.model';
 
 export interface RequestWithCookies extends Request {
   cookies: { [key: string]: string };
@@ -23,7 +26,22 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly utilsService: UtilsService,
   ) {}
-  @Post()
+  @Post('registration')
+  @HttpCode(204)
+  async registration(@Body() registrationModel: RegistrationModel) {
+    const { login, password, email } = registrationModel;
+
+    const result: Result<string | null> = await this.authService.registration(
+      login,
+      password,
+      email,
+    );
+    console.log(result);
+    if (result.status === ResultStatus.BadRequest) {
+      return result.extensions;
+    }
+  }
+  @Post('login')
   async login(
     @Req() req: RequestWithCookies,
     @Body() loginModel: LoginModel,
@@ -36,13 +54,13 @@ export class AuthController {
 
     const { loginOrEmail, password } = loginModel;
 
-    const dto = {
+    const dto: LoginDto = new LoginDto(
       loginOrEmail,
       password,
       ip,
       deviceName,
       refreshToken,
-    };
+    );
 
     const result = await this.authService.login(dto);
     if (result.status === ResultStatus.BadRequest) {
@@ -51,19 +69,22 @@ export class AuthController {
           statusCode: HttpStatus.UNAUTHORIZED,
           message: result.extensions![0].message,
         },
+        // TODO:: may be Bad Request
         HttpStatus.UNAUTHORIZED,
       );
     }
 
     const accessToken = result.data?.accessToken;
 
-    res.cookie('refreshToken', result.data?.refreshToken, {
+    res.cookie('refreshToken', accessToken, {
       httpOnly: true, // cookie can only be accessed via http or https
       secure: true,
       //secure: process.env.NODE_ENV === 'production', // send cookie only over https
       sameSite: 'strict', // protects against CSRF attacks
     });
 
-    return accessToken;
+    res.status(HttpStatus.OK).send({
+      accessToken: accessToken,
+    });
   }
 }

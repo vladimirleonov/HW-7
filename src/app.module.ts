@@ -25,6 +25,10 @@ import { EmailIsExistConstraint } from './infrastructure/decorators/validate/ema
 import { UtilsService } from '../base/application/utils.service';
 import { JwtService } from '../base/application/jwt.service';
 import { CryptoService } from '../base/application/crypto.service';
+import { Device, DeviceSchema } from './features/auth/domain/device.entity';
+import { DeviceRepository } from './features/users/infrastructure/device.repository';
+import { AuthController } from './features/auth/api/auth.controller';
+import { NodemailerService } from '../base/application/nodemailer.service';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -46,9 +50,14 @@ const postsProviders: Provider[] = [
 
 const testingProviders: Provider[] = [TestingService, TestingRepository];
 
-const authProviders: Provider[] = [AuthService];
+const authProviders: Provider[] = [AuthService, DeviceRepository];
 
-const basicProviders: Provider[] = [UtilsService, JwtService, CryptoService];
+const basicProviders: Provider[] = [
+  UtilsService,
+  JwtService,
+  CryptoService,
+  NodemailerService,
+];
 
 @Module({
   imports: [
@@ -61,12 +70,14 @@ const basicProviders: Provider[] = [UtilsService, JwtService, CryptoService];
       { name: User.name, schema: UserSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
+      { name: Device.name, schema: DeviceSchema },
     ]),
   ],
   controllers: [
     UsersController,
     BlogsController,
     PostsController,
+    AuthController,
     TestingController,
   ],
   providers: [

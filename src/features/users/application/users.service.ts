@@ -55,7 +55,7 @@ export class UsersService {
       emailConfirmation: {
         confirmationCode: randomUUID(),
         expirationDate: new Date(),
-        isConfirmed: false,
+        isConfirmed: true,
       },
       passwordRecovery: {
         recoveryCode: '',

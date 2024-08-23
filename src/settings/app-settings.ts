@@ -52,7 +52,14 @@ class APISettings {
   public readonly MONGO_CONNECTION_URI: string;
   public readonly MONGO_CONNECTION_URI_FOR_TESTS: string;
 
-  // JWT
+  // Email
+  // TODO: check names
+  public readonly EMAIL_USER: string;
+  public readonly EMAIL_PASSWORD: string;
+  public readonly EMAIL_HOST: string;
+  public readonly EMAIL_PORT: string;
+
+  // Jwt
   public readonly JWT_SECRET: string;
 
   constructor(private readonly envVariables: EnvironmentVariable) {
@@ -69,7 +76,14 @@ class APISettings {
     this.MONGO_CONNECTION_URI_FOR_TESTS =
       envVariables.MONGO_CONNECTION_URI_FOR_TESTS ?? 'mongodb://localhost/test';
 
-    //JWT
+    // Email user data
+    this.EMAIL_USER = envVariables.EMAIL_USER ?? 'alex0801white@gmail.com';
+    this.EMAIL_PASSWORD =
+      envVariables.EMAIL_USER_PASSWORD ?? 'cxdb mywx ufiz nlfa';
+    this.EMAIL_HOST = envVariables.EMAIL_HOST ?? 'smtp.gmail.com';
+    this.EMAIL_PORT = envVariables.EMAIL_PASSWORD ?? '587';
+
+    //Jwt
     this.JWT_SECRET = envVariables.JWT_SECRET ?? 'secret';
   }
 
