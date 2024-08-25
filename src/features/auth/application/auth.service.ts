@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { AppSettings } from '../../../settings/app-settings';
 import { randomUUID } from 'node:crypto';
-import { JwtService } from '../../../../base/application/jwt.service';
-import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { JwtService } from '../../../base/application/jwt.service';
+import { Result, ResultStatus } from '../../../base/types/object-result';
 import { UsersRepository } from '../../users/infrastructure/users.repository';
-import { CryptoService } from '../../../../base/application/crypto.service';
+import { CryptoService } from '../../../base/application/crypto.service';
 import {
   User,
   UserDocument,
@@ -19,11 +19,11 @@ import {
   DeviceModelType,
 } from '../domain/device.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { unixToISOString } from '../../../../base/utils/convert-unix-to-iso';
+import { unixToISOString } from '../../../base/utils/convert-unix-to-iso';
 import { DeviceRepository } from '../../users/infrastructure/device.repository';
 import { add } from 'date-fns';
-import { NodemailerService } from '../../../../base/application/nodemailer.service';
-import { registrationEmailTemplate } from '../../../../base/email-templates/registration-email-template';
+import { NodemailerService } from '../../../base/application/nodemailer.service';
+import { registrationEmailTemplate } from '../../../base/email-templates/registration-email-template';
 
 @Injectable()
 export class AuthService {

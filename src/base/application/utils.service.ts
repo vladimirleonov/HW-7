@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IncomingMessage } from 'http';
-import { RequestWithCookies } from '../../src/features/auth/api/auth.controller';
+import { RequestWithCookies } from '../../features/auth/api/auth.controller';
 
 @Injectable()
 export class UtilsService {

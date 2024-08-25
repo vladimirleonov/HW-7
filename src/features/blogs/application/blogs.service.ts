@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BlogsRepository } from '../infrastructure/blogs.repository';
 import { Blog, BlogDocument } from '../domain/blog.entity';
 import { Model } from 'mongoose';
-import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { Result, ResultStatus } from '../../../base/types/object-result';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()

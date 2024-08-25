@@ -5,7 +5,7 @@ import mongoose, { FilterQuery, Model } from 'mongoose';
 import {
   Pagination,
   PaginationOutput,
-} from '../../../../base/models/pagination.base.model';
+} from '../../../base/models/pagination.base.model';
 import {
   PostOutputModel,
   PostOutputModelMapper,

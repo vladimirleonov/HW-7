@@ -16,11 +16,11 @@ import {
   Pagination,
   PaginationOutput,
   PaginationWithSearchNameTerm,
-} from '../../../../base/models/pagination.base.model';
+} from '../../../base/models/pagination.base.model';
 import { BlogOutputModel } from './models/output/blog.output.model';
-import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
+import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { BlogsQueryRepository } from '../infrastructure/blogs.query-repository';
-import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { Result, ResultStatus } from '../../../base/types/object-result';
 import { BlogCreateModel } from './models/input/create-blog.input.model';
 import { BlogUpdateModel } from './models/input/update-blog.input.model';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';

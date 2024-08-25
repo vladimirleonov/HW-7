@@ -22,13 +22,13 @@ import { TestingRepository } from './features/testing/infrastructure/testing.rep
 import { TestingController } from './features/testing/api/testing.controller';
 import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';
-import { UtilsService } from '../base/application/utils.service';
-import { JwtService } from '../base/application/jwt.service';
-import { CryptoService } from '../base/application/crypto.service';
+import { UtilsService } from './base/application/utils.service';
+import { JwtService } from './base/application/jwt.service';
+import { CryptoService } from './base/application/crypto.service';
 import { Device, DeviceSchema } from './features/auth/domain/device.entity';
 import { DeviceRepository } from './features/users/infrastructure/device.repository';
 import { AuthController } from './features/auth/api/auth.controller';
-import { NodemailerService } from '../base/application/nodemailer.service';
+import { NodemailerService } from './base/application/nodemailer.service';
 
 const usersProviders: Provider[] = [
   UsersService,

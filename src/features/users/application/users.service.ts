@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../domain/user.entity';
 import { Model } from 'mongoose';
 import { UsersRepository } from '../infrastructure/users.repository';
-import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { Result, ResultStatus } from '../../../base/types/object-result';
 import { AuthService } from '../../auth/application/auth.service';
 import { randomUUID } from 'node:crypto';
 import { add } from 'date-fns';

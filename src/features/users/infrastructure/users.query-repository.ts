@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
-} from '../../../../base/models/pagination.base.model';
+} from '../../../base/models/pagination.base.model';
 import {
   UserOutputModel,
   UserOutputModelMapper,

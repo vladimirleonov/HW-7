@@ -1,3 +1,9 @@
+import { IsString, MinLength } from 'class-validator';
+import { Trim } from '../../../../../infrastructure/decorators/transform/trim';
+
 export class ConfirmRegistrationModel {
-  public code: string;
+  @IsString()
+  @Trim()
+  @MinLength(1, { message: 'Length not correct' })
+  code: string;
 }

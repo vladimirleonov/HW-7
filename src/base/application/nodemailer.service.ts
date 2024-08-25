@@ -1,6 +1,6 @@
 import nodemailer, { Transporter } from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { appSettings } from '../../src/settings/app-settings';
+import { appSettings } from '../../settings/app-settings';
 
 export class NodemailerService {
   async sendEmail(

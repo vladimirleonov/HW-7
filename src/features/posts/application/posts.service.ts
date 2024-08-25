@@ -5,7 +5,7 @@ import { Post, PostDocument } from '../domain/post.entity';
 import mongoose, { Model } from 'mongoose';
 import { BlogDocument } from '../../blogs/domain/blog.entity';
 import { BlogsRepository } from '../../blogs/infrastructure/blogs.repository';
-import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { Result, ResultStatus } from '../../../base/types/object-result';
 
 @Injectable()
 export class PostsService {

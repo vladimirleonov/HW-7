@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { LoginModel } from './models/input/login.input.model';
-import { Result, ResultStatus } from '../../../../base/types/object-result';
-import { UtilsService } from '../../../../base/application/utils.service';
+import { Result, ResultStatus } from '../../../base/types/object-result';
+import { UtilsService } from '../../../base/application/utils.service';
 import { AuthService } from '../application/auth.service';
 import { Request, Response } from 'express';
 import { LoginDto } from '../application/dto/login.dto';

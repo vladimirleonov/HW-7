@@ -7,7 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
-import { Result, ResultStatus } from '../../../base/types/object-result';
+import { Result, ResultStatus } from '../../base/types/object-result';
 import { AuthService } from '../../features/auth/application/auth.service';
 
 interface ExtendedJwtPayload extends JwtPayload {

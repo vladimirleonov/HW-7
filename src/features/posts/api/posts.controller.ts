@@ -15,13 +15,13 @@ import { PostsService } from '../application/posts.service';
 import {
   Pagination,
   PaginationOutput,
-} from '../../../../base/models/pagination.base.model';
+} from '../../../base/models/pagination.base.model';
 import { PostOutputModel } from './models/output/post.output.model';
 import { PostsQueryRepository } from '../infrastructure/posts.query-repository';
-import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { Result, ResultStatus } from '../../../base/types/object-result';
 import { PostCreateModel } from './models/input/create-post.input.model';
 import { PostUpdateModel } from './models/input/update-post.input.model';
-import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
+import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =

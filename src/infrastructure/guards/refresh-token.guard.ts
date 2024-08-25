@@ -7,10 +7,10 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../features/auth/application/auth.service';
-import { Result, ResultStatus } from '../../../base/types/object-result';
+import { Result, ResultStatus } from '../../base/types/object-result';
 import { JwtPayload } from 'jsonwebtoken';
 import { Request } from 'express';
-import { unixToISOString } from '../../../base/utils/convert-unix-to-iso';
+import { unixToISOString } from '../../base/utils/convert-unix-to-iso';
 
 export interface RequestWithDeviceAndCookies extends Request {
   cookies: { [key: string]: string };

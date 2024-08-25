@@ -5,7 +5,7 @@ import { FilterQuery, Model } from 'mongoose';
 import {
   PaginationOutput,
   PaginationWithSearchNameTerm,
-} from '../../../../base/models/pagination.base.model';
+} from '../../../base/models/pagination.base.model';
 import {
   BlogOutputModel,
   BlogOutputModelMapper,
