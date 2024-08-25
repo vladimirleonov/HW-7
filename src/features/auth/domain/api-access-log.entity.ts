@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
+import { User } from '../../users/domain/user.entity';
 
 @Schema()
 export class ApiAccessLog {
@@ -25,6 +26,8 @@ export class ApiAccessLog {
   date: string;
 }
 
-export type ApiAccessLogDocument = HydratedDocument<ApiAccessLog>;
-
 export const ApiAccessLogSchema = SchemaFactory.createForClass(ApiAccessLog);
+
+// Types
+export type ApiAccessLogDocument = HydratedDocument<ApiAccessLog>;
+export type ApiAccessLogModelType = Model<ApiAccessLog>;

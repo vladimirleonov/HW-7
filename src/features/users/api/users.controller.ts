@@ -47,6 +47,8 @@ export class UsersController {
     const users: PaginationOutput<UserOutputModel> =
       await this.usersQueryRepository.getAll(pagination);
 
+    console.log(users);
+
     return users;
   }
 

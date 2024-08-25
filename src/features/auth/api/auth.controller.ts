@@ -24,6 +24,8 @@ import { AuthMeOutputModel } from './models/output/auth-me.output';
 import { UsersQueryRepository } from '../../users/infrastructure/users.query-repository';
 import { AuthGuard } from '../../../infrastructure/guards/auth.guard';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
+import { NewPasswordModel } from './models/input/new-password.model';
+import { RateLimitGuard } from '../../../infrastructure/guards/rate-limit.guard';
 
 export interface RequestWithCookies extends Request {
   cookies: { [key: string]: string };
@@ -53,7 +55,8 @@ export class AuthController {
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
-  @Post('registration')
+  @Post('/registration')
+  @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async registration(@Body() registrationModel: RegistrationModel) {
     const { login, password, email } = registrationModel;
@@ -70,6 +73,7 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
+  @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async confirmRegistration(
     @Body() confirmRegistrationModel: ConfirmRegistrationModel,
@@ -92,6 +96,7 @@ export class AuthController {
   }
 
   @Post('registration-email-resending')
+  @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async registrationEmailResending(
     @Body() registrationEmailResendingModel: RegistrationEmailResendingModel,
@@ -113,6 +118,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
+  @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async passwordRecovery(@Body() passwordRecoveryModel: PasswordRecoveryModel) {
     const { email } = passwordRecoveryModel;
@@ -121,6 +127,27 @@ export class AuthController {
 
     // for prevent user's email detection send NO_CONTENT
     // for user by email not found or email send successfully
+  }
+
+  @Post('new-password')
+  @UseGuards(RateLimitGuard)
+  @HttpCode(204)
+  async newPassword(@Body() newPasswordModel: NewPasswordModel) {
+    const { newPassword, recoveryCode } = newPasswordModel;
+
+    const result: Result = await this.authService.setNewPassword(
+      newPassword,
+      recoveryCode,
+    );
+    if (result.status === ResultStatus.BadRequest) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          message: result.extensions,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   @Post('login')

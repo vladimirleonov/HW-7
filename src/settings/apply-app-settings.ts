@@ -103,7 +103,7 @@ const setAppPipes = (app: INestApplication) => {
 
             // @ts-ignore
             customErrors.push({
-              key: e.property,
+              field: e.property,
               message: msg,
             });
           });

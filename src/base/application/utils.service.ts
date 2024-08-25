@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { IncomingMessage } from 'http';
 import { RequestWithCookies } from '../../features/auth/api/auth.controller';
+import { Request } from 'express';
 
 @Injectable()
 export class UtilsService {
-  getIpAddress = (req: RequestWithCookies): string => {
+  getIpAddress = (req: RequestWithCookies | Request): string => {
     let ipAddress: string | undefined = undefined;
 
     // for proxy devices (load balancer ...)

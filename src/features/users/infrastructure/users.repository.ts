@@ -24,6 +24,13 @@ export class UsersRepository {
       ['emailConfirmation.confirmationCode']: confirmationCode,
     });
   }
+  async findUserByRecoveryCode(
+    recoveryCode: string,
+  ): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
+      ['passwordRecovery.recoveryCode']: recoveryCode,
+    });
+  }
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({ email: email });
   }

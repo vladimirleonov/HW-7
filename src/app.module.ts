@@ -25,10 +25,12 @@ import { EmailIsExistConstraint } from './infrastructure/decorators/validate/ema
 import { UtilsService } from './base/application/utils.service';
 import { JwtService } from './base/application/jwt.service';
 import { CryptoService } from './base/application/crypto.service';
-import { Device, DeviceSchema } from './features/auth/domain/device.entity';
+import { Device, DeviceSchema } from './features/security/domain/device.entity';
 import { DeviceRepository } from './features/users/infrastructure/device.repository';
 import { AuthController } from './features/auth/api/auth.controller';
 import { NodemailerService } from './base/application/nodemailer.service';
+import { SecurityService } from './features/security/application/security.service';
+import { ApiAccessLogsRepository } from './features/auth/infrastructure/api-access-logs.repository';
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -51,6 +53,11 @@ const postsProviders: Provider[] = [
 const testingProviders: Provider[] = [TestingService, TestingRepository];
 
 const authProviders: Provider[] = [AuthService, DeviceRepository];
+
+const securityProviders: Provider[] = [
+  SecurityService,
+  ApiAccessLogsRepository,
+];
 
 const basicProviders: Provider[] = [
   UtilsService,
@@ -88,6 +95,7 @@ const basicProviders: Provider[] = [
     ...testingProviders,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
+    ...securityProviders,
     ...basicProviders,
     {
       provide: AppSettings,

@@ -40,7 +40,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       };
 
       const responseBody: any = exception.getResponse();
-
+      console.log(responseBody, 'responseBody');
       if (Array.isArray(responseBody.message)) {
         console.log('Array');
         responseBody.message.forEach((e) => {
@@ -56,11 +56,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
       }
 
       response.status(status).send(errorsResponse);
+      return;
     }
 
     // 401
     if (exception.getStatus() === HttpStatus.UNAUTHORIZED) {
       response.status(HttpStatus.UNAUTHORIZED).send();
+      return;
+    }
+
+    // 429
+    if (exception.getStatus() === HttpStatus.TOO_MANY_REQUESTS) {
+      response.status(HttpStatus.TOO_MANY_REQUESTS).send();
       return;
     }
 

@@ -42,6 +42,7 @@ class PasswordRecovery {
 
   @Prop({
     type: Date,
+    default: null,
     // validate: {
     //     validator: isValidISOString,
     //     message: "expirationDate must be a valid ISO string",

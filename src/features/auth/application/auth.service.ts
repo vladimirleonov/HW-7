@@ -17,7 +17,7 @@ import {
   Device,
   DeviceDocument,
   DeviceModelType,
-} from '../domain/device.entity';
+} from '../../security/domain/device.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { unixToISOString } from '../../../base/utils/convert-unix-to-iso';
 import { DeviceRepository } from '../../users/infrastructure/device.repository';
@@ -165,6 +165,49 @@ export class AuthService {
       data: null,
     };
   }
+  async setNewPassword(newPassword, recoveryCode): Promise<Result> {
+    const user: UserDocument | null =
+      await this.userRepository.findUserByRecoveryCode(recoveryCode);
+    if (!user) {
+      return {
+        status: ResultStatus.BadRequest,
+        extensions: [
+          { field: 'recoveryCode', message: 'Incorrect recovery code' },
+        ],
+        data: null,
+      };
+    }
+
+    const currentDate: Date = new Date();
+    const expirationDate: Date = user.passwordRecovery.expirationDate;
+
+    if (expirationDate < currentDate) {
+      return {
+        status: ResultStatus.BadRequest,
+        extensions: [
+          { field: 'recoveryCode', message: 'Recovery code has expired' },
+        ],
+        data: null,
+      };
+    }
+
+    const saltRounds: number = 10;
+    const passwordHash: string = await this.cryptoService.createHash(
+      newPassword,
+      saltRounds,
+    );
+
+    user.password = passwordHash;
+    user.passwordRecovery.recoveryCode = ''; // set '' after successful update
+    user.passwordRecovery.expirationDate = new Date(); // set current date after successful update
+
+    await this.userRepository.save(user);
+
+    return {
+      status: ResultStatus.Success,
+      data: null,
+    };
+  }
   async confirmRegistration(code: string): Promise<Result> {
     const existingUser: UserDocument | null =
       await this.userRepository.findUserByConfirmationCode(code);
@@ -204,6 +247,7 @@ export class AuthService {
     //await this.userMongoRepository.updateIsConfirmed(userId, isConfirmed)
 
     existingUser.emailConfirmation.isConfirmed = true;
+
     await this.userRepository.save(existingUser);
 
     return {

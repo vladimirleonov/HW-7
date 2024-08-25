@@ -6,7 +6,6 @@ import { UsersRepository } from '../infrastructure/users.repository';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { AuthService } from '../../auth/application/auth.service';
 import { randomUUID } from 'node:crypto';
-import { add } from 'date-fns';
 
 @Injectable()
 export class UsersService {
