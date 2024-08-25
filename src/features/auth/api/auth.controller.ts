@@ -23,6 +23,7 @@ import { RegistrationEmailResendingModel } from './models/input/registration-ema
 import { AuthMeOutputModel } from './models/output/auth-me.output';
 import { UsersQueryRepository } from '../../users/infrastructure/users.query-repository';
 import { AuthGuard } from '../../../infrastructure/guards/auth.guard';
+import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 
 export interface RequestWithCookies extends Request {
   cookies: { [key: string]: string };
@@ -109,6 +110,17 @@ export class AuthController {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  @Post('password-recovery')
+  @HttpCode(204)
+  async passwordRecovery(@Body() passwordRecoveryModel: PasswordRecoveryModel) {
+    const { email } = passwordRecoveryModel;
+
+    await this.authService.passwordRecovery(email);
+
+    // for prevent user's email detection send NO_CONTENT
+    // for user by email not found or email send successfully
   }
 
   @Post('login')

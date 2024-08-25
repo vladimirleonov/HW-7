@@ -24,6 +24,7 @@ import { DeviceRepository } from '../../users/infrastructure/device.repository';
 import { add } from 'date-fns';
 import { NodemailerService } from '../../../base/application/nodemailer.service';
 import { registrationEmailTemplate } from '../../../base/email-templates/registration-email-template';
+import { passwordRecoveryEmailTemplate } from '../../../base/email-templates/password-recovery-email-template';
 
 @Injectable()
 export class AuthService {
@@ -108,6 +109,56 @@ export class AuthService {
       registrationEmailTemplate(newUser.emailConfirmation.confirmationCode!),
       'Registration Confirmation',
     );
+
+    return {
+      status: ResultStatus.Success,
+      data: null,
+    };
+  }
+  async passwordRecovery(email: string): Promise<Result> {
+    const existingUser: UserDocument | null =
+      await this.userRepository.findByEmail(email);
+    if (!existingUser) {
+      return {
+        status: ResultStatus.NotFound,
+        extensions: [
+          {
+            field: 'email',
+            message: `User with email ${email} does not exist`,
+          },
+        ],
+        data: null,
+      };
+    }
+
+    // if user exist set new recoveryCode and expirationDate and send email
+
+    const recoveryCode: string = randomUUID();
+    const expirationDate: Date = add(new Date(), {
+      hours: 1,
+      minutes: 30,
+    });
+
+    // const passwordRecoveryDTO: PasswordRecovery = new PasswordRecovery(
+    //     recoveryCode,
+    //     expirationDate
+    // )
+
+    //const userId: string = existingUser._id.toString()
+    //await this.userMongoRepository.updatePasswordRecoveryInfo(userId, passwordRecoveryDTO)
+
+    existingUser.passwordRecovery.recoveryCode = recoveryCode;
+    existingUser.passwordRecovery.expirationDate = expirationDate;
+
+    await this.userRepository.save(existingUser);
+
+    await this.nodemailerService.sendEmail(
+      email,
+      passwordRecoveryEmailTemplate(recoveryCode),
+      'Password Recovery',
+    );
+
+    await this.userRepository.save(existingUser);
 
     return {
       status: ResultStatus.Success,
