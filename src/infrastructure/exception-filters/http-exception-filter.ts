@@ -6,9 +6,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { Error } from 'mongoose';
 import { appSettings } from '../../settings/app-settings';
 
+// check if this error is an instance of class Error
 @Catch(Error)
 export class ErrorExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -25,6 +25,7 @@ export class ErrorExceptionFilter implements ExceptionFilter {
   }
 }
 
+// check if this error is an instance of class HttpException
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -78,3 +79,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     });
   }
 }
+
+// export class CustomError extends Error {
+//   constructor(
+//     private statusCode: number,
+//     private message: string,
+//   ) {
+//     super(message);
+//   }
+// }
+//
+// export class NotFoundDomainException extends CustomError {
+//   constructor(public message: string) {
+//     super(400, message);
+//   }
+// }

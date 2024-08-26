@@ -2,10 +2,8 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  HttpStatus,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { AuthService } from '../../features/auth/application/auth.service';
 import { Result, ResultStatus } from '../../base/types/object-result';
 import { JwtPayload } from 'jsonwebtoken';
@@ -32,14 +30,14 @@ export class RefreshTokenGuard implements CanActivate {
       .getRequest();
 
     const refreshToken: string = request.cookies?.refreshToken;
-    console.log('refreshToken', refreshToken);
+
     if (!refreshToken) {
       throw new UnauthorizedException();
     }
 
     const result: Result<JwtPayload | null> =
       await this.authService.checkRefreshToken(refreshToken);
-    console.log('result', result);
+
     if (result.status === ResultStatus.Unauthorized) {
       throw new UnauthorizedException();
     }
@@ -48,7 +46,6 @@ export class RefreshTokenGuard implements CanActivate {
     request.device = {
       userId,
       deviceId,
-      //?
       iat: unixToISOString(iat),
     };
     return true;

@@ -53,7 +53,6 @@ class APISettings {
   public readonly MONGO_CONNECTION_URI_FOR_TESTS: string;
 
   // Email
-  // TODO: check names
   public readonly EMAIL_USER: string;
   public readonly EMAIL_PASSWORD: string;
   public readonly EMAIL_HOST: string;

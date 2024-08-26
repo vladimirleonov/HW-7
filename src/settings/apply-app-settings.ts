@@ -10,53 +10,30 @@ import {
   ErrorExceptionFilter,
   HttpExceptionFilter,
 } from '../infrastructure/exception-filters/http-exception-filter';
-// import { appSettings } from './app-settings';
-// import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
-
-// Префикс нашего приложения (https://site.com/api)
 
 const APP_PREFIX = '/api';
 
 // Используем данную функцию в main.ts и в e2e тестах
 export const applyAppSettings = (app: INestApplication) => {
-  // Для внедрения зависимостей в validator constraint
-  // {fallbackOnErrors: true} требуется, поскольку Nest генерирует исключение,
-  // когда DI не имеет необходимого класса.
-  // Настраивает `class-validator` для использования контейнера внедрения зависимостей
-  // NestJS для разрешения зависимостей валидаторов.
+  // To implement dependencies in validator constraints
+  // {fall back On Errors: true} required because Nest throws an exception,
+  // when DI does not have the required class.
+  // Configures the `class-validator` to use the dependency injection container
+  // NestJS for resolving validator dependencies.
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  // Apply cookie-parser middleware globally
   app.use(cookieParser());
 
-  // Применение глобальных Interceptors
-  //app.useGlobalInterceptors(new LoggingInterceptor());
-
-  //const userService = app.get(UsersService)
-
-  // Применение глобальных Guards
-  // app.useGlobalGuards(new AuthGuard(userService));
-
-  // Применить middleware глобально
-  //app.use(LoggerMiddlewareFunc);
-
-  // Установка префикса
   setAppPrefix(app);
 
-  // Конфигурация swagger документации
   // setSwagger(app);
 
-  // Применение глобальных pipes
   setAppPipes(app);
 
-  // Применение глобальных exceptions filters
   setAppExceptionsFilters(app);
 };
 
 const setAppPrefix = (app: INestApplication) => {
-  // Устанавливается для разворачивания front-end и back-end на одном домене
-  // https://site.com - front-end
-  // https://site.com/api - backend-end
   app.setGlobalPrefix(APP_PREFIX);
 };
 
@@ -80,44 +57,33 @@ const setAppPrefix = (app: INestApplication) => {
 const setAppPipes = (app: INestApplication) => {
   app.useGlobalPipes(
     new ValidationPipe({
-      // Для работы трансформации входящих данных
       transform: true,
-      // Выдавать первую ошибку для каждого поля
       stopAtFirstError: true,
-      // Перехватываем ошибку, кастомизируем её и выкидываем 400 с собранными данными
       exceptionFactory: (errors) => {
-        const customErrors = []; // { key: e.property, message: e.msg }
+        const customErrors: { field: string; message: string }[] = []; // { field: e.property, message: e.msg }
 
         errors.forEach((e) => {
-          // console.log(e);
+          if (e.constraints) {
+            const constraintsKeys = Object.keys(e.constraints);
 
-          const constraintsKeys = Object.keys(e.constraints as any);
-          // console.log(constraintsKeys);
+            constraintsKeys.forEach((cKey: string, index: number) => {
+              if (index >= 1) return;
 
-          constraintsKeys.forEach((cKey: string, index: number) => {
-            if (index >= 1) return;
-            // console.log(e.property);
-            // console.log(e!.constraints![ckey]);
+              const msg = e.constraints?.[cKey] as any;
 
-            const msg = e.constraints?.[cKey] as any;
-
-            // @ts-ignore
-            customErrors.push({
-              field: e.property,
-              message: msg,
+              customErrors.push({
+                field: e.property,
+                message: msg,
+              });
             });
-          });
+          }
         });
 
-        // Error 400
-        //console.log(customErrors);
         throw new BadRequestException(customErrors);
       },
     }),
   );
 };
-
-// { key: e.property, message: msg }
 
 const setAppExceptionsFilters = (app: INestApplication) => {
   app.useGlobalFilters(new HttpExceptionFilter(), new ErrorExceptionFilter());

@@ -62,15 +62,14 @@ export class UsersQueryRepository {
 
     return UserOutputModelMapper(user);
   }
-  // TODO: change type any
-
+  // TODO: not sure about name
   async findAuthenticatedUserById(
     id: string,
   ): Promise<AuthMeOutputModel | null> {
     const user: UserDocument | null = await this.UserModel.findOne({ _id: id });
     return user ? AuthMeOutputModelMapper(user) : null;
   }
-
+  // TODO: change type any
   private async _getResult(
     filter: any,
     pagination: PaginationWithSearchLoginAndEmailTerm,

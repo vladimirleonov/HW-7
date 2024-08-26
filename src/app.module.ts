@@ -26,11 +26,19 @@ import { UtilsService } from './base/application/utils.service';
 import { JwtService } from './base/application/jwt.service';
 import { CryptoService } from './base/application/crypto.service';
 import { Device, DeviceSchema } from './features/security/domain/device.entity';
-import { DeviceRepository } from './features/users/infrastructure/device.repository';
+import { DeviceRepository } from './features/security/infrastructure/device.repository';
 import { AuthController } from './features/auth/api/auth.controller';
 import { NodemailerService } from './base/application/nodemailer.service';
 import { SecurityService } from './features/security/application/security.service';
 import { ApiAccessLogsRepository } from './features/auth/infrastructure/api-access-logs.repository';
+import {
+  ApiAccessLog,
+  ApiAccessLogSchema,
+} from './features/auth/domain/api-access-log.entity';
+
+const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
+
+const securityProviders: Provider[] = [SecurityService, DeviceRepository];
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -52,13 +60,6 @@ const postsProviders: Provider[] = [
 
 const testingProviders: Provider[] = [TestingService, TestingRepository];
 
-const authProviders: Provider[] = [AuthService, DeviceRepository];
-
-const securityProviders: Provider[] = [
-  SecurityService,
-  ApiAccessLogsRepository,
-];
-
 const basicProviders: Provider[] = [
   UtilsService,
   JwtService,
@@ -74,29 +75,30 @@ const basicProviders: Provider[] = [
         : appSettings.api.MONGO_CONNECTION_URI,
     ),
     MongooseModule.forFeature([
+      { name: Device.name, schema: DeviceSchema },
+      { name: ApiAccessLog.name, schema: ApiAccessLogSchema },
       { name: User.name, schema: UserSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
-      { name: Device.name, schema: DeviceSchema },
     ]),
   ],
   controllers: [
+    AuthController,
     UsersController,
     BlogsController,
     PostsController,
-    AuthController,
     TestingController,
   ],
   providers: [
     ...authProviders,
+    ...securityProviders,
     ...usersProviders,
     ...blogsProviders,
     ...postsProviders,
     ...testingProviders,
+    ...basicProviders,
     LoginIsExistConstraint,
     EmailIsExistConstraint,
-    ...securityProviders,
-    ...basicProviders,
     {
       provide: AppSettings,
       useValue: appSettings,

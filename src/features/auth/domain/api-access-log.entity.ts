@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
-import { User } from '../../users/domain/user.entity';
 
 @Schema()
 export class ApiAccessLog {

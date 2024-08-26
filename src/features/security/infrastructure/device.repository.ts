@@ -4,7 +4,7 @@ import {
   Device,
   DeviceDocument,
   DeviceModelType,
-} from '../../security/domain/device.entity';
+} from '../domain/device.entity';
 
 @Injectable()
 export class DeviceRepository {

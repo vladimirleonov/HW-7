@@ -20,7 +20,7 @@ import {
 } from '../../security/domain/device.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { unixToISOString } from '../../../base/utils/convert-unix-to-iso';
-import { DeviceRepository } from '../../users/infrastructure/device.repository';
+import { DeviceRepository } from '../../security/infrastructure/device.repository';
 import { add } from 'date-fns';
 import { NodemailerService } from '../../../base/application/nodemailer.service';
 import { registrationEmailTemplate } from '../../../base/email-templates/registration-email-template';
@@ -47,32 +47,44 @@ export class AuthService {
     const userByEmail: UserDocument | null =
       await this.userRepository.findByEmail(email);
     if (userByEmail) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [
-          {
-            field: 'email',
-            message: 'User with such credentials already exists',
-          },
-        ],
-        data: null,
-      };
+      return Result.badRequest([
+        {
+          field: 'email',
+          message: 'User with such credentials already exists',
+        },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [
+      //     {
+      //       field: 'email',
+      //       message: 'User with such credentials already exists',
+      //     },
+      //   ],
+      //   data: null,
+      // };
     }
 
     // check already exist by login
     const userByLogin: UserDocument | null =
       await this.userRepository.findByLogin(login);
     if (userByLogin) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [
-          {
-            field: 'login',
-            message: 'User with such credentials already exists',
-          },
-        ],
-        data: null,
-      };
+      return Result.badRequest([
+        {
+          field: 'login',
+          message: 'User with such credentials already exists',
+        },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [
+      //     {
+      //       field: 'login',
+      //       message: 'User with such credentials already exists',
+      //     },
+      //   ],
+      //   data: null,
+      // };
     }
 
     const saltRounds: number = 10;
@@ -110,25 +122,32 @@ export class AuthService {
       'Registration Confirmation',
     );
 
-    return {
-      status: ResultStatus.Success,
-      data: null,
-    };
+    return Result.success();
+    // return {
+    //   status: ResultStatus.Success,
+    //   data: null,
+    // };
   }
   async passwordRecovery(email: string): Promise<Result> {
     const existingUser: UserDocument | null =
       await this.userRepository.findByEmail(email);
     if (!existingUser) {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          {
-            field: 'email',
-            message: `User with email ${email} does not exist`,
-          },
-        ],
-        data: null,
-      };
+      return Result.notFound([
+        {
+          field: 'email',
+          message: `User with email ${email} does not exist`,
+        },
+      ]);
+      // return {
+      //   status: ResultStatus.NotFound,
+      //   extensions: [
+      //     {
+      //       field: 'email',
+      //       message: `User with email ${email} does not exist`,
+      //     },
+      //   ],
+      //   data: null,
+      // };
     }
 
     // if user exist set new recoveryCode and expirationDate and send email
@@ -160,35 +179,46 @@ export class AuthService {
 
     await this.userRepository.save(existingUser);
 
-    return {
-      status: ResultStatus.Success,
-      data: null,
-    };
+    return Result.success();
+
+    // return {
+    //   status: ResultStatus.Success,
+    //   data: null,
+    // };
   }
-  async setNewPassword(newPassword, recoveryCode): Promise<Result> {
+  async setNewPassword(
+    newPassword: string,
+    recoveryCode: string,
+  ): Promise<Result> {
     const user: UserDocument | null =
       await this.userRepository.findUserByRecoveryCode(recoveryCode);
     if (!user) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [
-          { field: 'recoveryCode', message: 'Incorrect recovery code' },
-        ],
-        data: null,
-      };
+      return Result.badRequest([
+        { field: 'recoveryCode', message: 'Incorrect recovery code' },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [
+      //     { field: 'recoveryCode', message: 'Incorrect recovery code' },
+      //   ],
+      //   data: null,
+      // };
     }
 
     const currentDate: Date = new Date();
     const expirationDate: Date = user.passwordRecovery.expirationDate;
 
     if (expirationDate < currentDate) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [
-          { field: 'recoveryCode', message: 'Recovery code has expired' },
-        ],
-        data: null,
-      };
+      return Result.badRequest([
+        { field: 'recoveryCode', message: 'Recovery code has expired' },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [
+      //     { field: 'recoveryCode', message: 'Recovery code has expired' },
+      //   ],
+      //   data: null,
+      // };
     }
 
     const saltRounds: number = 10;
@@ -203,77 +233,90 @@ export class AuthService {
 
     await this.userRepository.save(user);
 
-    return {
-      status: ResultStatus.Success,
-      data: null,
-    };
+    return Result.success();
+    // return {
+    //   status: ResultStatus.Success,
+    //   data: null,
+    // };
   }
   async confirmRegistration(code: string): Promise<Result> {
     const existingUser: UserDocument | null =
       await this.userRepository.findUserByConfirmationCode(code);
-    console.log('existingUser', existingUser);
+
     if (!existingUser) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [{ field: 'code', message: 'Invalid confirmation code' }],
-        data: null,
-      };
+      return Result.badRequest([
+        { field: 'code', message: 'Invalid confirmation code' },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [{ field: 'code', message: 'Invalid confirmation code' }],
+      //   data: null,
+      // };
     }
 
     if (
       existingUser.emailConfirmation.expirationDate < new Date().toISOString()
     ) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [
-          { field: 'code', message: 'Confirmation code has expired' },
-        ],
-        data: null,
-      };
+      return Result.badRequest([
+        { field: 'code', message: 'Confirmation code has expired' },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [
+      //     { field: 'code', message: 'Confirmation code has expired' },
+      //   ],
+      //   data: null,
+      // };
     }
 
     if (existingUser.emailConfirmation.isConfirmed) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [
-          { field: 'code', message: 'User account already confirmed' },
-        ],
-        data: null,
-      };
+      return Result.badRequest([
+        { field: 'code', message: 'User account already confirmed' },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [
+      //     { field: 'code', message: 'User account already confirmed' },
+      //   ],
+      //   data: null,
+      // };
     }
-
-    //const isConfirmed: boolean = true
-    //const userId: string = existingUser._id.toString()
-    //await this.userMongoRepository.updateIsConfirmed(userId, isConfirmed)
 
     existingUser.emailConfirmation.isConfirmed = true;
 
     await this.userRepository.save(existingUser);
 
-    return {
-      status: ResultStatus.Success,
-      data: null,
-    };
+    return Result.success();
+    // return {
+    //   status: ResultStatus.Success,
+    //   data: null,
+    // };
   }
   async registrationEmailResending(email: string): Promise<Result> {
     const existingUser: UserDocument | null =
       await this.userRepository.findByEmail(email);
     if (!existingUser) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [{ field: 'email', message: 'Invalid email' }],
-        data: null,
-      };
+      return Result.badRequest([
+        { field: 'email', message: 'Invalid email provided' },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [{ field: 'email', message: 'Invalid email' }],
+      //   data: null,
+      // };
     }
 
     // hw-9 error in test -> comment this code
-    // if (existingUser.emailConfirmation.isConfirmed) {
-    //     return {
-    //         status: ResultStatus.BadRequest,
-    //         extensions: [{field: 'email', message: 'Email already confirmed'}],
-    //         data: null
-    //     }
-    // }
+    if (existingUser.emailConfirmation.isConfirmed) {
+      return Result.badRequest([
+        { field: 'email', message: 'Email already confirmed' },
+      ]);
+      // return {
+      //   status: ResultStatus.BadRequest,
+      //   extensions: [{ field: 'email', message: 'Email already confirmed' }],
+      //   data: null,
+      // };
+    }
 
     const confirmationCode: string = randomUUID();
     const expirationDate: string = add(new Date(), {
@@ -318,17 +361,25 @@ export class AuthService {
     if (dto.refreshToken) {
       try {
         this.jwtService.verifyToken(dto.refreshToken);
-        return {
-          status: ResultStatus.BadRequest,
-          extensions: [
-            {
-              field: 'refreshToken',
-              message:
-                'Refresh token is still valid. Logout before logging in again',
-            },
-          ],
-          data: null,
-        };
+        return Result.unauthorized([
+          {
+            field: 'refreshToken',
+            message:
+              'Refresh token is still valid. Logout before logging in again',
+          },
+        ]);
+
+        // return {
+        //   status: ResultStatus.Unauthorized,
+        //   extensions: [
+        //     {
+        //       field: 'refreshToken',
+        //       message:
+        //         'Refresh token is still valid. Logout before logging in again',
+        //     },
+        //   ],
+        //   data: null,
+        // };
       } catch (err) {
         // console.log('Invalid refresh token, proceeding with login')
       }
@@ -341,22 +392,28 @@ export class AuthService {
       !user ||
       !(await this.cryptoService.compare(dto.password, user.password))
     ) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [
-          { field: 'login or password', message: 'Wrong login or password' },
-        ],
-        data: null,
-      };
+      return Result.unauthorized([
+        { field: 'login or password', message: 'Wrong login or password' },
+      ]);
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [
+      //     { field: 'login or password', message: 'Wrong login or password' },
+      //   ],
+      //   data: null,
+      // };
     }
 
     // check is confirmed
     if (!user.emailConfirmation.isConfirmed) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [{ field: 'email', message: 'Email is not confirmed' }],
-        data: null,
-      };
+      return Result.unauthorized([
+        { field: 'email', message: 'Email is not confirmed' },
+      ]);
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [{ field: 'email', message: 'Email is not confirmed' }],
+      //   data: null,
+      // };
     }
 
     // new payload for access token
@@ -403,78 +460,101 @@ export class AuthService {
 
       await this.deviceRepository.save(newDevice);
 
-      return {
-        status: ResultStatus.Success,
-        data: {
-          accessToken,
-          refreshToken,
-        },
-      };
+      return Result.success({
+        accessToken,
+        refreshToken,
+      });
+
+      // return {
+      //   status: ResultStatus.Success,
+      //   data: {
+      //     accessToken,
+      //     refreshToken,
+      //   },
+      // };
     }
 
-    return {
-      status: ResultStatus.Unauthorized,
-      data: null,
-    };
+    return Result.unauthorized();
+
+    // return {
+    //   status: ResultStatus.Unauthorized,
+    //   data: null,
+    // };
   }
   async logout(deviceId, iat): Promise<Result> {
     // delete user device
     const isDeleted: boolean =
       await this.deviceRepository.deleteOneByDeviceIdAndIAt(deviceId, iat);
     if (!isDeleted) {
-      return {
-        status: ResultStatus.Unauthorized,
-        // TODO: check error message
-        extensions: [
-          {
-            field: 'refreshToken',
-            message: 'Invalid or expired refresh token',
-          },
-        ],
-        data: null,
-      };
+      return Result.unauthorized([
+        {
+          field: 'refreshToken',
+          message: 'Invalid or expired refresh token',
+        },
+      ]);
+      // TODO: check error message
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [
+      //     {
+      //       field: 'refreshToken',
+      //       message: 'Invalid or expired refresh token',
+      //     },
+      //   ],
+      //   data: null,
+      // };
     }
 
-    return {
-      status: ResultStatus.Success,
-      data: null,
-    };
+    return Result.success();
+    // return {
+    //   status: ResultStatus.Success,
+    //   data: null,
+    // };
   }
   async checkAccessToken(
     authHeader: string,
   ): Promise<Result<JwtPayload | null>> {
     if (!authHeader.startsWith('Bearer ')) {
-      return {
-        status: ResultStatus.Unauthorized,
-        extensions: [
-          { field: 'accessToken', message: 'Access token not provided' },
-        ],
-        data: null,
-      };
+      return Result.unauthorized([
+        { field: 'accessToken', message: 'Access token not provided' },
+      ]);
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [
+      //     { field: 'accessToken', message: 'Access token not provided' },
+      //   ],
+      //   data: null,
+      // };
     }
 
     const token: string = authHeader.split(' ')[1];
     if (!token) {
-      return {
-        status: ResultStatus.Unauthorized,
-        extensions: [
-          { field: 'accessToken', message: 'Access token not provided' },
-        ],
-        data: null,
-      };
+      return Result.unauthorized([
+        { field: 'accessToken', message: 'Access token not provided' },
+      ]);
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [
+      //     { field: 'accessToken', message: 'Access token not provided' },
+      //   ],
+      //   data: null,
+      // };
     }
 
     let payload: JwtPayload;
     try {
       payload = this.jwtService.verifyToken(token) as JwtPayload;
       if (!payload || !payload.userId) {
-        return {
-          status: ResultStatus.Unauthorized,
-          extensions: [
-            { field: 'accessToken', message: 'Invalid access token!' },
-          ],
-          data: null,
-        };
+        return Result.unauthorized([
+          { field: 'accessToken', message: 'Invalid access token!' },
+        ]);
+        // return {
+        //   status: ResultStatus.Unauthorized,
+        //   extensions: [
+        //     { field: 'accessToken', message: 'Invalid access token!' },
+        //   ],
+        //   data: null,
+        // };
       }
     } catch (err) {
       console.error('verifyToken', err);
@@ -489,30 +569,37 @@ export class AuthService {
       payload.userId,
     );
     if (!user) {
-      return {
-        status: ResultStatus.Unauthorized,
-        extensions: [{ field: 'accessToken', message: 'User not found' }],
-        data: null,
-      };
+      return Result.unauthorized([
+        { field: 'accessToken', message: 'User not found' },
+      ]);
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [{ field: 'accessToken', message: 'User not found' }],
+      //   data: null,
+      // };
     }
 
-    return {
-      status: ResultStatus.Success,
-      data: payload,
-    };
+    return Result.success(payload);
+    // return {
+    //   status: ResultStatus.Success,
+    //   data: payload,
+    // };
   }
   async checkRefreshToken(token: string): Promise<Result<JwtPayload | null>> {
     const payload: JwtPayload = this.jwtService.verifyToken(
       token,
     ) as JwtPayload;
     if (!payload || !payload.deviceId || !payload.userId) {
-      return {
-        status: ResultStatus.Unauthorized,
-        extensions: [
-          { field: 'refreshToken', message: 'Invalid refresh token' },
-        ],
-        data: null,
-      };
+      return Result.unauthorized([
+        { field: 'refreshToken', message: 'Invalid refresh token' },
+      ]);
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [
+      //     { field: 'refreshToken', message: 'Invalid refresh token' },
+      //   ],
+      //   data: null,
+      // };
     }
 
     //? check if user exist by userId (may also check match user to deviceId)
@@ -520,17 +607,22 @@ export class AuthService {
       payload.userId,
     );
     if (!user) {
-      return {
-        status: ResultStatus.Unauthorized,
-        extensions: [{ field: 'accessToken', message: 'User not found' }],
-        data: null,
-      };
+      return Result.unauthorized([
+        { field: 'accessToken', message: 'User not found' },
+      ]);
+      // return {
+      //   status: ResultStatus.Unauthorized,
+      //   extensions: [{ field: 'accessToken', message: 'User not found' }],
+      //   data: null,
+      // };
     }
 
-    return {
-      status: ResultStatus.Success,
-      data: payload,
-    };
+    return Result.success(payload);
+
+    // return {
+    //   status: ResultStatus.Success,
+    //   data: payload,
+    // };
   }
   async generatePasswordHash(password: string): Promise<string> {
     return bcrypt.hash(password, this.appSettings.api.HASH_ROUNDS);

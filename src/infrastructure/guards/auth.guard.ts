@@ -4,7 +4,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { Request } from 'express';
 import { JwtPayload } from 'jsonwebtoken';
 import { Result, ResultStatus } from '../../base/types/object-result';
@@ -20,8 +19,6 @@ export interface RequestWithUser extends Request {
   };
 }
 
-// Custom guard
-// https://docs.nestjs.com/guards
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly authService: AuthService) {}

@@ -5,7 +5,6 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { Result, ResultStatus } from '../../base/types/object-result';
 import { UtilsService } from '../../base/application/utils.service';
 import { Request } from 'express';
