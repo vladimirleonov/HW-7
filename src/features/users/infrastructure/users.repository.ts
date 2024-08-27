@@ -8,15 +8,18 @@ export class UsersRepository {
   async save(user: UserDocument): Promise<UserDocument> {
     return user.save();
   }
+
   async findById(id: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({ _id: id });
   }
+
   async findByField(
     field: string,
     value: string,
   ): Promise<UserDocument | null> {
     return this.UserModel.findOne({ [field]: value });
   }
+
   async findUserByConfirmationCode(
     confirmationCode: string,
   ): Promise<UserDocument | null> {
@@ -24,6 +27,7 @@ export class UsersRepository {
       ['emailConfirmation.confirmationCode']: confirmationCode,
     });
   }
+
   async findUserByRecoveryCode(
     recoveryCode: string,
   ): Promise<UserDocument | null> {
@@ -31,12 +35,15 @@ export class UsersRepository {
       ['passwordRecovery.recoveryCode']: recoveryCode,
     });
   }
+
   async findByEmail(email: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({ email: email });
   }
+
   async findByLogin(login: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({ login: login });
   }
+
   async findByLoginOrEmailField(
     loginOrEmail: string,
   ): Promise<UserDocument | null> {
@@ -44,6 +51,7 @@ export class UsersRepository {
       $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
   }
+
   async delete(id: string): Promise<boolean> {
     const deletedInfo = await this.UserModel.deleteOne({ _id: id });
     return deletedInfo.deletedCount === 1;

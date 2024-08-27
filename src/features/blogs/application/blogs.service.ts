@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BlogsRepository } from '../infrastructure/blogs.repository';
 import { Blog, BlogDocument } from '../domain/blog.entity';
 import { Model } from 'mongoose';
-import { Result, ResultStatus } from '../../../base/types/object-result';
+import { Result } from '../../../base/types/object-result';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
@@ -11,7 +11,12 @@ export class BlogsService {
     private readonly blogsRepository: BlogsRepository,
     @InjectModel(Blog.name) private blogModel: Model<Blog>,
   ) {}
-  async create(name: string, description: string, websiteUrl: string) {
+
+  async create(
+    name: string,
+    description: string,
+    websiteUrl: string,
+  ): Promise<Result<string>> {
     // TODO: how to create correctly ???
     const newBlog: BlogDocument = new this.blogModel({
       name: name,
@@ -23,29 +28,19 @@ export class BlogsService {
 
     const createdBlog: BlogDocument = await this.blogsRepository.save(newBlog);
 
-    return {
-      status: ResultStatus.Success,
-      data: createdBlog.id,
-    };
+    return Result.success(createdBlog.id);
   }
+
   async update(
     id: string,
     name: string,
     description: string,
     websiteUrl: string,
-  ): Promise<Result<boolean>> {
+  ): Promise<Result> {
     const blog: BlogDocument | null = await this.blogsRepository.findById(id);
+
     if (!blog) {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          {
-            field: 'id',
-            message: `Blog with id ${id} could not be found or updated`,
-          },
-        ],
-        data: false,
-      };
+      return Result.notFound(`Blog with id ${id} could not be found`);
     }
 
     blog.name = name;
@@ -54,29 +49,17 @@ export class BlogsService {
 
     await this.blogsRepository.save(blog);
 
-    return {
-      status: ResultStatus.Success,
-      data: true,
-    };
+    return Result.success();
   }
-  async delete(id: string): Promise<Result<boolean>> {
+
+  async delete(id: string): Promise<Result> {
     const isDeleted: boolean = await this.blogsRepository.delete(id);
     if (isDeleted) {
-      return {
-        status: ResultStatus.Success,
-        data: true,
-      };
+      return Result.success();
     } else {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          {
-            field: 'id',
-            message: `Blog with id ${id} could not be found or deleted`,
-          },
-        ],
-        data: false,
-      };
+      return Result.notFound(
+        `Blog with id ${id} could not be found or deleted`,
+      );
     }
   }
 }

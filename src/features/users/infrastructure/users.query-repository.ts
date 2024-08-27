@@ -37,19 +37,6 @@ export class UsersQueryRepository {
 
     const filter = orFilters.length > 0 ? { $or: orFilters } : {};
 
-    // const users: User[] = await UserModel.find(filter)
-    //   .sort({ [query.sortBy]: query.sortDirection === 'asc' ? 1 : -1 })
-    //   .skip((query.pageNumber - 1) * query.pageSize)
-    //   .limit(query.pageSize);
-
-    // const totalCount: number = await UserModel.countDocuments(filter)
-    // return {
-    //   pagesCount: Math.ceil(totalCount / query.pageSize),
-    //   page: query.pageNumber,
-    //   pageSize: query.pageSize,
-    //   totalCount,
-    //   items: users.map((user: User) => this.mapToDetailedUser(user))
-    // }
     return this._getResult(filter, pagination);
   }
 

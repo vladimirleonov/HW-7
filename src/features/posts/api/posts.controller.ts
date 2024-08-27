@@ -22,7 +22,7 @@ import { Result, ResultStatus } from '../../../base/types/object-result';
 import { PostCreateModel } from './models/input/create-post.input.model';
 import { PostUpdateModel } from './models/input/update-post.input.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
-import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
+import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName'];
@@ -137,7 +137,7 @@ export class PostsController {
 
     const { title, shortDescription, content, blogId } = updateModel;
 
-    const result: Result<boolean> = await this.postsService.update(
+    const result: Result = await this.postsService.update(
       id,
       title,
       shortDescription,
@@ -159,7 +159,8 @@ export class PostsController {
   @Delete(':id')
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
-    const result: Result<boolean> = await this.postsService.delete(id);
+    const result: Result = await this.postsService.delete(id);
+
     if (result.status === ResultStatus.NotFound) {
       throw new HttpException(
         {

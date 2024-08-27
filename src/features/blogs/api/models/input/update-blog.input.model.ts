@@ -1,5 +1,5 @@
 import { IsString, Length, Matches } from 'class-validator';
-import { Trim } from '../../../../../infrastructure/decorators/transform/trim';
+import { Trim } from '../../../../../core/decorators/transform/trim';
 
 export class BlogUpdateModel {
   @IsString()

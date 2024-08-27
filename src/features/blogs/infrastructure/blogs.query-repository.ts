@@ -14,6 +14,7 @@ import {
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<Blog>) {}
+
   async getAll(
     pagination: PaginationWithSearchNameTerm,
   ): Promise<PaginationOutput<BlogOutputModel>> {
@@ -27,25 +28,10 @@ export class BlogsQueryRepository {
 
     const filter = orFilters.length > 0 ? { $or: orFilters } : {};
 
-    // const blogs: Blog[] = await BlogModel
-    //   .find(filter)
-    //   .sort({ [dto.sortBy]: dto.sortDirection === 'asc' ? 1 : -1 })
-    //   .skip((dto.pageNumber - 1) * dto.pageSize)
-    //   .limit(dto.pageSize).lean()
-    //
-    // const totalCount: number = await BlogModel.countDocuments(filter)
-    //
-    // return {
-    //   pagesCount: Math.ceil(totalCount / dto.pageSize),
-    //   page: dto.pageNumber,
-    //   pageSize: dto.pageSize,
-    //   totalCount,
-    //   items: blogs.map((blog: Blog) => this.mapToOutput(blog))
-    // }
-
     return this._getResult(filter, pagination);
   }
   // TODO: change type any
+
   async _getResult(
     filter: any,
     pagination: PaginationWithSearchNameTerm,
@@ -68,6 +54,7 @@ export class BlogsQueryRepository {
       totalCount,
     );
   }
+
   async findById(id: string): Promise<BlogOutputModel | null> {
     const blog: BlogDocument | null = await this.blogModel.findById(id);
 

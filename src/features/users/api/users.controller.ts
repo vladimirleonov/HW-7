@@ -21,8 +21,8 @@ import {
 import { UsersQueryRepository } from '../infrastructure/users.query-repository';
 import { UserCreateModel } from './models/input/create-user.input.model';
 import { Result, ResultStatus } from '../../../base/types/object-result';
-import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
-import { BasicAuthGuard } from '../../../infrastructure/guards/basic-auth.guard';
+import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
+import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -47,8 +47,6 @@ export class UsersController {
     const users: PaginationOutput<UserOutputModel> =
       await this.usersQueryRepository.getAll(pagination);
 
-    console.log(users);
-
     return users;
   }
 
@@ -66,8 +64,7 @@ export class UsersController {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          message: result.extensions![0].message,
-          // error: result.status,
+          message: result.extensions,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -84,7 +81,6 @@ export class UsersController {
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           message: 'Something went wrong',
-          // error: result.status,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -96,14 +92,13 @@ export class UsersController {
   @Delete(':id')
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
-    const result: Result<boolean> = await this.usersService.delete(id);
+    const result: Result = await this.usersService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new HttpException(
         {
           statusCode: HttpStatus.NOT_FOUND,
-          message: result.extensions![0].message,
-          error: result.status,
+          message: result.extensions,
         },
         HttpStatus.NOT_FOUND,
       );

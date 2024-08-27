@@ -1,6 +1,6 @@
 import { IsString, Length, MinLength } from 'class-validator';
-import { Trim } from '../../../../../infrastructure/decorators/transform/trim';
-import { BlogIsExist } from '../../../../../infrastructure/decorators/validate/blog-is-exist.decorator';
+import { Trim } from '../../../../../core/decorators/transform/trim';
+import { BlogIsExist } from '../../../../../core/decorators/validate/blog-is-exist.decorator';
 
 export class PostUpdateModel {
   @IsString()

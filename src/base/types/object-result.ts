@@ -32,12 +32,14 @@ export class Result<T = null> {
     this.errorMessage = errorMessage;
     this.extensions = extensions;
   }
+
   static success<T = null>(data: T | null = null): Result<T | null> {
     return new Result(ResultStatus.Success, data);
   }
+
   static badRequest<T = null>(
-    extensions?: Array<{ field: string; message: string }>,
     errorMessage?: string,
+    extensions?: Array<{ field: string; message: string }>,
   ): Result<T> {
     return new Result(
       ResultStatus.BadRequest,
@@ -46,9 +48,10 @@ export class Result<T = null> {
       extensions,
     );
   }
+
   static notFound<T = null>(
-    extensions?: Array<{ field: string; message: string }>,
     errorMessage?: string,
+    extensions?: Array<{ field: string; message: string }>,
   ): Result<T> {
     return new Result(
       ResultStatus.NotFound,
@@ -57,12 +60,25 @@ export class Result<T = null> {
       extensions,
     );
   }
+
   static unauthorized<T = null>(
-    extensions?: Array<{ field: string; message: string }>,
     errorMessage?: string,
+    extensions?: Array<{ field: string; message: string }>,
   ): Result<T> {
     return new Result(
       ResultStatus.Unauthorized,
+      null as any,
+      errorMessage,
+      extensions,
+    );
+  }
+
+  static tooManyRequests<T = null>(
+    errorMessage?: string,
+    extensions?: Array<{ field: string; message: string }>,
+  ): Result<T> {
+    return new Result(
+      ResultStatus.TooManyRequests,
       null as any,
       errorMessage,
       extensions,

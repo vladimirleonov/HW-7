@@ -15,32 +15,6 @@ import {
 export class PostsQueryRepository {
   constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
   getAllPosts(pagination: Pagination, userId?: string): any {
-    // const filterByBlogId: FilterQuery<Post> = blogId ? { blogId: blogId } : {};
-    //
-    // const filter: FilterQuery<Post> = {
-    //   ...filterByBlogId,
-    // };
-
-    // const posts: Post[] = await PostModel
-    //   .find(filter)
-    //   .sort({ [query.sortBy]: query.sortDirection === 'asc' ? 1 : -1 })
-    //   .skip((query.pageNumber - 1) * query.pageSize)
-    //   .limit(query.pageSize).lean()
-    //
-    // const totalCount: number = await PostModel
-    //   .countDocuments(filter)
-    //
-    // const postsForOutput: PostOutputViewModel[] = await Promise.all(
-    //   posts.map(async (post: Post): Promise<PostOutputViewModel> => await this.mapToOutput(post, userId))
-    // )
-    //
-    // return {
-    //   pagesCount: Math.ceil(totalCount / query.pageSize),
-    //   page: query.pageNumber,
-    //   pageSize: query.pageSize,
-    //   totalCount,
-    //   items: postsForOutput
-
     return this.__getResult({}, pagination);
   }
   getAllBlogPosts(
@@ -55,26 +29,6 @@ export class PostsQueryRepository {
     const filter: FilterQuery<Post> = {
       ...filterByBlogId,
     };
-
-    // const posts: Post[] = await PostModel
-    //   .find(filter)
-    //   .sort({ [query.sortBy]: query.sortDirection === 'asc' ? 1 : -1 })
-    //   .skip((query.pageNumber - 1) * query.pageSize)
-    //   .limit(query.pageSize).lean()
-    //
-    // const totalCount: number = await PostModel
-    //   .countDocuments(filter)
-    //
-    // const postsForOutput: PostOutputViewModel[] = await Promise.all(
-    //   posts.map(async (post: Post): Promise<PostOutputViewModel> => await this.mapToOutput(post, userId))
-    // )
-    //
-    // return {
-    //   pagesCount: Math.ceil(totalCount / query.pageSize),
-    //   page: query.pageNumber,
-    //   pageSize: query.pageSize,
-    //   totalCount,
-    //   items: postsForOutput
 
     return this.__getResult(filter, pagination);
   }

@@ -28,7 +28,7 @@ import { PostOutputModel } from '../../posts/api/models/output/post.output.model
 import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
 import { PostsService } from '../../posts/application/posts.service';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
-import { ParseMongoIdPipe } from '../../../infrastructure/decorators/pipes/parse-mongo-id.pipe';
+import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -60,6 +60,7 @@ export class BlogsController {
   async getOne(@Param('id', new ParseMongoIdPipe()) id: string) {
     const blog: BlogOutputModel | null =
       await this.blogsQueryRepository.findById(id);
+
     if (!blog) {
       throw new HttpException(
         {
@@ -90,6 +91,7 @@ export class BlogsController {
     // TODO: ask if is it ok?
     const blog: BlogOutputModel | null =
       await this.blogsQueryRepository.findById(blogId);
+
     if (!blog) {
       throw new HttpException(
         {
@@ -132,7 +134,6 @@ export class BlogsController {
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           message: 'Something went wrong',
-          // error: result.status,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -169,12 +170,12 @@ export class BlogsController {
 
     const post: PostOutputModel | null =
       await this.postQueryRepository.findById(createdId);
+
     if (!post) {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           message: 'Something went wrong',
-          // error: result.status,
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
@@ -191,7 +192,7 @@ export class BlogsController {
   ) {
     const { name, description, websiteUrl } = updateModel;
 
-    const result: Result<boolean> = await this.blogsService.update(
+    const result: Result = await this.blogsService.update(
       id,
       name,
       description,
@@ -212,7 +213,7 @@ export class BlogsController {
   @Delete(':id')
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
-    const result: Result<boolean> = await this.blogsService.delete(id);
+    const result: Result = await this.blogsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new HttpException(

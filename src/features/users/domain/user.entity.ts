@@ -105,9 +105,9 @@ export class User {
   passwordRecovery: PasswordRecovery;
 }
 
+export const UserSchema = SchemaFactory.createForClass(User);
+
 //Types
 export type UserDocument = HydratedDocument<User>;
 export type EmailConfirmationDocument = HydratedDocument<EmailConfirmation>;
 export type UserModelType = Model<User>;
-
-export const UserSchema = SchemaFactory.createForClass(User);

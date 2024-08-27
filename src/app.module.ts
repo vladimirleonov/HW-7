@@ -20,21 +20,21 @@ import { PostsQueryRepository } from './features/posts/infrastructure/posts.quer
 import { TestingService } from './features/testing/application/testing.service';
 import { TestingRepository } from './features/testing/infrastructure/testing.repository';
 import { TestingController } from './features/testing/api/testing.controller';
-import { LoginIsExistConstraint } from './infrastructure/decorators/validate/login-is-exist.decorator';
-import { EmailIsExistConstraint } from './infrastructure/decorators/validate/email-is-exist.decorator';
-import { UtilsService } from './base/application/utils.service';
-import { JwtService } from './base/application/jwt.service';
-import { CryptoService } from './base/application/crypto.service';
 import { Device, DeviceSchema } from './features/security/domain/device.entity';
 import { DeviceRepository } from './features/security/infrastructure/device.repository';
 import { AuthController } from './features/auth/api/auth.controller';
-import { NodemailerService } from './base/application/nodemailer.service';
 import { SecurityService } from './features/security/application/security.service';
 import { ApiAccessLogsRepository } from './features/auth/infrastructure/api-access-logs.repository';
 import {
   ApiAccessLog,
   ApiAccessLogSchema,
 } from './features/auth/domain/api-access-log.entity';
+import { UtilsService } from './core/application/utils.service';
+import { JwtService } from './core/application/jwt.service';
+import { CryptoService } from './core/application/crypto.service';
+import { NodemailerService } from './core/application/nodemailer.service';
+import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';
+import { EmailIsExistConstraint } from './core/decorators/validate/email-is-exist.decorator';
 
 const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
 

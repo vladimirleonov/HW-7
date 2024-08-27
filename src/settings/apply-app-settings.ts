@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 import {
   ErrorExceptionFilter,
   HttpExceptionFilter,
-} from '../infrastructure/exception-filters/http-exception-filter';
+} from '../core/exception-filters/http-exception-filter';
 
 const APP_PREFIX = '/api';
 
@@ -26,8 +26,6 @@ export const applyAppSettings = (app: INestApplication) => {
 
   setAppPrefix(app);
 
-  // setSwagger(app);
-
   setAppPipes(app);
 
   setAppExceptionsFilters(app);
@@ -36,23 +34,6 @@ export const applyAppSettings = (app: INestApplication) => {
 const setAppPrefix = (app: INestApplication) => {
   app.setGlobalPrefix(APP_PREFIX);
 };
-
-// const setSwagger = (app: INestApplication) => {
-//   if (!appSettings.env.isProduction()) {
-//     const swaggerPath = APP_PREFIX + '/swagger-doc';
-//
-//     const config = new DocumentBuilder()
-//       .setTitle('BLOGGER API')
-//       .addBearerAuth()
-//       .setVersion('1.0')
-//       .build();
-//
-//     const document = SwaggerModule.createDocument(app, config);
-//     SwaggerModule.setup(swaggerPath, app, document, {
-//       customSiteTitle: 'Blogger Swagger',
-//     });
-//   }
-// };
 
 const setAppPipes = (app: INestApplication) => {
   app.useGlobalPipes(

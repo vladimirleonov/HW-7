@@ -3,16 +3,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../domain/user.entity';
 import { Model } from 'mongoose';
 import { UsersRepository } from '../infrastructure/users.repository';
-import { Result, ResultStatus } from '../../../base/types/object-result';
-import { AuthService } from '../../auth/application/auth.service';
+import { Result } from '../../../base/types/object-result';
 import { randomUUID } from 'node:crypto';
+import { AppSettings } from '../../../settings/app-settings';
+import { CryptoService } from '../../../core/application/crypto.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private usersRepository: UsersRepository,
-    private authService: AuthService,
+    private cryptoService: CryptoService,
+    private appSettings: AppSettings,
   ) {}
 
   async create(
@@ -26,24 +28,14 @@ export class UsersService {
         this.usersRepository.findByField('email', email),
       ]);
 
-    if (foundUserByLogin) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [{ field: 'login', message: 'User already exists' }],
-        data: null,
-      };
+    if (foundUserByLogin || foundUserByEmail) {
+      return Result.badRequest('User already exists');
     }
 
-    if (foundUserByEmail) {
-      return {
-        status: ResultStatus.BadRequest,
-        extensions: [{ field: 'email', message: 'User already exists' }],
-        data: null,
-      };
-    }
-
-    const generatedPasswordHash: string =
-      await this.authService.generatePasswordHash(password);
+    const generatedPasswordHash: string = await this.cryptoService.createHash(
+      password,
+      this.appSettings.api.HASH_ROUNDS,
+    );
 
     // ??? how to create user correctly
     const newUser: UserDocument = new this.userModel({
@@ -64,26 +56,16 @@ export class UsersService {
 
     const createdUser: UserDocument = await this.usersRepository.save(newUser);
 
-    return {
-      status: ResultStatus.Success,
-      data: createdUser.id,
-    };
+    return Result.success(createdUser.id);
   }
-  async delete(id: string): Promise<Result<boolean>> {
+
+  async delete(id: string): Promise<Result> {
     const isDeleted: boolean = await this.usersRepository.delete(id);
+
     if (isDeleted) {
-      return {
-        status: ResultStatus.Success,
-        data: true,
-      };
+      return Result.success();
     } else {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          { field: 'id', message: `User with id ${id} does not exist` },
-        ],
-        data: false,
-      };
+      return Result.notFound(`User with id ${id} does not exist`);
     }
   }
 }

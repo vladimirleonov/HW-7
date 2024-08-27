@@ -12,24 +12,24 @@ import {
 } from '@nestjs/common';
 import { LoginModel } from './models/input/login.input.model';
 import { Result, ResultStatus } from '../../../base/types/object-result';
-import { UtilsService } from '../../../base/application/utils.service';
 import { AuthService } from '../application/auth.service';
 import { Response } from 'express';
 import { LoginDto } from '../application/dto/login.dto';
 import { RegistrationModel } from './models/input/registration.input.model';
-import { RefreshTokenGuard } from '../../../infrastructure/guards/refresh-token.guard';
 import { ConfirmRegistrationModel } from './models/input/confirm-registration.model';
 import { RegistrationEmailResendingModel } from './models/input/registration-email-resending.model';
 import { AuthMeOutputModel } from './models/output/auth-me.output';
 import { UsersQueryRepository } from '../../users/infrastructure/users.query-repository';
-import { AuthGuard } from '../../../infrastructure/guards/auth.guard';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
-import { RateLimitGuard } from '../../../infrastructure/guards/rate-limit.guard';
-import { CurrentUserId } from '../../../infrastructure/decorators/param-decorators/current-user-id.param.decorator';
-import { CurrentDeviceId } from '../../../infrastructure/decorators/param-decorators/current-device-id.param.decorator';
-import { CurrentDeviceIat } from '../../../infrastructure/decorators/param-decorators/current-device-iat.param.decorator';
 import { RequestWithCookies } from '../../../base/types/request-with-cookie';
+import { RateLimitGuard } from '../../../core/guards/rate-limit.guard';
+import { AuthGuard } from '../../../core/guards/auth.guard';
+import { CurrentUserId } from '../../../core/decorators/param-decorators/current-user-id.param.decorator';
+import { RefreshTokenGuard } from '../../../core/guards/refresh-token.guard';
+import { CurrentDeviceId } from '../../../core/decorators/param-decorators/current-device-id.param.decorator';
+import { CurrentDeviceIat } from '../../../core/decorators/param-decorators/current-device-iat.param.decorator';
+import { UtilsService } from '../../../core/application/utils.service';
 
 @Controller('auth')
 export class AuthController {

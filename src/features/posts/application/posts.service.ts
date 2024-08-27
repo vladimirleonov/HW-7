@@ -5,7 +5,7 @@ import { Post, PostDocument } from '../domain/post.entity';
 import mongoose, { Model } from 'mongoose';
 import { BlogDocument } from '../../blogs/domain/blog.entity';
 import { BlogsRepository } from '../../blogs/infrastructure/blogs.repository';
-import { Result, ResultStatus } from '../../../base/types/object-result';
+import { Result } from '../../../base/types/object-result';
 
 @Injectable()
 export class PostsService {
@@ -14,6 +14,7 @@ export class PostsService {
     private readonly blogsRepository: BlogsRepository,
     @InjectModel(Post.name) private postModel: Model<Post>,
   ) {}
+
   async create(
     title: string,
     shortDescription: string,
@@ -24,13 +25,7 @@ export class PostsService {
       await this.blogsRepository.findById(blogId);
 
     if (!blog) {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          { field: 'blogId', message: `Blog with id ${blogId} not found` },
-        ],
-        data: null,
-      };
+      return Result.notFound(`Blog with id ${blogId} not found`);
     }
 
     const post: PostDocument = new this.postModel({
@@ -44,10 +39,7 @@ export class PostsService {
 
     await this.postsRepository.save(post);
 
-    return {
-      status: ResultStatus.Success,
-      data: post.id,
-    };
+    return Result.success(post.id);
   }
   async update(
     id: string,
@@ -55,16 +47,10 @@ export class PostsService {
     shortDescription: string,
     content: string,
     blogId: string,
-  ): Promise<Result<boolean>> {
+  ): Promise<Result> {
     const post: PostDocument | null = await this.postsRepository.findById(id);
     if (!post) {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          { field: 'postId', message: `Post with id ${id} not found` },
-        ],
-        data: false,
-      };
+      return Result.notFound(`Post with id ${id} not found`);
     }
 
     post.title = title;
@@ -74,27 +60,15 @@ export class PostsService {
 
     await this.postsRepository.save(post);
 
-    return {
-      status: ResultStatus.Success,
-      data: true,
-    };
+    return Result.success();
   }
-  async delete(id: string): Promise<Result<boolean>> {
+  async delete(id: string): Promise<Result> {
     const isDeleted: boolean = await this.postsRepository.delete(id);
 
     if (isDeleted) {
-      return {
-        status: ResultStatus.Success,
-        data: true,
-      };
+      return Result.success();
     } else {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          { field: 'postId', message: `Post with id ${id} not found` },
-        ],
-        data: false,
-      };
+      return Result.notFound();
     }
   }
 }

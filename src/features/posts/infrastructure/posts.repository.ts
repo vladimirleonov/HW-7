@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from '../domain/post.entity';
 import { Model } from 'mongoose';
-import { BlogDocument } from '../../blogs/domain/blog.entity';
 
 @Injectable()
 export class PostsRepository {

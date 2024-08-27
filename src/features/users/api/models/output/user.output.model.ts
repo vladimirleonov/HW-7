@@ -10,7 +10,7 @@ export class UserOutputModel {
 // MAPPERS
 
 export const UserOutputModelMapper = (user: UserDocument): UserOutputModel => {
-  const outputModel = new UserOutputModel();
+  const outputModel: UserOutputModel = new UserOutputModel();
 
   outputModel.id = user.id;
   outputModel.login = user.login;

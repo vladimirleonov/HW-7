@@ -87,7 +87,7 @@ class APISettings {
   }
 
   private getNumberOrDefault(value: any, defaultValue: number): number {
-    const parsedValue = Number(value);
+    const parsedValue: number = Number(value);
 
     if (isNaN(parsedValue)) {
       return defaultValue;
@@ -97,11 +97,11 @@ class APISettings {
   }
 }
 
-const env = new EnvironmentSettings(
+const env: EnvironmentSettings = new EnvironmentSettings(
   (Environments.includes((process.env.ENV as string)?.trim())
     ? (process.env.ENV as string).trim()
     : 'DEVELOPMENT') as EnvironmentsTypes,
 );
 
-const api = new APISettings(process.env);
+const api: APISettings = new APISettings(process.env);
 export const appSettings: AppSettings = new AppSettings(env, api);

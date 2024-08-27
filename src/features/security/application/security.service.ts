@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Result, ResultStatus } from '../../../base/types/object-result';
+import { Result } from '../../../base/types/object-result';
 import {
   ApiAccessLog,
   ApiAccessLogDocument,
@@ -23,11 +23,7 @@ export class SecurityService {
       );
 
     if (accessLogsCount >= 5) {
-      return {
-        status: ResultStatus.TooManyRequests,
-        extensions: [{ field: 'requests', message: `Too many requests` }],
-        data: null,
-      };
+      return Result.tooManyRequests(`Too many requests`);
     }
 
     const newApiAccessLog: ApiAccessLogDocument = new this.apiAccessLogModel({
@@ -37,11 +33,7 @@ export class SecurityService {
     });
 
     await this.apiAccessLogsRepository.save(newApiAccessLog);
-    //await apiAccessLogsMongoRepository.createApiAccessLog({ip, originUrl})
 
-    return {
-      status: ResultStatus.Success,
-      data: null,
-    };
+    return Result.success();
   }
 }
