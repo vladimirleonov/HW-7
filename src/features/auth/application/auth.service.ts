@@ -114,7 +114,7 @@ export class AuthService {
 
     await this.userRepository.save(existingUser);
 
-    await this.nodemailerService.sendEmail(
+    this.nodemailerService.sendEmail(
       email,
       passwordRecoveryEmailTemplate(recoveryCode),
       'Password Recovery',
@@ -207,7 +207,7 @@ export class AuthService {
 
     await this.userRepository.save(existingUser);
 
-    await this.nodemailerService.sendEmail(
+    this.nodemailerService.sendEmail(
       email,
       registrationEmailTemplate(confirmationCode),
       'Registration Confirmation',

@@ -35,6 +35,10 @@ import { CryptoService } from './core/application/crypto.service';
 import { NodemailerService } from './core/application/nodemailer.service';
 import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './core/decorators/validate/email-is-exist.decorator';
+import {
+  CustomExceptionFilter,
+  HttpExceptionFilter,
+} from './core/exception-filters/http-exception-filter';
 
 const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
 
@@ -103,6 +107,14 @@ const basicProviders: Provider[] = [
       provide: AppSettings,
       useValue: appSettings,
     },
+    // {
+    //   provide: CustomExceptionFilter,
+    //   useClass: CustomExceptionFilter,
+    // },
+    // {
+    //   provide: HttpExceptionFilter,
+    //   useClass: HttpExceptionFilter,
+    // },
     /* {
         provide: UsersService,
         useClass: UsersService,
