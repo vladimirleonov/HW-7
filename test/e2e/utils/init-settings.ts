@@ -7,6 +7,7 @@ import { deleteAllData } from './delete-all-data';
 import { UsersTestManager } from '../features/users/users-test-manager';
 import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import { INestApplication } from '@nestjs/common';
+import { AuthTestManager } from '../features/auth/auth-test-manager';
 
 export const initSettings = async (
   //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -36,8 +37,9 @@ export const initSettings = async (
   const databaseConnection = app.get<Connection>(getConnectionToken());
   const httpServer = app.getHttpServer();
 
-  // Init userManager
+  // Init userManager, authManager
   const userTestManger: UsersTestManager = new UsersTestManager(app);
+  const authTestManager: AuthTestManager = new AuthTestManager(app);
 
   await deleteAllData(databaseConnection);
 
@@ -48,6 +50,7 @@ export const initSettings = async (
   //   databaseConnection,
   //   httpServer,
   //   userTestManger,
+  //   authTestManager
   // };
 
   // Работа с состоянием
@@ -56,5 +59,6 @@ export const initSettings = async (
     databaseConnection: databaseConnection,
     httpServer: httpServer,
     userTestManger: userTestManger,
+    authTestManager: authTestManager,
   });
 };
