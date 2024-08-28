@@ -1,4 +1,4 @@
-import { Module, Provider } from '@nestjs/common';
+import { HttpException, Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersController } from './features/users/api/users.controller';
 import { UsersService } from './features/users/application/users.service';
@@ -39,6 +39,7 @@ import {
   CustomExceptionFilter,
   HttpExceptionFilter,
 } from './core/exception-filters/http-exception-filter';
+import { APP_FILTER } from '@nestjs/core';
 
 const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
 
@@ -107,14 +108,6 @@ const basicProviders: Provider[] = [
       provide: AppSettings,
       useValue: appSettings,
     },
-    // {
-    //   provide: CustomExceptionFilter,
-    //   useClass: CustomExceptionFilter,
-    // },
-    // {
-    //   provide: HttpExceptionFilter,
-    //   useClass: HttpExceptionFilter,
-    // },
     /* {
         provide: UsersService,
         useClass: UsersService,

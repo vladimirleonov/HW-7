@@ -7,7 +7,7 @@ import { useContainer } from 'class-validator';
 import { AppModule } from '../app.module';
 import cookieParser from 'cookie-parser';
 import {
-  ErrorExceptionFilter,
+  CustomExceptionFilter,
   HttpExceptionFilter,
 } from '../core/exception-filters/http-exception-filter';
 
@@ -67,5 +67,5 @@ const setAppPipes = (app: INestApplication) => {
 };
 
 const setAppExceptionsFilters = (app: INestApplication) => {
-  app.useGlobalFilters(new HttpExceptionFilter(), new ErrorExceptionFilter());
+  app.useGlobalFilters(new HttpExceptionFilter(), new CustomExceptionFilter());
 };
