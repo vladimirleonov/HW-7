@@ -1,4 +1,4 @@
-import { IsString, Length, MinLength } from 'class-validator';
+import { IsString, Length, Matches, MinLength } from 'class-validator';
 import { Trim } from '../../../../../core/decorators/transform/trim';
 import { LoginIsExist } from '../../../../../core/decorators/validate/login-is-exist.decorator';
 import { EmailIsExist } from '../../../../../core/decorators/validate/email-is-exist.decorator';
@@ -16,6 +16,7 @@ export class UserCreateModel {
   @IsString()
   @Trim()
   @MinLength(1, { message: 'Length not correct' })
+  @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
   @EmailIsExist()
   email: string;
 }

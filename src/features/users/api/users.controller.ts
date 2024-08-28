@@ -43,6 +43,7 @@ export class UsersController {
         query,
         USERS_SORTING_PROPERTIES,
       );
+    console.log('pagination', pagination);
 
     const users: PaginationOutput<UserOutputModel> =
       await this.usersQueryRepository.getAll(pagination);

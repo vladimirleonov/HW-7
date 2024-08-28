@@ -1,11 +1,11 @@
 import { getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Connection } from 'mongoose';
-import { AppModule } from '../../src/app.module';
-import { appSettings } from '../../src/settings/app-settings';
+import { AppModule } from '../../../src/app.module';
+import { appSettings } from '../../../src/settings/app-settings';
 import { deleteAllData } from './delete-all-data';
-import { UsersTestManager } from '../e2e/features/users/users-test-manager';
-import { applyAppSettings } from '../../src/settings/apply-app-settings';
+import { UsersTestManager } from '../features/users/users-test-manager';
+import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import { INestApplication } from '@nestjs/common';
 
 export const initSettings = async (

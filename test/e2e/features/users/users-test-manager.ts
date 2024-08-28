@@ -29,7 +29,7 @@ export class UsersTestManager {
     userId: string,
     adminUsername: string,
     adminPassword: string,
-    statusCode: number = 201,
+    statusCode: number = 204,
   ) {
     return request(this.app.getHttpServer())
       .delete(`/api/users/${userId}`)
@@ -38,35 +38,58 @@ export class UsersTestManager {
       .expect(statusCode);
   }
 
-  async updateUser(
-    adminAccessToken: string,
-    userId: string,
-    updateModel: any,
-    statusCode: number = 204,
+  async getUsers(
+    adminUsername,
+    adminPassword,
+    statusCode: number = 200,
+    sortBy: string = 'createdAt',
+    sortDirection: string = 'desc',
+    pageNumber: number = 1,
+    pageSize: number = 10,
   ) {
+    console.log('sortDirection', sortDirection);
     return request(this.app.getHttpServer())
-      .put(`/api/users/${userId}`)
-      .auth(adminAccessToken, {
-        type: 'bearer',
+      .get('/api/users')
+      .auth(adminUsername, adminPassword)
+      .query({
+        sortBy,
+        sortDirection,
+        pageNumber,
+        pageSize,
       })
-      .send(updateModel)
+      .send()
       .expect(statusCode);
   }
 
-  async login(
-    login: string,
-    password: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const response = await request(this.app.getHttpServer())
-      .post('/login')
-      .send({ login, password })
-      .expect(200);
-
-    return {
-      accessToken: response.body.accessToken,
-      refreshToken: response.headers['set-cookie'][0]
-        .split('=')[1]
-        .split(';')[0],
-    };
-  }
+  // async updateUser(
+  //   adminAccessToken: string,
+  //   userId: string,
+  //   updateModel: any,
+  //   statusCode: number = 204,
+  // ) {
+  //   return request(this.app.getHttpServer())
+  //     .put(`/api/users/${userId}`)
+  //     .auth(adminAccessToken, {
+  //       type: 'bearer',
+  //     })
+  //     .send(updateModel)
+  //     .expect(statusCode);
+  // }
+  //
+  // async login(
+  //   login: string,
+  //   password: string,
+  // ): Promise<{ accessToken: string; refreshToken: string }> {
+  //   const response = await request(this.app.getHttpServer())
+  //     .post('/login')
+  //     .send({ login, password })
+  //     .expect(200);
+  //
+  //   return {
+  //     accessToken: response.body.accessToken,
+  //     refreshToken: response.headers['set-cookie'][0]
+  //       .split('=')[1]
+  //       .split(';')[0],
+  //   };
+  // }
 }
