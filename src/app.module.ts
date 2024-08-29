@@ -1,4 +1,4 @@
-import { HttpException, Module, Provider } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersController } from './features/users/api/users.controller';
 import { UsersService } from './features/users/application/users.service';
@@ -35,11 +35,7 @@ import { CryptoService } from './core/application/crypto.service';
 import { NodemailerService } from './core/application/nodemailer.service';
 import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './core/decorators/validate/email-is-exist.decorator';
-import {
-  CustomExceptionFilter,
-  HttpExceptionFilter,
-} from './core/exception-filters/http-exception-filter';
-import { APP_FILTER } from '@nestjs/core';
+import { ConfigModule } from '@nestjs/config';
 
 const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
 
@@ -74,6 +70,7 @@ const basicProviders: Provider[] = [
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     MongooseModule.forRoot(
       appSettings.env.isTesting()
         ? appSettings.api.MONGO_CONNECTION_URI_FOR_TESTS
