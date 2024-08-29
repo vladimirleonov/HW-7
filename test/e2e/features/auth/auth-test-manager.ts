@@ -10,7 +10,7 @@ export class AuthTestManager {
     statusCode: number = 204,
   ) {
     return request(this.app.getHttpServer())
-      .post('/registration')
+      .post('/api/auth/registration')
       .send(registrationModel)
       .expect(statusCode);
   }

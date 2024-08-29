@@ -1,14 +1,9 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Result, ResultStatus } from '../../base/types/object-result';
 import { UtilsService } from '../application/utils.service';
 import { Request } from 'express';
 import { SecurityService } from '../../features/security/application/security.service';
+import { TooManyRequestsException } from '../exception-filters/http-exception-filter';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
@@ -28,13 +23,7 @@ export class RateLimitGuard implements CanActivate {
       originUrl,
     );
     if (result.status === ResultStatus.TooManyRequests) {
-      throw new HttpException(
-        {
-          status: HttpStatus.TOO_MANY_REQUESTS,
-          message: 'Rate limit exceeded.',
-        },
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
+      throw new TooManyRequestsException('Rate limit exceeded');
     }
 
     return true;

@@ -29,6 +29,10 @@ import { PostForBlogCreateModel } from './models/input/create-post-for-blog.inpu
 import { PostsService } from '../../posts/application/posts.service';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '../../../core/exception-filters/http-exception-filter';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -62,13 +66,7 @@ export class BlogsController {
       await this.blogsQueryRepository.findById(id);
 
     if (!blog) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: `Blog with id ${id} not found`,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(`Blog with id ${id} not found`);
     }
 
     return blog;
@@ -93,13 +91,7 @@ export class BlogsController {
       await this.blogsQueryRepository.findById(blogId);
 
     if (!blog) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: `Blog with id ${blogId} not found`,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(`Blog with id ${blogId} not found`);
     }
 
     const pagination: Pagination = new Pagination(
@@ -130,13 +122,7 @@ export class BlogsController {
 
     if (!createdBlog) {
       // error if just created blog not found
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Something went wrong',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException();
     }
 
     return createdBlog;
@@ -157,13 +143,7 @@ export class BlogsController {
     );
 
     if (result.status === ResultStatus.NotFound) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: result.extensions![0].message,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(result.errorMessage!);
     }
 
     const createdId: string = result.data!;
@@ -172,13 +152,7 @@ export class BlogsController {
       await this.postQueryRepository.findById(createdId);
 
     if (!post) {
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Something went wrong',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException();
     }
 
     return post;
@@ -200,13 +174,7 @@ export class BlogsController {
     );
 
     if (result.status === ResultStatus.NotFound) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.NOT_FOUND,
-          message: result.extensions![0].message,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(result.errorMessage!);
     }
   }
 
@@ -216,13 +184,7 @@ export class BlogsController {
     const result: Result = await this.blogsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: result.extensions![0].message,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(result.errorMessage!);
     }
   }
 }

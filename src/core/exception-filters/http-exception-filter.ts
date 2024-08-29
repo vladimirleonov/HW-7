@@ -96,8 +96,15 @@ export class BadRequestException extends CustomError {
   }
 }
 
-export class UnauthorizedException extends CustomError {
+export class NotFoundException extends CustomError {
   constructor(message: string) {
+    console.log(message);
+    super(404, message);
+  }
+}
+
+export class UnauthorizedException extends CustomError {
+  constructor(message: string = 'Unauthorized') {
     super(401, message);
   }
 }
@@ -105,6 +112,12 @@ export class UnauthorizedException extends CustomError {
 export class TooManyRequestsException extends CustomError {
   constructor(message: string) {
     super(429, message);
+  }
+}
+
+export class InternalServerErrorException extends CustomError {
+  constructor(message: string = 'Something went wrong') {
+    super(500, message);
   }
 }
 
@@ -141,8 +154,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
 
+    console.log(exception);
+
     const errorsResponse: any = {
       statusCode: status,
+      message: exception.message,
       timestamp: new Date().toISOString(),
       path: request.url,
     };

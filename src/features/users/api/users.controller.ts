@@ -4,8 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Query,
@@ -23,6 +21,11 @@ import { UserCreateModel } from './models/input/create-user.input.model';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
 import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '../../../core/exception-filters/http-exception-filter';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -43,7 +46,6 @@ export class UsersController {
         query,
         USERS_SORTING_PROPERTIES,
       );
-    console.log('pagination', pagination);
 
     const users: PaginationOutput<UserOutputModel> =
       await this.usersQueryRepository.getAll(pagination);
@@ -62,13 +64,7 @@ export class UsersController {
     );
 
     if (result.status === ResultStatus.BadRequest) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          message: result.extensions,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(result.errorMessage!);
     }
 
     const createdUserId: string = result.data!;
@@ -78,13 +74,7 @@ export class UsersController {
 
     if (!createdUser) {
       // error if just created blog not found
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Something went wrong',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException(result.errorMessage!);
     }
 
     return createdUser;
@@ -96,13 +86,7 @@ export class UsersController {
     const result: Result = await this.usersService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.NOT_FOUND,
-          message: result.extensions,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(result.errorMessage!);
     }
 
     return;

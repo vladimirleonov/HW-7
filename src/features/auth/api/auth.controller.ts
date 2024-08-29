@@ -2,12 +2,10 @@ import {
   Body,
   Controller,
   HttpCode,
-  HttpException,
   HttpStatus,
   Post,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { LoginModel } from './models/input/login.input.model';
@@ -30,6 +28,10 @@ import { RefreshTokenGuard } from '../../../core/guards/refresh-token.guard';
 import { CurrentDeviceId } from '../../../core/decorators/param-decorators/current-device-id.param.decorator';
 import { CurrentDeviceIat } from '../../../core/decorators/param-decorators/current-device-iat.param.decorator';
 import { UtilsService } from '../../../core/application/utils.service';
+import {
+  BadRequestException,
+  UnauthorizedException,
+} from '../../../core/exception-filters/http-exception-filter';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +41,7 @@ export class AuthController {
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
-  @Post('/registration')
+  @Post('registration')
   @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async registration(@Body() registrationModel: RegistrationModel) {
@@ -52,13 +54,7 @@ export class AuthController {
     );
 
     if (result.status === ResultStatus.BadRequest) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          message: result.extensions,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(result.errorMessage!);
     }
   }
 
@@ -73,13 +69,7 @@ export class AuthController {
     const result: Result<boolean | null> =
       await this.authService.confirmRegistration(code);
     if (result.status === ResultStatus.BadRequest) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          message: result.extensions,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(result.errorMessage!);
     }
   }
 
@@ -95,13 +85,7 @@ export class AuthController {
       await this.authService.registrationEmailResending(email);
 
     if (result.status === ResultStatus.BadRequest) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          message: result.extensions,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(result.errorMessage!);
     }
   }
 
@@ -128,13 +112,7 @@ export class AuthController {
       recoveryCode,
     );
     if (result.status === ResultStatus.BadRequest) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          message: result.extensions,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new BadRequestException(result.errorMessage!);
     }
   }
 
@@ -162,13 +140,7 @@ export class AuthController {
 
     const result = await this.authService.login(dto);
     if (result.status === ResultStatus.Unauthorized) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.UNAUTHORIZED,
-          message: result.extensions,
-        },
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new UnauthorizedException(result.errorMessage!);
     }
 
     res.cookie('refreshToken', result.data?.refreshToken, {

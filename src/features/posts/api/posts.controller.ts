@@ -4,8 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -23,6 +21,10 @@ import { PostCreateModel } from './models/input/create-post.input.model';
 import { PostUpdateModel } from './models/input/update-post.input.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '../../../core/exception-filters/http-exception-filter';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName'];
@@ -72,13 +74,7 @@ export class PostsController {
       );
 
     if (!post) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: `Post with id ${id} not found`,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(`Post with id ${id} not found`);
     }
 
     return post;
@@ -96,13 +92,7 @@ export class PostsController {
     );
     // TODO: add check wasn't before
     if (result.status === ResultStatus.NotFound) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: result.extensions![0].message,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(result.errorMessage!);
     }
 
     const createdId: string = result.data!;
@@ -112,13 +102,7 @@ export class PostsController {
 
     if (!post) {
       // error if just created post not found
-      throw new HttpException(
-        {
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'something went wrong',
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new InternalServerErrorException();
     }
 
     return post;
@@ -146,13 +130,7 @@ export class PostsController {
     );
 
     if (result.status === ResultStatus.NotFound) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: result.extensions![0].message,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(result.errorMessage!);
     }
   }
 
@@ -162,13 +140,7 @@ export class PostsController {
     const result: Result = await this.postsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          message: result.extensions![0].message,
-        },
-        HttpStatus.NOT_FOUND,
-      );
+      throw new NotFoundException(result.errorMessage!);
     }
   }
 }

@@ -8,7 +8,7 @@ import { NodemailerServiceMock } from '../../mock/nodemailer.service.mock';
 
 describe('auth', () => {
   let app: INestApplication;
-  let authTestManger: AuthTestManager;
+  let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
     await initSettings((moduleBuilder) =>
@@ -21,8 +21,8 @@ describe('auth', () => {
     // userTestManger = result.userTestManger;
 
     app = expect.getState().app;
-    authTestManger = expect.getState().authTestManger;
-    console.log(authTestManger);
+    authTestManager = expect.getState().authTestManager;
+    console.log('authTestManger', authTestManager);
 
     console.log('App initialized:', !!app);
     if (!app) {
@@ -45,16 +45,74 @@ describe('auth', () => {
       email: 'email@email.com',
     };
 
-    const response = await authTestManger.registration(
-      body,
+    await authTestManager.registration(body, HttpStatus.NO_CONTENT);
+  });
+
+  it('should not register user short login', async () => {
+    const body: RegistrationModel = {
+      login: 'na',
+      password: 'qwerty',
+      email: 'email@email.com',
+    };
+
+    await authTestManager.registration(body, HttpStatus.BAD_REQUEST);
+  });
+
+  it('should not register user short password', async () => {
+    const body: RegistrationModel = {
+      login: 'name1',
+      password: 'qwer',
+      email: 'email@email.com',
+    };
+
+    await authTestManager.registration(body, HttpStatus.BAD_REQUEST);
+  });
+
+  it('should not register user incorrect email format', async () => {
+    const body: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty',
+      email: 'emailemail.com',
+    };
+
+    await authTestManager.registration(body, HttpStatus.BAD_REQUEST);
+  });
+
+  it('should not register user with same login', async () => {
+    const body1: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty1',
+      email: 'emaile@mail1.com',
+    };
+
+    const body2: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty2',
+      email: 'emaile@mail2.com',
+    };
+
+    const response = await authTestManager.registration(
+      body1,
       HttpStatus.NO_CONTENT,
     );
+    console.log(response);
+    await authTestManager.registration(body2, HttpStatus.BAD_REQUEST);
+  });
 
-    expect(response.body).toEqual({
-      login: body.login,
-      email: body.email,
-      id: expect.any(String),
-      createdAt: expect.any(String),
-    });
+  it('should not register user with same email', async () => {
+    const body1: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty1',
+      email: 'emaile@mail1.com',
+    };
+
+    const body2: RegistrationModel = {
+      login: 'name2',
+      password: 'qwerty1',
+      email: 'emaile@mail2.com',
+    };
+
+    await authTestManager.registration(body1, HttpStatus.NO_CONTENT);
+    await authTestManager.registration(body2, HttpStatus.BAD_REQUEST);
   });
 });

@@ -40,6 +40,7 @@ export const initSettings = async (
   // Init userManager, authManager
   const userTestManger: UsersTestManager = new UsersTestManager(app);
   const authTestManager: AuthTestManager = new AuthTestManager(app);
+  console.log('authTestManger', authTestManager);
 
   await deleteAllData(databaseConnection);
 

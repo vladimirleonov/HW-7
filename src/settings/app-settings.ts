@@ -74,7 +74,8 @@ class APISettings {
       'mongodb+srv://vladimir777:4kuughy1HAimmtzO@cluster0.fgdxrtr.mongodb.net/blogger_db?retryWrites=true&w=majority&appName=Cluster0';
     this.MONGO_CONNECTION_URI_FOR_TESTS =
       envVariables.MONGO_CONNECTION_URI_FOR_TESTS ??
-      'mongodb://localhost:27017/yourDatabaseName';
+      //'mongodb://localhost:27017/yourDatabaseName';
+      'mongodb+srv://vladimir777:4kuughy1HAimmtzO@cluster0.fgdxrtr.mongodb.net/blogger_db?retryWrites=true&w=majority&appName=Cluster0';
 
     // Email user data
     this.EMAIL_USER = envVariables.EMAIL_USER ?? 'alex0801white@gmail.com';
