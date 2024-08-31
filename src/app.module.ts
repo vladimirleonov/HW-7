@@ -36,10 +36,14 @@ import { NodemailerService } from './core/application/nodemailer.service';
 import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './core/decorators/validate/email-is-exist.decorator';
 import { ConfigModule } from '@nestjs/config';
+import configuration from './settings/configuration';
+import { LocalStrategy } from './core/stratagies/local.strategy';
 
 const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
 
 const securityProviders: Provider[] = [SecurityService, DeviceRepository];
+
+const strategyProviders: Provider[] = [LocalStrategy];
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -70,7 +74,10 @@ const basicProviders: Provider[] = [
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
     MongooseModule.forRoot(
       appSettings.env.isTesting()
         ? appSettings.api.MONGO_CONNECTION_URI_FOR_TESTS
@@ -92,6 +99,9 @@ const basicProviders: Provider[] = [
     TestingController,
   ],
   providers: [
+    ...strategyProviders,
+    LoginIsExistConstraint,
+    EmailIsExistConstraint,
     ...authProviders,
     ...securityProviders,
     ...usersProviders,
@@ -99,8 +109,6 @@ const basicProviders: Provider[] = [
     ...postsProviders,
     ...testingProviders,
     ...basicProviders,
-    LoginIsExistConstraint,
-    EmailIsExistConstraint,
     {
       provide: AppSettings,
       useValue: appSettings,

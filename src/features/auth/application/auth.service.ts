@@ -219,6 +219,20 @@ export class AuthService {
     };
   }
 
+  async validateUser(
+    loginOrEmail: string,
+    password: string,
+  ): Promise<Result<string>> {
+    const user: UserDocument | null =
+      await this.userRepository.findByLoginOrEmailField(loginOrEmail);
+
+    if (!user || !(await this.cryptoService.compare(password, user.password))) {
+      return Result.unauthorized('Wrong login or password');
+    }
+
+    return Result.success(user.id);
+  }
+
   async login(dto: LoginDto): Promise<
     Result<{
       accessToken: string;
@@ -237,14 +251,12 @@ export class AuthService {
       }
     }
 
-    const user: UserDocument | null =
-      await this.userRepository.findByLoginOrEmailField(dto.loginOrEmail);
+    const user: UserDocument | null = await this.userRepository.findById(
+      dto.userId,
+    );
 
-    if (
-      !user ||
-      !(await this.cryptoService.compare(dto.password, user.password))
-    ) {
-      return Result.unauthorized('Wrong login or password');
+    if (!user) {
+      return Result.unauthorized('User not found');
     }
 
     if (!user.emailConfirmation.isConfirmed) {
@@ -253,14 +265,14 @@ export class AuthService {
 
     // new payload for access token
     const JwtAccessTokenPayload: JwtPayload = {
-      userId: user._id.toString(),
+      userId: dto.userId,
     };
 
     const deviceId: string = randomUUID();
 
     // new payload for refresh token
     const JwtRefreshTokenPayload: JwtPayload = {
-      userId: user._id.toString(),
+      userId: dto.userId,
       deviceId: deviceId,
     };
 
@@ -286,7 +298,7 @@ export class AuthService {
       const ip: string = dto.ip;
 
       const newDevice: DeviceDocument = new this.DeviceModel({
-        userId: user._id,
+        userId: dto.userId,
         deviceId: decodedRefreshToken.deviceId,
         iat: unixToISOString(iat),
         deviceName: deviceName,

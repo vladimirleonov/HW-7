@@ -8,7 +8,6 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { LoginModel } from './models/input/login.input.model';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { AuthService } from '../application/auth.service';
 import { Response } from 'express';
@@ -20,9 +19,7 @@ import { AuthMeOutputModel } from './models/output/auth-me.output';
 import { UsersQueryRepository } from '../../users/infrastructure/users.query-repository';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
-import { RequestWithCookies } from '../../../base/types/request-with-cookie';
 import { RateLimitGuard } from '../../../core/guards/rate-limit.guard';
-import { AuthGuard } from '../../../core/guards/auth.guard';
 import { CurrentUserId } from '../../../core/decorators/param-decorators/current-user-id.param.decorator';
 import { RefreshTokenGuard } from '../../../core/guards/refresh-token.guard';
 import { CurrentDeviceId } from '../../../core/decorators/param-decorators/current-device-id.param.decorator';
@@ -32,6 +29,9 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '../../../core/exception-filters/http-exception-filter';
+import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
+import { AuthGuard } from '../../../core/guards/auth.guard';
+import { RequestWithCookies } from '../../../base/types/request-with-cookie';
 
 @Controller('auth')
 export class AuthController {
@@ -116,10 +116,11 @@ export class AuthController {
     }
   }
 
+  @UseGuards(PassportAuthGuard('local'))
   @Post('login')
   async login(
     @Req() req: RequestWithCookies,
-    @Body() loginModel: LoginModel,
+    @CurrentUserId() userId: string,
     @Res() res: Response,
   ) {
     const ip: string = this.utilsService.getIpAddress(req);
@@ -128,29 +129,21 @@ export class AuthController {
     // TODO: use decorator or no?
     const refreshToken: string = req.cookies?.refreshToken;
 
-    const { loginOrEmail, password } = loginModel;
+    const dto: LoginDto = new LoginDto(userId, ip, deviceName, refreshToken);
 
-    const dto: LoginDto = new LoginDto(
-      loginOrEmail,
-      password,
-      ip,
-      deviceName,
-      refreshToken,
-    );
-
-    const result = await this.authService.login(dto);
-    if (result.status === ResultStatus.Unauthorized) {
-      throw new UnauthorizedException(result.errorMessage!);
+    const loginResult = await this.authService.login(dto);
+    if (loginResult.status === ResultStatus.Unauthorized) {
+      throw new UnauthorizedException(loginResult.errorMessage!);
     }
 
-    res.cookie('refreshToken', result.data?.refreshToken, {
+    res.cookie('refreshToken', loginResult.data?.refreshToken, {
       httpOnly: true, // cookie can only be accessed via http or https
       secure: true, // send cookie only over https
       sameSite: 'strict', // protects against CSRF attacks
     });
 
     res.status(HttpStatus.OK).send({
-      accessToken: result.data?.accessToken,
+      accessToken: loginResult.data?.accessToken,
     });
   }
 
