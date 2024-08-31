@@ -16,7 +16,6 @@ export class BasicAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const auth: string | undefined = request.headers['authorization'];
-
     if (!auth || !auth.startsWith('Basic ')) {
       throw new UnauthorizedException();
     }

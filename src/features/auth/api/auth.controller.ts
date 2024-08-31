@@ -29,9 +29,10 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '../../../core/exception-filters/http-exception-filter';
-import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
-import { AuthGuard } from '../../../core/guards/auth.guard';
+// import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
 import { RequestWithCookies } from '../../../base/types/request-with-cookie';
+import { LocalAuthGuard } from '../../../core/guards/passport/local-auth.guard';
+import { JwtAuthGuard } from '../../../core/guards/passport/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -116,7 +117,7 @@ export class AuthController {
     }
   }
 
-  @UseGuards(PassportAuthGuard('local'))
+  @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
     @Req() req: RequestWithCookies,
@@ -148,8 +149,9 @@ export class AuthController {
   }
 
   @Post('me')
-  @UseGuards(AuthGuard)
-  async authMe(@CurrentUserId() userId: string, @Res() res: Response) {
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async authMe(@CurrentUserId() userId: string) {
     const user: AuthMeOutputModel | null =
       await this.usersQueryRepository.findAuthenticatedUserById(userId);
 
@@ -157,11 +159,11 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    res.status(HttpStatus.OK).send(user);
+    return user;
   }
 
   @Post('logout')
-  @UseGuards(RefreshTokenGuard)
+  @HttpCode(204)
   async logout(
     @CurrentDeviceId() deviceId: string,
     @CurrentDeviceIat() iat: string,
@@ -178,6 +180,6 @@ export class AuthController {
       sameSite: 'strict', // protects against CSRF attacks
     });
 
-    res.status(HttpStatus.NO_CONTENT).send();
+    // res.status(HttpStatus.NO_CONTENT).send();
   }
 }

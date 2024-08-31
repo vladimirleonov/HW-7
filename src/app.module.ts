@@ -35,15 +35,19 @@ import { CryptoService } from './core/application/crypto.service';
 import { NodemailerService } from './core/application/nodemailer.service';
 import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './core/decorators/validate/email-is-exist.decorator';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './settings/configuration';
 import { LocalStrategy } from './core/stratagies/local.strategy';
+import { JwtStrategy } from './core/stratagies/jwt.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtAuthGuard } from './core/guards/passport/jwt-auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
 
 const securityProviders: Provider[] = [SecurityService, DeviceRepository];
 
-const strategyProviders: Provider[] = [LocalStrategy];
+const strategyProviders: Provider[] = [LocalStrategy, JwtStrategy];
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -78,6 +82,10 @@ const basicProviders: Provider[] = [
       isGlobal: true,
       load: [configuration],
     }),
+    JwtModule.register({
+      secret: appSettings.api.JWT_SECRET,
+      signOptions: { expiresIn: appSettings.api.JWT_EXPIRATION_TIME },
+    }),
     MongooseModule.forRoot(
       appSettings.env.isTesting()
         ? appSettings.api.MONGO_CONNECTION_URI_FOR_TESTS
@@ -99,16 +107,16 @@ const basicProviders: Provider[] = [
     TestingController,
   ],
   providers: [
-    ...strategyProviders,
-    LoginIsExistConstraint,
-    EmailIsExistConstraint,
     ...authProviders,
     ...securityProviders,
     ...usersProviders,
     ...blogsProviders,
     ...postsProviders,
     ...testingProviders,
+    LoginIsExistConstraint,
+    EmailIsExistConstraint,
     ...basicProviders,
+    ...strategyProviders,
     {
       provide: AppSettings,
       useValue: appSettings,

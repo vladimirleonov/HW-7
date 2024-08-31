@@ -60,6 +60,7 @@ class APISettings {
 
   // Jwt
   public readonly JWT_SECRET: string;
+  public readonly JWT_EXPIRATION_TIME: string;
 
   constructor(private readonly envVariables: EnvironmentVariable) {
     // Application
@@ -86,6 +87,7 @@ class APISettings {
 
     //Jwt
     this.JWT_SECRET = envVariables.JWT_SECRET ?? 'secret';
+    this.JWT_EXPIRATION_TIME = envVariables.JWT_EXPIRATION_TIME ?? '10h';
   }
 
   private getNumberOrDefault(value: any, defaultValue: number): number {

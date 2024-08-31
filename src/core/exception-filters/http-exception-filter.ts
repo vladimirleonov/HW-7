@@ -129,6 +129,8 @@ export class CustomExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
+    console.log('exception filter error');
+
     if (!appSettings.env.isProduction()) {
       response.status(exception.statusCode).json({
         statusCode: exception.statusCode,

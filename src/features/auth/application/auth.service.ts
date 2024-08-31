@@ -23,6 +23,7 @@ import { NodemailerService } from '../../../core/application/nodemailer.service'
 import { registrationEmailTemplate } from '../../../core/email-templates/registration-email-template';
 import { passwordRecoveryEmailTemplate } from '../../../core/email-templates/password-recovery-email-template';
 import { CryptoService } from '../../../core/application/crypto.service';
+import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { JwtService } from '../../../core/application/jwt.service';
 
 @Injectable()
@@ -31,6 +32,7 @@ export class AuthService {
     private readonly appSettings: AppSettings,
     private readonly deviceRepository: DeviceRepository,
     private readonly jwtService: JwtService,
+    private readonly nestJwtService: NestJwtService,
     private readonly userRepository: UsersRepository,
     private readonly cryptoService: CryptoService,
     private readonly nodemailerService: NodemailerService,
@@ -277,10 +279,12 @@ export class AuthService {
     };
 
     // generate access token
-    const accessToken: string = this.jwtService.generateToken(
-      JwtAccessTokenPayload,
-      '10h',
-    );
+    const accessToken: string = this.nestJwtService.sign(JwtAccessTokenPayload);
+    // console.log("accessToken", accessToken);
+    // const accessToken: string = this.jwtService.generateToken(
+    //   JwtAccessTokenPayload,
+    //   '10h',
+    // );
 
     //generate refresh token
     const refreshToken: string = this.jwtService.generateToken(
@@ -291,6 +295,7 @@ export class AuthService {
     const decodedRefreshToken: string | JwtPayload | null =
       this.jwtService.decode(refreshToken);
 
+    // create device
     if (decodedRefreshToken && typeof decodedRefreshToken !== 'string') {
       const { iat, exp } = decodedRefreshToken;
 
@@ -329,41 +334,41 @@ export class AuthService {
     return Result.success();
   }
 
-  async checkAccessToken(
-    authHeader: string,
-  ): Promise<Result<JwtPayload | null>> {
-    if (!authHeader.startsWith('Bearer ')) {
-      return Result.unauthorized('Access token not provided');
-    }
-
-    const token: string = authHeader.split(' ')[1];
-
-    if (!token) {
-      return Result.unauthorized('Access token not provided');
-    }
-
-    let payload: JwtPayload;
-
-    try {
-      payload = this.jwtService.verifyToken(token) as JwtPayload;
-      if (!payload || !payload.userId) {
-        return Result.unauthorized('Invalid access token!');
-      }
-    } catch (err) {
-      console.error('verify access token', err);
-      return Result.unauthorized('Invalid access token');
-    }
-
-    const user: UserDocument | null = await this.userRepository.findById(
-      payload.userId,
-    );
-
-    if (!user) {
-      return Result.unauthorized('User not found');
-    }
-
-    return Result.success(payload);
-  }
+  // async checkAccessToken(
+  //   authHeader: string,
+  // ): Promise<Result<JwtPayload | null>> {
+  //   if (!authHeader.startsWith('Bearer ')) {
+  //     return Result.unauthorized('Access token not provided');
+  //   }
+  //
+  //   const token: string = authHeader.split(' ')[1];
+  //
+  //   if (!token) {
+  //     return Result.unauthorized('Access token not provided');
+  //   }
+  //
+  //   let payload: JwtPayload;
+  //
+  //   try {
+  //     payload = this.jwtService.verifyToken(token) as JwtPayload;
+  //     if (!payload || !payload.userId) {
+  //       return Result.unauthorized('Invalid access token!');
+  //     }
+  //   } catch (err) {
+  //     console.error('verify access token', err);
+  //     return Result.unauthorized('Invalid access token');
+  //   }
+  //
+  //   const user: UserDocument | null = await this.userRepository.findById(
+  //     payload.userId,
+  //   );
+  //
+  //   if (!user) {
+  //     return Result.unauthorized('User not found');
+  //   }
+  //
+  //   return Result.success(payload);
+  // }
 
   async checkRefreshToken(token: string): Promise<Result<JwtPayload | null>> {
     const payload: JwtPayload = this.jwtService.verifyToken(
