@@ -221,7 +221,7 @@ export class AuthService {
     };
   }
 
-  async validateUser(
+  async validateUserByLoginOrEmailAndPassword(
     loginOrEmail: string,
     password: string,
   ): Promise<Result<string>> {
@@ -233,6 +233,16 @@ export class AuthService {
     }
 
     return Result.success(user.id);
+  }
+
+  async validateUserById(id: string): Promise<Result> {
+    const user: UserDocument | null = await this.userRepository.findById(id);
+
+    if (!user) {
+      return Result.notFound('Wrong user id');
+    }
+
+    return Result.success();
   }
 
   async login(dto: LoginDto): Promise<
@@ -334,41 +344,41 @@ export class AuthService {
     return Result.success();
   }
 
-  // async checkAccessToken(
-  //   authHeader: string,
-  // ): Promise<Result<JwtPayload | null>> {
-  //   if (!authHeader.startsWith('Bearer ')) {
-  //     return Result.unauthorized('Access token not provided');
-  //   }
-  //
-  //   const token: string = authHeader.split(' ')[1];
-  //
-  //   if (!token) {
-  //     return Result.unauthorized('Access token not provided');
-  //   }
-  //
-  //   let payload: JwtPayload;
-  //
-  //   try {
-  //     payload = this.jwtService.verifyToken(token) as JwtPayload;
-  //     if (!payload || !payload.userId) {
-  //       return Result.unauthorized('Invalid access token!');
-  //     }
-  //   } catch (err) {
-  //     console.error('verify access token', err);
-  //     return Result.unauthorized('Invalid access token');
-  //   }
-  //
-  //   const user: UserDocument | null = await this.userRepository.findById(
-  //     payload.userId,
-  //   );
-  //
-  //   if (!user) {
-  //     return Result.unauthorized('User not found');
-  //   }
-  //
-  //   return Result.success(payload);
-  // }
+  async checkAccessToken(
+    authHeader: string,
+  ): Promise<Result<JwtPayload | null>> {
+    if (!authHeader.startsWith('Bearer ')) {
+      return Result.unauthorized('Access token not provided');
+    }
+
+    const token: string = authHeader.split(' ')[1];
+
+    if (!token) {
+      return Result.unauthorized('Access token not provided');
+    }
+
+    let payload: JwtPayload;
+
+    try {
+      payload = this.jwtService.verifyToken(token) as JwtPayload;
+      if (!payload || !payload.userId) {
+        return Result.unauthorized('Invalid access token!');
+      }
+    } catch (err) {
+      console.error('verify access token', err);
+      return Result.unauthorized('Invalid access token');
+    }
+
+    const user: UserDocument | null = await this.userRepository.findById(
+      payload.userId,
+    );
+
+    if (!user) {
+      return Result.unauthorized('User not found');
+    }
+
+    return Result.success(payload);
+  }
 
   async checkRefreshToken(token: string): Promise<Result<JwtPayload | null>> {
     const payload: JwtPayload = this.jwtService.verifyToken(

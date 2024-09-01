@@ -19,13 +19,13 @@ import {
 import { UsersQueryRepository } from '../infrastructure/users.query-repository';
 import { UserCreateModel } from './models/input/create-user.input.model';
 import { Result, ResultStatus } from '../../../base/types/object-result';
-import { BasicAuthGuard } from '../../../core/guards/basic-auth.guard';
 import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 import {
   BadRequestException,
   InternalServerErrorException,
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
+import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
