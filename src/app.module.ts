@@ -30,7 +30,7 @@ import {
   ApiAccessLogSchema,
 } from './features/auth/domain/api-access-log.entity';
 import { UtilsService } from './core/application/utils.service';
-import { JwtService } from './core/application/jwt.service';
+import { JwtService } from '@nestjs/jwt';
 import { CryptoService } from './core/application/crypto.service';
 import { NodemailerService } from './core/application/nodemailer.service';
 import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';

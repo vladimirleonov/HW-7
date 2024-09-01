@@ -21,7 +21,6 @@ import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
 import { RateLimitGuard } from '../../../core/guards/custom/rate-limit.guard';
 import { CurrentUserId } from '../../../core/decorators/param-decorators/current-user-id.param.decorator';
-import { RefreshTokenGuard } from '../../../core/guards/custom/refresh-token.guard';
 import { CurrentDeviceId } from '../../../core/decorators/param-decorators/current-device-id.param.decorator';
 import { CurrentDeviceIat } from '../../../core/decorators/param-decorators/current-device-iat.param.decorator';
 import { UtilsService } from '../../../core/application/utils.service';
@@ -29,7 +28,6 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '../../../core/exception-filters/http-exception-filter';
-// import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
 import { RequestWithCookies } from '../../../base/types/request-with-cookie';
 import { LocalAuthGuard } from '../../../core/guards/passport/local-auth.guard';
 import { JwtAuthGuard } from '../../../core/guards/passport/jwt-auth.guard';

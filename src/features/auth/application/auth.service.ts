@@ -23,16 +23,14 @@ import { NodemailerService } from '../../../core/application/nodemailer.service'
 import { registrationEmailTemplate } from '../../../core/email-templates/registration-email-template';
 import { passwordRecoveryEmailTemplate } from '../../../core/email-templates/password-recovery-email-template';
 import { CryptoService } from '../../../core/application/crypto.service';
-import { JwtService as NestJwtService } from '@nestjs/jwt';
-import { JwtService } from '../../../core/application/jwt.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly appSettings: AppSettings,
     private readonly deviceRepository: DeviceRepository,
-    //private readonly jwtService: JwtService,
-    private readonly nestJwtService: NestJwtService,
+    private readonly jwtService: JwtService,
     private readonly userRepository: UsersRepository,
     private readonly cryptoService: CryptoService,
     private readonly nodemailerService: NodemailerService,
@@ -251,9 +249,21 @@ export class AuthService {
       refreshToken: string;
     } | null>
   > {
+    // if (dto.refreshToken) {
+    //   try {
+    //     this.nestJwtService.verifyToken(dto.refreshToken);
+    //
+    //     return Result.unauthorized(
+    //       'Refresh token is still valid. Logout before logging in again',
+    //     );
+    //   } catch (err) {
+    //     // console.log('Invalid refresh token, proceeding with login')
+    //   }
+    // }
+
     if (dto.refreshToken) {
       try {
-        this.jwtService.verifyToken(dto.refreshToken);
+        this.jwtService.verify(dto.refreshToken);
 
         return Result.unauthorized(
           'Refresh token is still valid. Logout before logging in again',
@@ -291,16 +301,12 @@ export class AuthService {
     // generate access token
     // const accessToken: string = this.nestJwtService.sign(JwtAccessTokenPayload);
     // console.log("accessToken", accessToken);
-    const accessToken: string = this.jwtService.generateToken(
-      JwtAccessTokenPayload,
-      '10h',
-    );
+    const accessToken: string = this.jwtService.sign(JwtAccessTokenPayload);
 
     //generate refresh token
-    const refreshToken: string = this.jwtService.generateToken(
-      JwtRefreshTokenPayload,
-      '20h',
-    );
+    const refreshToken: string = this.jwtService.sign(JwtRefreshTokenPayload, {
+      expiresIn: '20h',
+    });
 
     const decodedRefreshToken: string | JwtPayload | null =
       this.jwtService.decode(refreshToken);
@@ -347,9 +353,7 @@ export class AuthService {
   async validateRefreshToken(
     token: string,
   ): Promise<Result<JwtPayload | null>> {
-    const payload: JwtPayload = this.jwtService.verifyToken(
-      token,
-    ) as JwtPayload;
+    const payload: JwtPayload = this.jwtService.verify(token) as JwtPayload;
 
     if (!payload || !payload.deviceId || !payload.userId) {
       return Result.unauthorized('Invalid refresh token');
