@@ -1,9 +1,9 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Result, ResultStatus } from '../../base/types/object-result';
-import { UtilsService } from '../application/utils.service';
+import { Result, ResultStatus } from '../../../base/types/object-result';
+import { UtilsService } from '../../application/utils.service';
 import { Request } from 'express';
-import { SecurityService } from '../../features/security/application/security.service';
-import { TooManyRequestsException } from '../exception-filters/http-exception-filter';
+import { SecurityService } from '../../../features/security/application/security.service';
+import { TooManyRequestsException } from '../../exception-filters/http-exception-filter';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {

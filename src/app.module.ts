@@ -41,16 +41,25 @@ import { LocalStrategy } from './core/stratagies/local.strategy';
 import { JwtStrategy } from './core/stratagies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { BasicStrategy } from './core/stratagies/basic.strategy';
-
-const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
-
-const securityProviders: Provider[] = [SecurityService, DeviceRepository];
+import { RefreshTokenStrategy } from './core/stratagies/refresh-token.strategy';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
   JwtStrategy,
   BasicStrategy,
+  RefreshTokenStrategy,
 ];
+
+const basicProviders: Provider[] = [
+  UtilsService,
+  JwtService,
+  CryptoService,
+  NodemailerService,
+];
+
+const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
+
+const securityProviders: Provider[] = [SecurityService, DeviceRepository];
 
 const usersProviders: Provider[] = [
   UsersService,
@@ -71,13 +80,6 @@ const postsProviders: Provider[] = [
 ];
 
 const testingProviders: Provider[] = [TestingService, TestingRepository];
-
-const basicProviders: Provider[] = [
-  UtilsService,
-  JwtService,
-  CryptoService,
-  NodemailerService,
-];
 
 @Module({
   imports: [

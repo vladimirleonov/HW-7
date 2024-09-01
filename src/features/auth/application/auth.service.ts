@@ -31,7 +31,7 @@ export class AuthService {
   constructor(
     private readonly appSettings: AppSettings,
     private readonly deviceRepository: DeviceRepository,
-    private readonly jwtService: JwtService,
+    //private readonly jwtService: JwtService,
     private readonly nestJwtService: NestJwtService,
     private readonly userRepository: UsersRepository,
     private readonly cryptoService: CryptoService,
@@ -289,12 +289,12 @@ export class AuthService {
     };
 
     // generate access token
-    const accessToken: string = this.nestJwtService.sign(JwtAccessTokenPayload);
+    // const accessToken: string = this.nestJwtService.sign(JwtAccessTokenPayload);
     // console.log("accessToken", accessToken);
-    // const accessToken: string = this.jwtService.generateToken(
-    //   JwtAccessTokenPayload,
-    //   '10h',
-    // );
+    const accessToken: string = this.jwtService.generateToken(
+      JwtAccessTokenPayload,
+      '10h',
+    );
 
     //generate refresh token
     const refreshToken: string = this.jwtService.generateToken(
@@ -344,43 +344,9 @@ export class AuthService {
     return Result.success();
   }
 
-  async checkAccessToken(
-    authHeader: string,
+  async validateRefreshToken(
+    token: string,
   ): Promise<Result<JwtPayload | null>> {
-    if (!authHeader.startsWith('Bearer ')) {
-      return Result.unauthorized('Access token not provided');
-    }
-
-    const token: string = authHeader.split(' ')[1];
-
-    if (!token) {
-      return Result.unauthorized('Access token not provided');
-    }
-
-    let payload: JwtPayload;
-
-    try {
-      payload = this.jwtService.verifyToken(token) as JwtPayload;
-      if (!payload || !payload.userId) {
-        return Result.unauthorized('Invalid access token!');
-      }
-    } catch (err) {
-      console.error('verify access token', err);
-      return Result.unauthorized('Invalid access token');
-    }
-
-    const user: UserDocument | null = await this.userRepository.findById(
-      payload.userId,
-    );
-
-    if (!user) {
-      return Result.unauthorized('User not found');
-    }
-
-    return Result.success(payload);
-  }
-
-  async checkRefreshToken(token: string): Promise<Result<JwtPayload | null>> {
     const payload: JwtPayload = this.jwtService.verifyToken(
       token,
     ) as JwtPayload;
@@ -389,15 +355,63 @@ export class AuthService {
       return Result.unauthorized('Invalid refresh token');
     }
 
-    //? check if user exist by userId (may also check match user to deviceId)
-    const user: UserDocument | null = await this.userRepository.findById(
-      payload.userId,
-    );
-
-    if (!user) {
-      return Result.unauthorized('User not found');
-    }
-
     return Result.success(payload);
   }
+
+  // async checkAccessToken(
+  //   authHeader: string,
+  // ): Promise<Result<JwtPayload | null>> {
+  //   if (!authHeader.startsWith('Bearer ')) {
+  //     return Result.unauthorized('Access token not provided');
+  //   }
+  //
+  //   const token: string = authHeader.split(' ')[1];
+  //
+  //   if (!token) {
+  //     return Result.unauthorized('Access token not provided');
+  //   }
+  //
+  //   let payload: JwtPayload;
+  //
+  //   try {
+  //     payload = this.jwtService.verifyToken(token) as JwtPayload;
+  //     if (!payload || !payload.userId) {
+  //       return Result.unauthorized('Invalid access token!');
+  //     }
+  //   } catch (err) {
+  //     console.error('verify access token', err);
+  //     return Result.unauthorized('Invalid access token');
+  //   }
+  //
+  //   const user: UserDocument | null = await this.userRepository.findById(
+  //     payload.userId,
+  //   );
+  //
+  //   if (!user) {
+  //     return Result.unauthorized('User not found');
+  //   }
+  //
+  //   return Result.success(payload);
+  // }
+
+  // async checkRefreshToken(token: string): Promise<Result<JwtPayload | null>> {
+  //   const payload: JwtPayload = this.jwtService.verifyToken(
+  //     token,
+  //   ) as JwtPayload;
+  //
+  //   if (!payload || !payload.deviceId || !payload.userId) {
+  //     return Result.unauthorized('Invalid refresh token');
+  //   }
+  //
+  //   //? check if user exist by userId (may also check match user to deviceId)
+  //   const user: UserDocument | null = await this.userRepository.findById(
+  //     payload.userId,
+  //   );
+  //
+  //   if (!user) {
+  //     return Result.unauthorized('User not found');
+  //   }
+  //
+  //   return Result.success(payload);
+  // }
 }
