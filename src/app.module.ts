@@ -5,7 +5,6 @@ import { UsersService } from './features/users/application/users.service';
 import { UsersRepository } from './features/users/infrastructure/users.repository';
 import { UsersQueryRepository } from './features/users/infrastructure/users.query-repository';
 import { User, UserSchema } from './features/users/domain/user.entity';
-import { AppSettings, appSettings } from './settings/app-settings';
 import { AuthService } from './features/auth/application/auth.service';
 import { BlogsController } from './features/blogs/api/blogs.controller';
 import { BlogsService } from './features/blogs/application/blogs.service';
@@ -35,13 +34,21 @@ import { CryptoService } from './core/application/crypto.service';
 import { NodemailerService } from './core/application/nodemailer.service';
 import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './core/decorators/validate/email-is-exist.decorator';
-import { ConfigModule } from '@nestjs/config';
-import configuration from './settings/configuration';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration, {
+  ConfigurationType,
+  validate,
+} from './settings/env/configuration';
 import { LocalStrategy } from './core/stratagies/local.strategy';
 import { JwtStrategy } from './core/stratagies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { BasicStrategy } from './core/stratagies/basic.strategy';
 import { RefreshTokenStrategy } from './core/stratagies/refresh-token.strategy';
+import { APISettings } from './settings/env/api-settings';
+import {
+  EnvironmentsEnum,
+  EnvironmentSettings,
+} from './settings/env/env-settings';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -86,16 +93,58 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
+      validate: validate,
+      // ignoreEnvFile:
+      //   process.env.ENV !== EnvironmentsEnum.DEVELOPMENT &&
+      //   process.env.ENV !== EnvironmentsEnum.TESTING,
+      envFilePath: ['.env.development', '.env'], // -> right
     }),
-    JwtModule.register({
-      secret: appSettings.api.JWT_SECRET,
-      signOptions: { expiresIn: appSettings.api.JWT_EXPIRATION_TIME },
+    // JwtModule.register({
+    //   secret: appSettings.api.JWT_SECRET,
+    //   signOptions: { expiresIn: appSettings.api.JWT_EXPIRATION_TIME },
+    // }),
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+        const apiSettings: APISettings = configService.get('apiSettings', {
+          infer: true,
+        });
+
+        return {
+          secret: apiSettings.JWT_SECRET,
+          signOptions: {
+            expiresIn: apiSettings.JWT_EXPIRATION_TIME,
+          },
+        };
+      },
+      inject: [ConfigService],
     }),
-    MongooseModule.forRoot(
-      appSettings.env.isTesting()
-        ? appSettings.api.MONGO_CONNECTION_URI_FOR_TESTS
-        : appSettings.api.MONGO_CONNECTION_URI,
-    ),
+    // MongooseModule.forRoot(
+    //   appSettings.env.isTesting()
+    //     ? appSettings.api.MONGO_CONNECTION_URI_FOR_TESTS
+    //     : appSettings.api.MONGO_CONNECTION_URI,
+    // ),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+        const apiSettings: APISettings = configService.get('apiSettings', {
+          infer: true,
+        });
+        const environmentSettings: EnvironmentSettings = configService.get(
+          'environmentSettings',
+          { infer: true },
+        );
+
+        const uri: string = environmentSettings.isTesting()
+          ? apiSettings.MONGO_CONNECTION_URI_FOR_TESTS
+          : apiSettings.MONGO_CONNECTION_URI;
+
+        console.log(uri);
+
+        return {
+          uri,
+        };
+      },
+      inject: [ConfigService],
+    }),
     MongooseModule.forFeature([
       { name: Device.name, schema: DeviceSchema },
       { name: ApiAccessLog.name, schema: ApiAccessLogSchema },
@@ -122,10 +171,10 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     EmailIsExistConstraint,
     ...basicProviders,
     ...strategyProviders,
-    {
-      provide: AppSettings,
-      useValue: appSettings,
-    },
+    // {
+    //   provide: AppSettings,
+    //   useValue: appSettings,
+    // },
     /* {
         provide: UsersService,
         useClass: UsersService,

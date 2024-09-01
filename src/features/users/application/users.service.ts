@@ -5,8 +5,10 @@ import { Model } from 'mongoose';
 import { UsersRepository } from '../infrastructure/users.repository';
 import { Result } from '../../../base/types/object-result';
 import { randomUUID } from 'node:crypto';
-import { AppSettings } from '../../../settings/app-settings';
 import { CryptoService } from '../../../core/application/crypto.service';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from '../../../settings/env/configuration';
+import { APISettings } from '../../../settings/env/api-settings';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +16,7 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<User>,
     private usersRepository: UsersRepository,
     private cryptoService: CryptoService,
-    private appSettings: AppSettings,
+    private configService: ConfigService<ConfigurationType, true>,
   ) {}
 
   async create(
@@ -22,6 +24,10 @@ export class UsersService {
     password: string,
     email: string,
   ): Promise<Result<string | null>> {
+    const apiSettings: APISettings = this.configService.get('apiSettings', {
+      infer: true,
+    });
+
     const [foundUserByLogin, foundUserByEmail]: [User | null, User | null] =
       await Promise.all([
         this.usersRepository.findByField('login', login),
@@ -34,7 +40,7 @@ export class UsersService {
 
     const generatedPasswordHash: string = await this.cryptoService.createHash(
       password,
-      this.appSettings.api.HASH_ROUNDS,
+      apiSettings.HASH_ROUNDS,
     );
 
     // ??? how to create user correctly

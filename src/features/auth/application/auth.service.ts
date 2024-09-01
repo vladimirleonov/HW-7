@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { AppSettings } from '../../../settings/app-settings';
 import { randomUUID } from 'node:crypto';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { UsersRepository } from '../../users/infrastructure/users.repository';
@@ -28,7 +27,6 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly appSettings: AppSettings,
     private readonly deviceRepository: DeviceRepository,
     private readonly jwtService: JwtService,
     private readonly userRepository: UsersRepository,

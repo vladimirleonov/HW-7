@@ -10,6 +10,8 @@ import {
   CustomExceptionFilter,
   HttpExceptionFilter,
 } from '../core/exception-filters/http-exception-filter';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from './env/configuration';
 
 const APP_PREFIX = '/api';
 
@@ -67,5 +69,11 @@ const setAppPipes = (app: INestApplication) => {
 };
 
 const setAppExceptionsFilters = (app: INestApplication) => {
-  app.useGlobalFilters(new HttpExceptionFilter(), new CustomExceptionFilter());
+  const configService: ConfigService<ConfigurationType, true> = app.get(
+    ConfigService<ConfigurationType, true>,
+  );
+  app.useGlobalFilters(
+    new HttpExceptionFilter(),
+    new CustomExceptionFilter(configService),
+  );
 };
