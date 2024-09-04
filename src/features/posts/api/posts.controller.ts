@@ -29,6 +29,9 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/use-cases/create-post.usecase';
 import { UpdatePostCommand } from '../application/use-cases/update-post.usecase';
 import { DeletePostCommand } from '../application/use-cases/delete-post.usecase';
+import { CurrentUserId } from '../../../core/decorators/param-decorators/current-user-id.param.decorator';
+import { CommentOutputModel } from '../../comments/api/models/output/comment.output.model';
+import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName'];
@@ -83,6 +86,34 @@ export class PostsController {
     }
 
     return post;
+  }
+
+  @Get(':postId/comments')
+  async getPostComments(
+    @Param('postId', new ParseMongoIdPipe()) postId: string,
+    @Query() query: any,
+    @CurrentUserId() userId: string,
+  ) {
+    const pagination: PaginationOutput<CommentOutputModel> = new Pagination(
+      query,
+      COMMENT_SORTING_PROPERTIES,
+    );
+
+    //? is it ok
+    const post: PostOutputModel | null =
+      await this.postsQueryRepository.findById(postId);
+    if (!post) {
+      throw new NotFoundException();
+    }
+
+    const comments: PaginationOutput<PostOutputModel> =
+      await this.commentMongoQueryRepository.findAllPostCommentsForOutput(
+        sanitizedQuery,
+        req.params.postId,
+        userId,
+      );
+
+    return comments;
   }
 
   @Post()

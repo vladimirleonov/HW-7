@@ -1,4 +1,5 @@
-import { Like, LikeStatus, PostDocument } from '../../../domain/post.entity';
+import { PostDocument } from '../../../domain/post.entity';
+import { Like, LikeStatus } from '../../../../like/domain/like.entity';
 
 // TODO: change LikeStatus to another file
 class ExtendedLikesInfo {

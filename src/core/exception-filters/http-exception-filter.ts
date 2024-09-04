@@ -27,7 +27,7 @@ export class BadRequestException extends CustomError {
 }
 
 export class NotFoundException extends CustomError {
-  constructor(message: string) {
+  constructor(message: string = 'Not Found') {
     console.log(message);
     super(404, message);
   }

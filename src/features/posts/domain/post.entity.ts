@@ -1,45 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-
-export type PostDocument = HydratedDocument<Post>;
-
-// like
-
-export enum LikeStatus {
-  Like = 'Like',
-  Dislike = 'Dislike',
-  None = 'None',
-}
-
-@Schema()
-export class Like {
-  @Prop({
-    type: Date,
-    // validate: {
-    //   validator: isValidISOString,
-    //   message: "createdAt must be a valid ISO string",
-    // },
-    required: true,
-  })
-  createdAt: Date;
-
-  @Prop({
-    type: String,
-    enum: LikeStatus,
-    required: true,
-  })
-  status: string;
-
-  @Prop({
-    type: String,
-    required: true,
-  })
-  authorId: string;
-}
-
-export const likeSchema = SchemaFactory.createForClass(Like);
-
-//
+import { Like, likeSchema } from '../../like/domain/like.entity';
 
 @Schema()
 export class Post {
@@ -108,6 +69,8 @@ export class Post {
   })
   createdAt: Date;
 }
+
+export type PostDocument = HydratedDocument<Post>;
 
 export const PostSchema = SchemaFactory.createForClass(Post);
 
