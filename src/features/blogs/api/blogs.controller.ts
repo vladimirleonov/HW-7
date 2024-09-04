@@ -4,8 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -33,6 +31,11 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
+import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase';
+import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase';
+import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -42,6 +45,7 @@ const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
 @Controller('blogs')
 export class BlogsController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
     private readonly postService: PostsService,
@@ -109,11 +113,16 @@ export class BlogsController {
   async create(@Body() createModel: BlogCreateModel) {
     const { name, description, websiteUrl } = createModel;
 
-    const result: Result<string> = await this.blogsService.create(
-      name,
-      description,
-      websiteUrl,
-    );
+    const result: Result<string> = await this.commandBus.execute<
+      CreateBlogCommand,
+      Result<string>
+    >(new CreateBlogCommand(name, description, websiteUrl));
+
+    // const result: Result<string> = await this.blogsService.create(
+    //   name,
+    //   description,
+    //   websiteUrl,
+    // );
 
     const createdId: string = result.data;
 
@@ -135,12 +144,17 @@ export class BlogsController {
   ) {
     const { title, shortDescription, content } = createModel;
 
-    const result: Result<string | null> = await this.postService.create(
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const result: Result<string | null> = await this.commandBus.execute<
+      CreatePostCommand,
+      Result<string | null>
+    >(new CreatePostCommand(title, shortDescription, content, blogId));
+
+    // const result: Result<string | null> = await this.postService.create(
+    //   title,
+    //   shortDescription,
+    //   content,
+    //   blogId,
+    // );
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
@@ -166,12 +180,17 @@ export class BlogsController {
   ) {
     const { name, description, websiteUrl } = updateModel;
 
-    const result: Result = await this.blogsService.update(
-      id,
-      name,
-      description,
-      websiteUrl,
-    );
+    const result: Result = await this.commandBus.execute<
+      UpdateBlogCommand,
+      Result
+    >(new UpdateBlogCommand(id, name, description, websiteUrl));
+
+    // const result: Result = await this.blogsService.update(
+    //   id,
+    //   name,
+    //   description,
+    //   websiteUrl,
+    // );
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
@@ -181,7 +200,11 @@ export class BlogsController {
   @Delete(':id')
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
-    const result: Result = await this.blogsService.delete(id);
+    const result: Result = await this.commandBus.execute<
+      DeleteBlogCommand,
+      Result
+    >(new DeleteBlogCommand(id));
+    // const result: Result = await this.blogsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);

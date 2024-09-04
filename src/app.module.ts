@@ -45,10 +45,19 @@ import { JwtModule } from '@nestjs/jwt';
 import { BasicStrategy } from './core/stratagies/basic.strategy';
 import { RefreshTokenStrategy } from './core/stratagies/refresh-token.strategy';
 import { APISettings } from './settings/env/api-settings';
+import { EnvironmentSettings } from './settings/env/env-settings';
+import { CqrsModule } from '@nestjs/cqrs';
+import { CreateUserUseCase } from './features/users/application/use-cases/create-user.usecase';
+import { DeleteUserUseCase } from './features/users/application/use-cases/delete-user.usecase';
+import { CreatePostCommandUseCase } from './features/posts/application/use-cases/create-post.usecase';
+import { UpdatePostUseCase } from './features/posts/application/use-cases/update-post.usecase';
+import { DeletePostUseCase } from './features/posts/application/use-cases/delete-post.usecase';
+import { CreateBlogUseCase } from './features/blogs/application/use-cases/create-blog.usecase';
 import {
-  EnvironmentsEnum,
-  EnvironmentSettings,
-} from './settings/env/env-settings';
+  UpdateBlogCommand,
+  UpdateBlogUseCase,
+} from './features/blogs/application/use-cases/update-blog.usecase';
+import { DeleteBlogUseCase } from './features/blogs/application/use-cases/delete-blog.usecase';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -69,18 +78,26 @@ const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
 const securityProviders: Provider[] = [SecurityService, DeviceRepository];
 
 const usersProviders: Provider[] = [
+  CreateUserUseCase,
+  DeleteUserUseCase,
   UsersService,
   UsersRepository,
   UsersQueryRepository,
 ];
 
 const blogsProviders: Provider[] = [
+  CreateBlogUseCase,
+  UpdateBlogUseCase,
+  DeleteBlogUseCase,
   BlogsService,
   BlogsRepository,
   BlogsQueryRepository,
 ];
 
 const postsProviders: Provider[] = [
+  CreatePostCommandUseCase,
+  UpdatePostUseCase,
+  DeletePostUseCase,
   PostsService,
   PostsRepository,
   PostsQueryRepository,
@@ -90,6 +107,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
 
 @Module({
   imports: [
+    CqrsModule,
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],

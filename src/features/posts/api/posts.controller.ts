@@ -25,6 +25,10 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../application/use-cases/create-post.usecase';
+import { UpdatePostCommand } from '../application/use-cases/update-post.usecase';
+import { DeletePostCommand } from '../application/use-cases/delete-post.usecase';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName'];
@@ -32,6 +36,7 @@ export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
 @Controller('posts')
 export class PostsController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
@@ -84,12 +89,17 @@ export class PostsController {
   async create(@Body() createModel: PostCreateModel) {
     const { title, shortDescription, content, blogId } = createModel;
 
-    const result: Result<string | null> = await this.postsService.create(
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const result: Result<string | null> = await this.commandBus.execute<
+      CreatePostCommand,
+      Result<string | null>
+    >(new CreatePostCommand(title, shortDescription, content, blogId));
+
+    // const result: Result<string | null> = await this.postsService.create(
+    //   title,
+    //   shortDescription,
+    //   content,
+    //   blogId,
+    // );
     // TODO: add check wasn't before
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
@@ -121,13 +131,18 @@ export class PostsController {
 
     const { title, shortDescription, content, blogId } = updateModel;
 
-    const result: Result = await this.postsService.update(
-      id,
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const result: Result = await this.commandBus.execute<
+      UpdatePostCommand,
+      Result
+    >(new UpdatePostCommand(id, title, shortDescription, content, blogId));
+
+    // const result: Result = await this.postsService.update(
+    //   id,
+    //   title,
+    //   shortDescription,
+    //   content,
+    //   blogId,
+    // );
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
@@ -137,7 +152,12 @@ export class PostsController {
   @Delete(':id')
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
-    const result: Result = await this.postsService.delete(id);
+    const result: Result = await this.commandBus.execute<
+      DeletePostCommand,
+      Result
+    >(new DeletePostCommand(id));
+
+    // const result: Result = await this.postsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);

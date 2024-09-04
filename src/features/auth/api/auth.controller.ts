@@ -9,9 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Result, ResultStatus } from '../../../base/types/object-result';
-import { AuthService } from '../application/auth.service';
 import { Response } from 'express';
-import { LoginDto } from '../application/dto/login.dto';
 import { RegistrationModel } from './models/input/registration.input.model';
 import { ConfirmRegistrationModel } from './models/input/confirm-registration.model';
 import { RegistrationEmailResendingModel } from './models/input/registration-email-resending.model';
@@ -31,11 +29,19 @@ import {
 import { RequestWithCookies } from '../../../base/types/request-with-cookie';
 import { LocalAuthGuard } from '../../../core/guards/passport/local-auth.guard';
 import { JwtAuthGuard } from '../../../core/guards/passport/jwt-auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { RegistrationUserCommand } from '../application/use-cases/registration-user.usecase';
+import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.usecase';
+import { SetNewPasswordCommand } from '../application/use-cases/set-new-password.usecase';
+import { LoginCommand } from '../application/use-cases/login.usecase';
+import { LogoutCommand } from '../application/use-cases/logout';
+import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.usecase';
+import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.usecase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
+    private readonly commandBus: CommandBus,
     private readonly utilsService: UtilsService,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
@@ -46,11 +52,12 @@ export class AuthController {
   async registration(@Body() registrationModel: RegistrationModel) {
     const { login, password, email } = registrationModel;
 
-    const result: Result<string | null> = await this.authService.registration(
-      login,
-      password,
-      email,
-    );
+    const result: Result<string | null> = await this.commandBus.execute<
+      RegistrationUserCommand,
+      Result<string | null>
+    >(new RegistrationUserCommand(login, password, email));
+
+    // const result: Result<string | null> = await this.authService.registration(login, password, email);
 
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
@@ -65,8 +72,13 @@ export class AuthController {
   ) {
     const { code } = confirmRegistrationModel;
 
-    const result: Result<boolean | null> =
-      await this.authService.confirmRegistration(code);
+    const result: Result<boolean | null> = await this.commandBus.execute(
+      new ConfirmRegistrationCommand(code),
+    );
+
+    // const result: Result<boolean | null> =
+    //   await this.authService.confirmRegistration(code);
+
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
     }
@@ -80,8 +92,13 @@ export class AuthController {
   ) {
     const { email } = registrationEmailResendingModel;
 
-    const result: Result =
-      await this.authService.registrationEmailResending(email);
+    const result: Result = await this.commandBus.execute<
+      RegistrationEmailResendingCommand,
+      Result
+    >(new RegistrationEmailResendingCommand(email));
+
+    // const result: Result =
+    //   await this.authService.registrationEmailResending(email);
 
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
@@ -94,7 +111,9 @@ export class AuthController {
   async passwordRecovery(@Body() passwordRecoveryModel: PasswordRecoveryModel) {
     const { email } = passwordRecoveryModel;
 
-    await this.authService.passwordRecovery(email);
+    await this.commandBus.execute(new PasswordRecoveryCommand(email));
+
+    // await this.authService.passwordRecovery(email);
 
     // to prevent user's email detection send NO_CONTENT
     // for user by email not found or email send successfully
@@ -106,10 +125,15 @@ export class AuthController {
   async newPassword(@Body() newPasswordModel: NewPasswordModel) {
     const { newPassword, recoveryCode } = newPasswordModel;
 
-    const result: Result = await this.authService.setNewPassword(
-      newPassword,
-      recoveryCode,
+    const result: Result = await this.commandBus.execute(
+      new SetNewPasswordCommand(newPassword, recoveryCode),
     );
+
+    // const result: Result = await this.authService.setNewPassword(
+    //   newPassword,
+    //   recoveryCode,
+    // );
+
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
     }
@@ -128,12 +152,24 @@ export class AuthController {
     // TODO: use decorator or no?
     const refreshToken: string = req.cookies?.refreshToken;
 
-    const dto: LoginDto = new LoginDto(userId, ip, deviceName, refreshToken);
+    // const dto: LoginDto = new LoginDto(userId, ip, deviceName, refreshToken);
 
-    const loginResult = await this.authService.login(dto);
+    const loginResult = await this.commandBus.execute(
+      new LoginCommand(userId, ip, deviceName, refreshToken),
+    );
     if (loginResult.status === ResultStatus.Unauthorized) {
       throw new UnauthorizedException(loginResult.errorMessage!);
     }
+
+    // const loginResult = await this.authService.login(dto);
+    // if (loginResult.status === ResultStatus.Unauthorized) {
+    //   throw new UnauthorizedException(loginResult.errorMessage!);
+    // }
+
+    // const loginResult = await this.authService.login(dto);
+    // if (loginResult.status === ResultStatus.Unauthorized) {
+    //   throw new UnauthorizedException(loginResult.errorMessage!);
+    // }
 
     res.cookie('refreshToken', loginResult.data?.refreshToken, {
       httpOnly: true, // cookie can only be accessed via http or https
@@ -167,7 +203,12 @@ export class AuthController {
     @CurrentDeviceIat() iat: string,
     @Res() res: Response,
   ) {
-    const result: Result = await this.authService.logout(deviceId, iat);
+    const result: Result = await this.commandBus.execute<LogoutCommand, Result>(
+      new LogoutCommand(deviceId, iat),
+    );
+
+    // const result: Result = await this.authService.logout(deviceId, iat);
+
     if (result.status === ResultStatus.Unauthorized) {
       throw new UnauthorizedException();
     }

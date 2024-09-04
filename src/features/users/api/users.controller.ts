@@ -26,6 +26,9 @@ import {
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../application/use-cases/create-user.usecase';
+import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -34,6 +37,7 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
@@ -57,11 +61,16 @@ export class UsersController {
   async create(@Body() createModel: UserCreateModel) {
     const { login, password, email } = createModel;
 
-    const result: Result<string | null> = await this.usersService.create(
-      login,
-      password,
-      email,
-    );
+    const result: Result<string | null> = await this.commandBus.execute<
+      CreateUserCommand,
+      Result<string | null>
+    >(new CreateUserCommand(login, password, email));
+
+    // const result: Result<string | null> = await this.usersService.create(
+    //   login,
+    //   password,
+    //   email,
+    // );
 
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
@@ -83,7 +92,11 @@ export class UsersController {
   @Delete(':id')
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
-    const result: Result = await this.usersService.delete(id);
+    const result: Result = await this.commandBus.execute<
+      DeleteUserCommand,
+      Result
+    >(new DeleteUserCommand(id));
+    // const result: Result = await this.usersService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
