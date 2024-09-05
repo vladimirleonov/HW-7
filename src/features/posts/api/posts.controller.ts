@@ -68,8 +68,8 @@ export class PostsController {
   }
 
   @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
   async getOne(
-    @Req() req: RequestWithOptionalUserId,
     @Param('id', new ParseMongoIdPipe()) id: string,
     @OptionalUserId() userId: string,
   ) {

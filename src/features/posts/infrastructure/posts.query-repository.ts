@@ -19,8 +19,8 @@ export class PostsQueryRepository {
   }
   getAllBlogPosts(
     pagination: Pagination,
-    userId?: string,
     blogId?: string,
+    userId?: string,
   ): any {
     const filterByBlogId: FilterQuery<Post> = blogId
       ? { blogId: new mongoose.Types.ObjectId(blogId) }

@@ -7,12 +7,16 @@ import { APISettings } from '../../settings/env/api-settings';
 export class NodemailerService {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
-  ) {}
+  ) {
+    console.log(configService);
+  }
   async sendEmail(
     recipient: string,
     emailTemplate: string,
     subject: string,
   ): Promise<boolean> {
+    console.log('configService', this.configService);
+
     const apiSettings: APISettings = this.configService.get('apiSettings', {
       infer: true,
     });

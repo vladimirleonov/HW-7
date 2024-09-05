@@ -145,8 +145,21 @@ PostSchema.methods.updateLikeStatus = function (
   return;
 };
 
+PostSchema.methods.getUserLikeStatusByUserId = function (
+  userId?: string,
+): LikeStatus {
+  // console.log("in getUserLikeStatusByUserId", userId)
+  if (!userId) return LikeStatus.None;
+  const userLike = this.likes.find(
+    (like: Like): boolean => like.authorId.toString() === userId,
+  );
+  // console.log("userLike", userLike)
+  return userLike ? userLike.status : LikeStatus.None;
+};
+
 export type PostDocument = HydratedDocument<Post> & {
   updateLikeStatus(userId: string, likeStatus: LikeStatus): void;
+  getUserLikeStatusByUserId(userId?: string): LikeStatus;
 };
 
 // export class Like {

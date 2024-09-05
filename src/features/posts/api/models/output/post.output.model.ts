@@ -29,6 +29,8 @@ export const PostOutputModelMapper = (
   post,
   userId?: string,
 ): PostOutputModel => {
+  console.log(post);
+  console.log(userId);
   const extendedLikesInfo: ExtendedLikesInfo = new ExtendedLikesInfo();
   extendedLikesInfo.likesCount = post.likesCount;
   extendedLikesInfo.dislikesCount = post.dislikesCount;
@@ -38,7 +40,6 @@ export const PostOutputModelMapper = (
   extendedLikesInfo.newestLikes = [];
 
   const outputModel: PostOutputModel = new PostOutputModel(extendedLikesInfo);
-  console.log(post);
   outputModel.id = post.id;
   outputModel.title = post.title;
   outputModel.shortDescription = post.shortDescription;

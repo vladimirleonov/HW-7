@@ -96,19 +96,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     console.log('HttpException error');
 
-    const errorsResponse: any = {
-      statusCode: status,
-      message: exception.message,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-    };
+    const errorsResponse: any = {};
 
     if (status === HttpStatus.BAD_REQUEST) {
       const responseBody: any = exception.getResponse();
       errorsResponse.errorsMessages = Array.isArray(responseBody.message)
         ? responseBody.message
         : [responseBody.message];
+
+      response.status(status).json(errorsResponse);
+      return;
     }
+
+    errorsResponse.statusCode = status;
+    errorsResponse.message = exception.message;
+    errorsResponse.timestamp = new Date().toISOString();
+    errorsResponse.path = request.url;
 
     response.status(status).json(errorsResponse);
   }

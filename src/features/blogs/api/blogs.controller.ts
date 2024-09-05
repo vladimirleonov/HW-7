@@ -36,6 +36,7 @@ import { CreatePostCommand } from '../../posts/application/use-cases/create-post
 import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase';
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase';
+import { OptionalUserId } from '../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -80,16 +81,9 @@ export class BlogsController {
   @Get(':blogId/posts')
   async getAllBlogPosts(
     @Query() query: any,
+    @OptionalUserId() userId: string,
     @Param('blogId', new ParseMongoIdPipe()) blogId: string,
   ) {
-    // let userId = null
-    // if (req.headers.authorization) {
-    //   const result: Result<JwtPayload | null> = await this.authService.checkAccessToken(req.headers.authorization)
-    //   if (result.status === ResultStatus.Success) {
-    //     userId = result.data!.userId
-    //   }
-    // }
-
     // TODO: ask if is it ok?
     const blog: BlogOutputModel | null =
       await this.blogsQueryRepository.findById(blogId);
@@ -104,7 +98,11 @@ export class BlogsController {
     );
 
     const blogPosts: PaginationOutput<PostOutputModel> =
-      await this.postQueryRepository.getAllBlogPosts(pagination, blogId);
+      await this.postQueryRepository.getAllBlogPosts(
+        pagination,
+        blogId,
+        userId,
+      );
 
     return blogPosts;
   }
