@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Like, likeSchema } from '../../like/domain/like.entity';
+import { Like, likeSchema, LikeStatus } from '../../like/domain/like.entity';
 
 @Schema()
 export class Post {
@@ -70,9 +70,84 @@ export class Post {
   createdAt: Date;
 }
 
-export type PostDocument = HydratedDocument<Post>;
-
 export const PostSchema = SchemaFactory.createForClass(Post);
+
+PostSchema.methods.updateLikeStatus = function (
+  userId: string,
+  likeStatus: LikeStatus,
+): void {
+  const post = this as PostDocument;
+
+  // get use like
+  const userLike: Like | undefined = post.likes.find(
+    (like) => like.authorId.toString() === userId,
+  );
+
+  // add like to comment likes
+  if (!userLike) {
+    // console.log("!userLike")
+    // for input.likeStatus = None
+    if (likeStatus === LikeStatus.None) {
+      return;
+    }
+    // input.likeStatus = (LikeStatus.Like || LikeStatus.Dislike)
+
+    post.likes.push({
+      createdAt: new Date(),
+      status: likeStatus,
+      authorId: new mongoose.Types.ObjectId(userId),
+    });
+    // for input.likeStatus = LikeStatus.Like
+    if (likeStatus === LikeStatus.Like) post.likesCount += 1;
+    // for input.likeStatus = LikeStatus.Dislike
+    if (likeStatus === LikeStatus.Dislike) post.dislikesCount += 1;
+
+    // await this.postMongoRepository.save(post)
+    return;
+  }
+  // Existing like with same status
+  if (userLike.status === likeStatus) {
+    // console.log("nothing change")
+    return;
+  }
+  // Existing like with status None
+  if (likeStatus === LikeStatus.None) {
+    // console.log("None")
+    post.likes = post.likes.filter(
+      (like: Like) => like.authorId.toString() !== userId,
+    );
+    // was dislike
+    if (userLike.status === LikeStatus.Dislike) post.dislikesCount -= 1;
+    // was like
+    if (userLike.status === LikeStatus.Like) post.likesCount -= 1;
+  }
+  // Existing like with different status Like
+  if (likeStatus === LikeStatus.Like) {
+    // console.log("Like")
+    // was dislike
+    if (userLike.status === LikeStatus.Dislike) post.dislikesCount -= 1;
+    post.likesCount += 1;
+
+    userLike.status = likeStatus;
+    userLike.createdAt = new Date();
+  }
+  // Existing like with different status Dislike
+  if (likeStatus === LikeStatus.Dislike) {
+    // console.log("Dislike")
+    // was like
+    if (userLike.status === LikeStatus.Like) post.likesCount -= 1;
+    post.dislikesCount += 1;
+
+    userLike.status = likeStatus;
+    userLike.createdAt = new Date();
+  }
+
+  return;
+};
+
+export type PostDocument = HydratedDocument<Post> & {
+  updateLikeStatus(userId: string, likeStatus: LikeStatus): void;
+};
 
 // export class Like {
 //   constructor(
@@ -148,70 +223,6 @@ export const PostSchema = SchemaFactory.createForClass(Post);
 //   })
 // }
 //
-// postSchema.methods.updateLikeStatus = function (userId: string, likeStatus: LikeStatus): void {
-//   const post = this as PostDocument
-//
-//   // get use like
-//   const userLike: Like | undefined = post.likes.find(like => like.authorId === userId)
-//
-//   // add like to comment likes
-//   if (!userLike) {
-//     // console.log("!userLike")
-//     // for input.likeStatus = None
-//     if (likeStatus === LikeStatus.None) {
-//       return
-//     }
-//     // input.likeStatus = (LikeStatus.Like || LikeStatus.Dislike)
-//     const likeToAdd: Like = new Like(
-//       new Date().toISOString(),
-//       likeStatus,
-//       userId
-//     )
-//     post.likes.push(likeToAdd)
-//     // for input.likeStatus = LikeStatus.Like
-//     if (likeStatus === LikeStatus.Like) post.likesCount += 1
-//     // for input.likeStatus = LikeStatus.Dislike
-//     if (likeStatus === LikeStatus.Dislike) post.dislikesCount += 1
-//
-//     // await this.postMongoRepository.save(post)
-//     return
-//   }
-//   // Existing like with same status
-//   if (userLike.status === likeStatus) {
-//     // console.log("nothing change")
-//     return
-//   }
-//   // Existing like with status None
-//   if (likeStatus === LikeStatus.None) {
-//     // console.log("None")
-//     post.likes = post.likes.filter((like: Like) => like.authorId !== userId)
-//     // was dislike
-//     if (userLike.status === LikeStatus.Dislike) post.dislikesCount -= 1
-//     // was like
-//     if (userLike.status === LikeStatus.Like) post.likesCount -= 1
-//   }
-//   // Existing like with different status Like
-//   if (likeStatus === LikeStatus.Like) {
-//     // console.log("Like")
-//     // was dislike
-//     if (userLike.status === LikeStatus.Dislike) post.dislikesCount -= 1
-//     post.likesCount += 1
-//
-//     userLike.status = likeStatus
-//     userLike.createdAt = new Date().toISOString()
-//   }
-//   // Existing like with different status Dislike
-//   if (likeStatus === LikeStatus.Dislike) {
-//     // console.log("Dislike")
-//     // was like
-//     if (userLike.status === LikeStatus.Like) post.likesCount -= 1
-//     post.dislikesCount += 1
-//
-//     userLike.status = likeStatus
-//     userLike.createdAt = new Date().toISOString()
-//   }
-//
-//   return
-// }
+
 //
 // export const PostModel = mongoose.model<Post>('Post', postSchema)

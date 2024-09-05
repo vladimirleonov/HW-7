@@ -49,21 +49,34 @@ import { EnvironmentSettings } from './settings/env/env-settings';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateUserUseCase } from './features/users/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from './features/users/application/use-cases/delete-user.usecase';
-import { CreatePostCommandUseCase } from './features/posts/application/use-cases/create-post.usecase';
+import { CreatePostUseCase } from './features/posts/application/use-cases/create-post.usecase';
 import { UpdatePostUseCase } from './features/posts/application/use-cases/update-post.usecase';
 import { DeletePostUseCase } from './features/posts/application/use-cases/delete-post.usecase';
 import { CreateBlogUseCase } from './features/blogs/application/use-cases/create-blog.usecase';
-import {
-  UpdateBlogCommand,
-  UpdateBlogUseCase,
-} from './features/blogs/application/use-cases/update-blog.usecase';
+import { UpdateBlogUseCase } from './features/blogs/application/use-cases/update-blog.usecase';
 import { DeleteBlogUseCase } from './features/blogs/application/use-cases/delete-blog.usecase';
+import { CommentsQueryRepository } from './features/comments/infrastructure/comments.query-repository';
+import {
+  Comment,
+  CommentSchema,
+} from './features/comments/domain/comments.entity';
+import { BlogIsExistConstraint } from './core/decorators/validate/blog-is-exist.decorator';
+import { LoginUseCase } from './features/auth/application/use-cases/login.usecase';
+import { RegistrationUseCase } from './features/auth/application/use-cases/registration-user.usecase';
+import { ConfirmRegistrationUseCase } from './features/auth/application/use-cases/confirm-registration.usecase';
+import { RegistrationEmailResendingUseCase } from './features/auth/application/use-cases/registration-email-resending.usecase';
+import { PasswordRecoveryUseCase } from './features/auth/application/use-cases/password-recovery.usecase';
+import { SetNewPasswordUseCase } from './features/auth/application/use-cases/set-new-password.usecase';
+import { LogoutCommand } from './features/auth/application/use-cases/logout';
+import { UpdatePostLikeStatusUseCase } from './features/posts/application/use-cases/update-post-like-status.usecase';
+import { OptionalJwtStrategy } from './core/stratagies/optional-jwt.strategy';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
   JwtStrategy,
   BasicStrategy,
   RefreshTokenStrategy,
+  OptionalJwtStrategy,
 ];
 
 const basicProviders: Provider[] = [
@@ -73,7 +86,23 @@ const basicProviders: Provider[] = [
   NodemailerService,
 ];
 
-const authProviders: Provider[] = [AuthService, ApiAccessLogsRepository];
+const constraintProviders: Provider[] = [
+  BlogIsExistConstraint,
+  LoginIsExistConstraint,
+  EmailIsExistConstraint,
+];
+
+const authProviders: Provider[] = [
+  RegistrationUseCase,
+  ConfirmRegistrationUseCase,
+  RegistrationEmailResendingUseCase,
+  PasswordRecoveryUseCase,
+  SetNewPasswordUseCase,
+  LoginUseCase,
+  LogoutCommand,
+  AuthService,
+  ApiAccessLogsRepository,
+];
 
 const securityProviders: Provider[] = [SecurityService, DeviceRepository];
 
@@ -95,13 +124,16 @@ const blogsProviders: Provider[] = [
 ];
 
 const postsProviders: Provider[] = [
-  CreatePostCommandUseCase,
+  CreatePostUseCase,
   UpdatePostUseCase,
   DeletePostUseCase,
+  UpdatePostLikeStatusUseCase,
   PostsService,
   PostsRepository,
   PostsQueryRepository,
 ];
+
+const commentsProviders: Provider[] = [CommentsQueryRepository];
 
 const testingProviders: Provider[] = [TestingService, TestingRepository];
 
@@ -123,11 +155,11 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     // }),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
-        const apiSettings: APISettings = configService.get('apiSettings', {
-          infer: true,
-        });
+        const apiSettings: APISettings =
+          configService.get<APISettings>('apiSettings');
 
         return {
+          global: true,
           secret: apiSettings.JWT_SECRET,
           signOptions: {
             expiresIn: apiSettings.JWT_EXPIRATION_TIME,
@@ -155,7 +187,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
           ? apiSettings.MONGO_CONNECTION_URI_FOR_TESTS
           : apiSettings.MONGO_CONNECTION_URI;
 
-        console.log(uri);
+        // console.log(uri);
 
         return {
           uri,
@@ -169,6 +201,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
       { name: User.name, schema: UserSchema },
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
+      { name: Comment.name, schema: CommentSchema },
     ]),
   ],
   controllers: [
@@ -184,9 +217,9 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     ...usersProviders,
     ...blogsProviders,
     ...postsProviders,
+    ...commentsProviders,
     ...testingProviders,
-    LoginIsExistConstraint,
-    EmailIsExistConstraint,
+    ...constraintProviders,
     ...basicProviders,
     ...strategyProviders,
     // {

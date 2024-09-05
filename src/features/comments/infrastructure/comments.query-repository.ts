@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Comment, CommentDocument } from '../domain/comments.entity';
-import { Model } from 'mongoose';
+import {
+  Comment,
+  CommentDocument,
+  CommentModelType,
+} from '../domain/comments.entity';
+import { FilterQuery } from 'mongoose';
 import {
   Pagination,
   PaginationOutput,
@@ -10,14 +14,27 @@ import {
   CommentOutputModel,
   CommentOutputModelMapper,
 } from '../api/models/output/comment.output.model';
+import { Blog } from '../../blogs/domain/blog.entity';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
-    @InjectModel(Comment.name) private commentModel: Model<Comment>,
+    @InjectModel(Comment.name) private commentModel: CommentModelType,
   ) {}
-  getAllComments(pagination: Pagination, userId?: string): any {
-    return this.__getResult({}, pagination, userId);
+  getAllPostComments(
+    pagination: Pagination,
+    postId: string,
+    userId: string,
+  ): any {
+    const byId: FilterQuery<Comment> = postId ? { postId: postId } : {};
+
+    const orFilters: FilterQuery<Blog>[] = [byId].filter(
+      (filter: FilterQuery<Blog>) => Object.keys(filter).length > 0,
+    );
+
+    const filter = orFilters.length > 0 ? { $or: orFilters } : {};
+
+    return this.__getResult(filter, pagination, userId);
   }
   private async __getResult(
     filter: any,
@@ -34,8 +51,8 @@ export class CommentsQueryRepository {
 
     const totalCount: number = await this.commentModel.countDocuments(filter);
 
-    const mappedComments: CommentOutputModel[] = comments.map(
-      CommentOutputModelMapper,
+    const mappedComments: CommentOutputModel[] = comments.map((comment) =>
+      CommentOutputModelMapper(comment, userId),
     );
 
     return new PaginationOutput<CommentOutputModel>(

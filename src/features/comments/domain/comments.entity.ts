@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Model } from 'mongoose';
 import { Like, likeSchema, LikeStatus } from '../../like/domain/like.entity';
+import { DeviceDocument } from '../../security/domain/device.entity';
 
 @Schema({ _id: false })
 export class CommentatorInfo {
@@ -75,8 +76,6 @@ export class Comment {
   createdAt: Date;
 }
 
-export type CommentDocument = HydratedDocument<Comment>;
-
 export const CommentSchema = SchemaFactory.createForClass(Comment);
 
 CommentSchema.methods.getUserLikeStatusByUserId = function (
@@ -89,3 +88,9 @@ CommentSchema.methods.getUserLikeStatusByUserId = function (
   console.log('userLike', userLike);
   return userLike ? userLike.status : 'None';
 };
+
+export type CommentDocument = HydratedDocument<Comment> & {
+  getUserLikeStatusByUserId(userId: string): LikeStatus;
+};
+
+export type CommentModelType = Model<CommentDocument>; //& DeviceModelStaticType;

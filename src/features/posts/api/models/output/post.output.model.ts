@@ -25,14 +25,20 @@ export class PostOutputModel {
 
 // MAPPERS
 
-export const PostOutputModelMapper = (post: PostDocument): PostOutputModel => {
+export const PostOutputModelMapper = (
+  post,
+  userId?: string,
+): PostOutputModel => {
   const extendedLikesInfo: ExtendedLikesInfo = new ExtendedLikesInfo();
   extendedLikesInfo.likesCount = post.likesCount;
   extendedLikesInfo.dislikesCount = post.dislikesCount;
-  extendedLikesInfo.myStatus = LikeStatus.None;
+  extendedLikesInfo.myStatus = userId
+    ? post.getUserLikeStatusByUserId(userId)
+    : LikeStatus.None;
   extendedLikesInfo.newestLikes = [];
 
   const outputModel: PostOutputModel = new PostOutputModel(extendedLikesInfo);
+  console.log(post);
   outputModel.id = post.id;
   outputModel.title = post.title;
   outputModel.shortDescription = post.shortDescription;

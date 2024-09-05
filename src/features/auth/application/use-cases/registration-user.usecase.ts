@@ -22,7 +22,7 @@ export class RegistrationUserCommand {
 }
 
 @CommandHandler(RegistrationUserCommand)
-export class RegistrationUserUseCase
+export class RegistrationUseCase
   implements ICommandHandler<RegistrationUserCommand>
 {
   constructor(

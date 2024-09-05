@@ -15,11 +15,11 @@ import {
 export class PostsQueryRepository {
   constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
   getAllPosts(pagination: Pagination, userId?: string): any {
-    return this.__getResult({}, pagination);
+    return this.__getResult({}, pagination, userId);
   }
   getAllBlogPosts(
     pagination: Pagination,
-    //userId?: string,
+    userId?: string,
     blogId?: string,
   ): any {
     const filterByBlogId: FilterQuery<Post> = blogId
@@ -30,14 +30,15 @@ export class PostsQueryRepository {
       ...filterByBlogId,
     };
 
-    return this.__getResult(filter, pagination);
+    return this.__getResult(filter, pagination, userId);
   }
   // TODO: change type any
   private async __getResult(
     filter: any,
     pagination: Pagination,
+    userId?: string,
   ): Promise<PaginationOutput<PostOutputModel>> {
-    const posts: PostDocument[] = await this.postModel
+    const posts = await this.postModel
       .find(filter)
       .sort({
         [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
@@ -47,7 +48,9 @@ export class PostsQueryRepository {
 
     const totalCount: number = await this.postModel.countDocuments(filter);
 
-    const mappedPosts: PostOutputModel[] = posts.map(PostOutputModelMapper);
+    const mappedPosts = posts.map((post) =>
+      PostOutputModelMapper(post, userId),
+    );
 
     return new PaginationOutput<PostOutputModel>(
       mappedPosts,
@@ -56,12 +59,12 @@ export class PostsQueryRepository {
       totalCount,
     );
   }
-  async findById(id: string): Promise<PostOutputModel | null> {
+  async findById(id: string, userId?: string): Promise<PostOutputModel | null> {
     const post: PostDocument | null = await this.postModel.findById(id); // automatically converts string to ObjectId
     //.findOne({_id: new ObjectId(postId)})
     if (post === null) {
       return null;
     }
-    return PostOutputModelMapper(post);
+    return PostOutputModelMapper(post, userId);
   }
 }

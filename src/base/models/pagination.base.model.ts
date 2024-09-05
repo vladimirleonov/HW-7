@@ -39,7 +39,7 @@ export class Pagination {
 
   private getSortDirection(query: ParsedQs): SortDirectionType {
     let sortDirection: SortDirectionType = 'desc';
-    console.log('query.sortDirection', query.sortDirection);
+
     switch (query.sortDirection) {
       case 'desc': {
         sortDirection = 'desc';

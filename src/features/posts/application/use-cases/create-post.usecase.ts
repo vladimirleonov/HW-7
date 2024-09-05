@@ -17,9 +17,7 @@ export class CreatePostCommand {
 }
 
 @CommandHandler(CreatePostCommand)
-export class CreatePostCommandUseCase
-  implements ICommandHandler<CreatePostCommand>
-{
+export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   constructor(
     private readonly blogsRepository: BlogsRepository,
     private readonly postsRepository: PostsRepository,
@@ -41,8 +39,11 @@ export class CreatePostCommandUseCase
       content: command.content,
       blogId: new mongoose.Types.ObjectId(command.blogId),
       blogName: blog.name,
+      likes: [],
+      likesCount: 0,
+      dislikesCount: 0,
       createdAt: new Date(),
-    });
+    }) as PostDocument;
 
     await this.postsRepository.save(post);
 

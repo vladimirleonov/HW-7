@@ -20,7 +20,7 @@
 // }
 //
 // @Injectable()
-// export class RefreshTokenGuard implements CanActivate {
+// export class RefreshTokenAuthGuard implements CanActivate {
 //   constructor(private readonly authService: AuthService) {}
 //
 //   async canActivate(context: ExecutionContext): Promise<boolean> {

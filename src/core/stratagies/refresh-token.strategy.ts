@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../../features/auth/application/auth.service';
 import { Result, ResultStatus } from '../../base/types/object-result';
-import { JwtPayload } from 'jsonwebtoken';
 import { unixToISOString } from '../utils/convert-unix-to-iso';
+import { JwtPayload } from 'jsonwebtoken';
 
 export interface RequestWithDeviceAndCookies extends Request {
   cookies: { [key: string]: string };

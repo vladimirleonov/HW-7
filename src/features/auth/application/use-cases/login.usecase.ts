@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../base/types/object-result';
 import { UserDocument } from '../../../users/domain/user.entity';
-import { JwtPayload } from 'jsonwebtoken';
 import { randomUUID } from 'node:crypto';
 import {
   Device,
@@ -13,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { DeviceRepository } from '../../../security/infrastructure/device.repository';
+import { JwtPayload } from 'jsonwebtoken';
 
 export class LoginCommand {
   constructor(
@@ -58,14 +58,14 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     }
 
     // new payload for access token
-    const JwtAccessTokenPayload: JwtPayload = {
+    const JwtAccessTokenPayload = {
       userId: command.userId,
     };
 
     const deviceId: string = randomUUID();
 
     // new payload for refresh token
-    const JwtRefreshTokenPayload: JwtPayload = {
+    const JwtRefreshTokenPayload = {
       userId: command.userId,
       deviceId: deviceId,
     };
@@ -73,12 +73,19 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     // generate access token
     // const accessToken: string = this.nestJwtService.sign(JwtAccessTokenPayload);
     // console.log("accessToken", accessToken);
-    const accessToken: string = this.jwtService.sign(JwtAccessTokenPayload);
+
+    const accessToken = await this.jwtService.signAsync(JwtAccessTokenPayload, {
+      secret: 'secret',
+    });
 
     //generate refresh token
-    const refreshToken: string = this.jwtService.sign(JwtRefreshTokenPayload, {
-      expiresIn: '20h',
-    });
+    const refreshToken: string = await this.jwtService.signAsync(
+      JwtRefreshTokenPayload,
+      {
+        secret: 'secret',
+        expiresIn: '20h',
+      },
+    );
 
     const decodedRefreshToken: string | JwtPayload | null =
       this.jwtService.decode(refreshToken);

@@ -6,13 +6,13 @@ import {
   UserDocument,
   UserModelType,
 } from '../../users/domain/user.entity';
-import { JwtPayload } from 'jsonwebtoken';
 import { Device, DeviceModelType } from '../../security/domain/device.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { DeviceRepository } from '../../security/infrastructure/device.repository';
 import { NodemailerService } from '../../../core/application/nodemailer.service';
 import { CryptoService } from '../../../core/application/crypto.service';
 import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -341,7 +341,7 @@ export class AuthService {
   async validateRefreshToken(
     token: string,
   ): Promise<Result<JwtPayload | null>> {
-    const payload: JwtPayload = this.jwtService.verify(token) as JwtPayload;
+    const payload = this.jwtService.verify(token);
 
     if (!payload || !payload.deviceId || !payload.userId) {
       return Result.unauthorized('Invalid refresh token');
