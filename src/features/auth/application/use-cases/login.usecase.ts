@@ -49,6 +49,10 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       command.userId,
     );
 
+    // const user: UserDocument | null = await this.checkIsExistUseCase.checkIsExist(
+    //   command.userId,
+    // );
+
     if (!user) {
       return Result.unauthorized('User not found');
     }

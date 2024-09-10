@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { APISettings } from '../../../../settings/env/api-settings';
+import { ApiSettings } from '../../../../settings/env/api-settings';
 import { User, UserDocument } from '../../domain/user.entity';
 import { Result } from '../../../../base/types/object-result';
 import { randomUUID } from 'node:crypto';
@@ -28,7 +28,7 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   ) {}
 
   async execute(command: CreateUserCommand) {
-    const apiSettings: APISettings = this.configService.get('apiSettings', {
+    const apiSettings: ApiSettings = this.configService.get('apiSettings', {
       infer: true,
     });
 

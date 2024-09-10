@@ -25,6 +25,7 @@ import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 import {
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '../../../core/exception-filters/http-exception-filter';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdatePostCommand } from '../application/use-cases/update-post.usecase';
@@ -37,12 +38,15 @@ import { PostUpdateLikeStatusModel } from './models/input/update-post-like-statu
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
 import { JwtAuthGuard } from '../../../core/guards/passport/jwt-auth.guard';
 import { AuthService } from '../../auth/application/auth.service';
-import { RequestWithOptionalUserId } from '../../../base/types/request-with-optional-userId';
 import { OptionalJwtAuthGuard } from '../../../core/guards/passport/optional-jwt-auth-guard';
 import { OptionalUserId } from '../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
+import { CommentCreateModel } from '../../comments/api/models/input/create-comment.input.model';
+import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.usecase';
+import { CommentOutputModel } from '../../comments/api/models/output/comment.output.model';
+import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
-  ['title', 'blogName'];
+  ['title', 'blogName', 'createdAt'];
 
 @Controller('posts')
 export class PostsController {
@@ -84,20 +88,20 @@ export class PostsController {
   }
 
   @Get(':postId/comments')
+  @UseGuards(OptionalJwtAuthGuard)
   async getPostComments(
     @Param('postId', new ParseMongoIdPipe()) postId: string,
     @Query() query: any,
-    @CurrentUserId() userId: string,
+    @OptionalUserId() userId: string,
   ) {
     const pagination: Pagination = new Pagination(
       query,
       COMMENT_SORTING_PROPERTIES,
     );
 
-    //? is it ok
+    // TODO: CreateDecorator to check corrent postId
     const post: PostOutputModel | null =
       await this.postsQueryRepository.findById(postId);
-
     if (!post) {
       throw new NotFoundException();
     }
@@ -112,7 +116,47 @@ export class PostsController {
     return comments;
   }
 
+  @Post(':postId/comments')
+  @UseGuards(JwtAuthGuard)
+  async createPostComment(
+    @Param('postId', new ParseMongoIdPipe()) postId: string,
+    @Body() commentCreateModel: CommentCreateModel,
+    @CurrentUserId() userId: string,
+  ) {
+    const { content } = commentCreateModel;
+
+    const result: Result<string | null> = await this.commandBus.execute(
+      new CreateCommentCommand(postId, content, userId),
+    );
+
+    // const result: Result<string | null> =
+    //   await this.commentService.createComment(
+    //     req.params.postId,
+    //     req.body,
+    //     req.user.userId,
+    //   );
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException(result.errorMessage!);
+    }
+
+    if (result.status === ResultStatus.Unauthorized) {
+      throw new UnauthorizedException();
+    }
+
+    const comment: CommentOutputModel | null =
+      await this.commentsQueryRepository.findById(result.data!, userId);
+
+    if (!comment) {
+      //error if just created comment not found
+      throw new InternalServerErrorException();
+    }
+
+    return comment;
+  }
+
   @Post()
+  @UseGuards(BasicAuthGuard)
   async create(@Body() createModel: PostCreateModel) {
     const { title, shortDescription, content, blogId } = createModel;
 
@@ -147,6 +191,7 @@ export class PostsController {
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async update(
     @Param('id', new ParseMongoIdPipe()) id: string,
@@ -185,8 +230,8 @@ export class PostsController {
     @CurrentUserId() userId: string,
     @Body() postUpdateLikeStatusModel: PostUpdateLikeStatusModel,
   ) {
+    console.log(postId);
     const { likeStatus } = postUpdateLikeStatusModel;
-    console.log(postId, userId);
     const result: Result = await this.commandBus.execute(
       new UpdatePostLikeStatusCommand(likeStatus, postId, userId),
     );
@@ -205,6 +250,7 @@ export class PostsController {
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
     const result: Result = await this.commandBus.execute<

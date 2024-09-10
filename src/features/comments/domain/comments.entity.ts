@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Model } from 'mongoose';
-import { Like, likeSchema, LikeStatus } from '../../like/domain/like.entity';
-import { DeviceDocument } from '../../security/domain/device.entity';
+import { Like, LikeSchema, LikeStatus } from '../../like/domain/like.entity';
 
 @Schema({ _id: false })
 export class CommentatorInfo {
@@ -45,7 +44,7 @@ export class Comment {
   commentatorInfo: CommentatorInfo;
 
   @Prop({
-    type: [likeSchema],
+    type: [LikeSchema],
     required: true,
   })
   likes: Like[];

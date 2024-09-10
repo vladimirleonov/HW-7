@@ -23,10 +23,13 @@ export class UpdatePostLikeStatusUseCase
 
     const post: PostDocument | null =
       await this.postsRepository.findById(postId);
+    console.log('post!!!', post);
     if (!post) {
       return Result.notFound(`Comment with ${postId} does not exist`);
     }
 
+    console.log('userId', userId);
+    console.log('likeStatus', likeStatus);
     post.updateLikeStatus(userId, likeStatus);
 
     await this.postsRepository.save(post);

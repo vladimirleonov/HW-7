@@ -38,7 +38,7 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersService: UsersService,
+    // private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 

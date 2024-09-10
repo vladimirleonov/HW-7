@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Like, likeSchema, LikeStatus } from '../../like/domain/like.entity';
+import { Like, LikeSchema, LikeStatus } from '../../like/domain/like.entity';
+import { UserModelType } from '../../users/domain/user.entity';
 
 @Schema()
 export class Post {
@@ -39,7 +40,7 @@ export class Post {
   blogName: string;
 
   @Prop({
-    type: [likeSchema],
+    type: [LikeSchema],
     required: true,
   })
   likes: Like[];
@@ -91,12 +92,19 @@ PostSchema.methods.updateLikeStatus = function (
       return;
     }
     // input.likeStatus = (LikeStatus.Like || LikeStatus.Dislike)
+    // const likeToAdd: Like = new Like(
+    //   new Date().toISOString(),
+    //   likeStatus,
+    //   userId,
+    // );
+    // post.likes.push(likeToAdd);
 
     post.likes.push({
       createdAt: new Date(),
       status: likeStatus,
       authorId: new mongoose.Types.ObjectId(userId),
     });
+
     // for input.likeStatus = LikeStatus.Like
     if (likeStatus === LikeStatus.Like) post.likesCount += 1;
     // for input.likeStatus = LikeStatus.Dislike
@@ -157,9 +165,58 @@ PostSchema.methods.getUserLikeStatusByUserId = function (
   return userLike ? userLike.status : LikeStatus.None;
 };
 
+export class NewestLike {
+  constructor(
+    public addedAt: string,
+    public userId: mongoose.Types.ObjectId,
+    public login: string,
+  ) {}
+}
+
+PostSchema.methods.getNewestLikes = async function (
+  postId: string,
+  count: number,
+  userModel: UserModelType,
+): Promise<NewestLike[]> {
+  //const likes = await this.likes.find().sort({createdAt: -1}).limit(count)
+  const likes = this.likes
+    //.slice()
+    .filter((like) => like.status === LikeStatus.Like)
+    .sort((a: Like, b: Like) =>
+      b.createdAt.toISOString().localeCompare(a.createdAt.toISOString()),
+    )
+    .slice(0, count);
+
+  if (likes.length === 0) return [];
+  console.log('likes', likes);
+
+  const userIds = likes.map((like: Like) => like.authorId);
+  console.log('userIds', userIds);
+
+  const users = await userModel.find({ _id: { $in: userIds } });
+  console.log('users', users);
+
+  return likes.map((like: Like): NewestLike => {
+    const user = users.find(
+      (u) => u._id.toString() === like.authorId.toString(),
+    );
+    console.log('user map', user);
+    return {
+      addedAt: like.createdAt.toISOString(),
+      userId: like.authorId,
+      login: user ? user.login : 'Unknown',
+    };
+  });
+};
+
 export type PostDocument = HydratedDocument<Post> & {
   updateLikeStatus(userId: string, likeStatus: LikeStatus): void;
   getUserLikeStatusByUserId(userId?: string): LikeStatus;
+  getNewestLikes(
+    postId: string,
+    count: number,
+    userModel: UserModelType,
+  ): Promise<NewestLike[]>;
 };
 
 // export class Like {
@@ -235,7 +292,6 @@ export type PostDocument = HydratedDocument<Post> & {
 //     }
 //   })
 // }
-//
 
 //
 // export const PostModel = mongoose.model<Post>('Post', postSchema)

@@ -33,4 +33,4 @@ export class Like {
   authorId: mongoose.Types.ObjectId;
 }
 
-export const likeSchema = SchemaFactory.createForClass(Like);
+export const LikeSchema = SchemaFactory.createForClass(Like);

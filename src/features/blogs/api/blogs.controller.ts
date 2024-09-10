@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service';
 import {
@@ -37,6 +38,8 @@ import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase'
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase';
 import { OptionalUserId } from '../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
+import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
+import { OptionalJwtAuthGuard } from '../../../core/guards/passport/optional-jwt-auth-guard';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -47,9 +50,9 @@ const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
 export class BlogsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly blogsService: BlogsService,
+    // private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly postService: PostsService,
+    // private readonly postService: PostsService,
     private readonly postQueryRepository: PostsQueryRepository,
   ) {}
 
@@ -79,6 +82,7 @@ export class BlogsController {
 
   // TODO: change any type
   @Get(':blogId/posts')
+  @UseGuards(OptionalJwtAuthGuard)
   async getAllBlogPosts(
     @Query() query: any,
     @OptionalUserId() userId: string,
@@ -108,6 +112,7 @@ export class BlogsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   async create(@Body() createModel: BlogCreateModel) {
     const { name, description, websiteUrl } = createModel;
 
@@ -136,6 +141,7 @@ export class BlogsController {
   }
 
   @Post(':blogId/posts')
+  @UseGuards(BasicAuthGuard)
   async createPostForBlog(
     @Param('blogId', new ParseMongoIdPipe()) blogId: string,
     @Body() createModel: PostForBlogCreateModel,
@@ -171,6 +177,7 @@ export class BlogsController {
   }
 
   @Put(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async update(
     @Param('id', new ParseMongoIdPipe()) id: string,
@@ -196,6 +203,7 @@ export class BlogsController {
   }
 
   @Delete(':id')
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
     const result: Result = await this.commandBus.execute<

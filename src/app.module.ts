@@ -43,8 +43,7 @@ import { JwtStrategy } from './core/stratagies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { BasicStrategy } from './core/stratagies/basic.strategy';
 import { RefreshTokenStrategy } from './core/stratagies/refresh-token.strategy';
-import { APISettings } from './settings/env/api-settings';
-import { EnvironmentSettings } from './settings/env/env-settings';
+import { Environments, EnvironmentSettings } from './settings/env/env-settings';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateUserUseCase } from './features/users/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from './features/users/application/use-cases/delete-user.usecase';
@@ -69,6 +68,14 @@ import { SetNewPasswordUseCase } from './features/auth/application/use-cases/set
 import { LogoutCommand } from './features/auth/application/use-cases/logout';
 import { UpdatePostLikeStatusUseCase } from './features/posts/application/use-cases/update-post-like-status.usecase';
 import { OptionalJwtStrategy } from './core/stratagies/optional-jwt.strategy';
+import { CreateCommentUseCase } from './features/comments/application/use-cases/create-comment.usecase';
+import { DeleteCommentUseCase } from './features/comments/application/use-cases/delete-comment.usecase';
+import { UpdateCommentUseCase } from './features/comments/application/use-cases/update-comment.usecase';
+import { UpdateCommentLikeStatusUseCase } from './features/comments/application/use-cases/update-comment-like-status.usecase';
+import { CommentsRepository } from './features/comments/infrastructure/comments.repository';
+import { Like, LikeSchema } from './features/like/domain/like.entity';
+import { ApiSettings } from './settings/env/api-settings';
+import { CommentsController } from './features/comments/api/comments.controller';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -108,7 +115,7 @@ const securityProviders: Provider[] = [SecurityService, DeviceRepository];
 const usersProviders: Provider[] = [
   CreateUserUseCase,
   DeleteUserUseCase,
-  UsersService,
+  // UsersService,
   UsersRepository,
   UsersQueryRepository,
 ];
@@ -117,7 +124,7 @@ const blogsProviders: Provider[] = [
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
-  BlogsService,
+  // BlogsService,
   BlogsRepository,
   BlogsQueryRepository,
 ];
@@ -127,12 +134,19 @@ const postsProviders: Provider[] = [
   UpdatePostUseCase,
   DeletePostUseCase,
   UpdatePostLikeStatusUseCase,
-  PostsService,
+  // PostsService,
   PostsRepository,
   PostsQueryRepository,
 ];
 
-const commentsProviders: Provider[] = [CommentsQueryRepository];
+const commentsProviders: Provider[] = [
+  CreateCommentUseCase,
+  DeleteCommentUseCase,
+  UpdateCommentUseCase,
+  UpdateCommentLikeStatusUseCase,
+  CommentsRepository,
+  CommentsQueryRepository,
+];
 
 const testingProviders: Provider[] = [TestingService, TestingRepository];
 
@@ -142,11 +156,12 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
-      validate: validate,
+      // validate: validate,
       // ignoreEnvFile:
-      //   process.env.ENV !== EnvironmentsEnum.DEVELOPMENT &&
-      //   process.env.ENV !== EnvironmentsEnum.TESTING,
-      envFilePath: ['.env.development', '.env'], // -> right
+      //   process.env.ENV !== Environments.DEVELOPMENT &&
+      //   process.env.ENV !== Environments.TESTING,arn run start:dev
+
+      envFilePath: ['.env.development', '.env'],
     }),
     // JwtModule.register({
     //   secret: appSettings.api.JWT_SECRET,
@@ -154,8 +169,8 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     // }),
     JwtModule.registerAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
-        const apiSettings: APISettings =
-          configService.get<APISettings>('apiSettings');
+        const apiSettings: ApiSettings =
+          configService.get<ApiSettings>('apiSettings');
 
         return {
           global: true,
@@ -174,7 +189,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     // ),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
-        const apiSettings: APISettings = configService.get('apiSettings', {
+        const apiSettings: ApiSettings = configService.get('apiSettings', {
           infer: true,
         });
         const environmentSettings: EnvironmentSettings = configService.get(
@@ -182,7 +197,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
           { infer: true },
         );
 
-        const uri: string = environmentSettings.isTesting()
+        const uri: string = environmentSettings.isTesting
           ? apiSettings.MONGO_CONNECTION_URI_FOR_TESTS
           : apiSettings.MONGO_CONNECTION_URI;
 
@@ -201,6 +216,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: Like.name, schema: LikeSchema },
     ]),
     CqrsModule,
   ],
@@ -209,6 +225,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     UsersController,
     BlogsController,
     PostsController,
+    CommentsController,
     TestingController,
   ],
   providers: [

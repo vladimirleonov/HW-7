@@ -28,7 +28,7 @@ export class CommentOutputModel {
 
 export const CommentOutputModelMapper = (
   comment: CommentDocument,
-  userId: string,
+  userId?: string,
 ): CommentOutputModel => {
   const commentatorInfo: CommentatorInfo = new CommentatorInfo();
   commentatorInfo.userId = comment.commentatorInfo.userId.toString();

@@ -1,5 +1,5 @@
-import { PostDocument } from '../../../domain/post.entity';
 import { Like, LikeStatus } from '../../../../like/domain/like.entity';
+import { UserModelType } from '../../../../users/domain/user.entity';
 
 // TODO: change LikeStatus to another file
 class ExtendedLikesInfo {
@@ -25,10 +25,11 @@ export class PostOutputModel {
 
 // MAPPERS
 
-export const PostOutputModelMapper = (
+export const PostOutputModelMapper = async (
   post,
   userId?: string,
-): PostOutputModel => {
+  userModel?: UserModelType,
+): Promise<PostOutputModel> => {
   console.log(post);
   console.log(userId);
   const extendedLikesInfo: ExtendedLikesInfo = new ExtendedLikesInfo();
@@ -37,7 +38,9 @@ export const PostOutputModelMapper = (
   extendedLikesInfo.myStatus = userId
     ? post.getUserLikeStatusByUserId(userId)
     : LikeStatus.None;
-  extendedLikesInfo.newestLikes = [];
+
+  const newestLikes = await post.getNewestLikes(post.id, 3, userModel);
+  extendedLikesInfo.newestLikes = newestLikes || [];
 
   const outputModel: PostOutputModel = new PostOutputModel(extendedLikesInfo);
   outputModel.id = post.id;

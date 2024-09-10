@@ -2,13 +2,13 @@ import nodemailer, { Transporter } from 'nodemailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
-import { APISettings } from '../../settings/env/api-settings';
+import { ApiSettings } from '../../settings/env/api-settings';
 
 export class NodemailerService {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {
-    console.log(configService);
+    console.log('configService initialized', configService);
   }
   async sendEmail(
     recipient: string,
@@ -17,9 +17,11 @@ export class NodemailerService {
   ): Promise<boolean> {
     console.log('configService', this.configService);
 
-    const apiSettings: APISettings = this.configService.get('apiSettings', {
+    const apiSettings: ApiSettings = this.configService.get('apiSettings', {
       infer: true,
     });
+
+    console.log('NodemailerService apiSettings', apiSettings);
 
     const transporter: Transporter<SMTPTransport.SentMessageInfo> =
       nodemailer.createTransport({

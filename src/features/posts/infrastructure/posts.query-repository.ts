@@ -10,10 +10,14 @@ import {
   PostOutputModel,
   PostOutputModelMapper,
 } from '../api/models/output/post.output.model';
+import { UserModelType } from '../../users/domain/user.entity';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<Post>,
+    @InjectModel('User') private readonly userModel: UserModelType,
+  ) {}
   getAllPosts(pagination: Pagination, userId?: string): any {
     return this.__getResult({}, pagination, userId);
   }
@@ -48,8 +52,8 @@ export class PostsQueryRepository {
 
     const totalCount: number = await this.postModel.countDocuments(filter);
 
-    const mappedPosts = posts.map((post) =>
-      PostOutputModelMapper(post, userId),
+    const mappedPosts = await Promise.all(
+      posts.map((post) => PostOutputModelMapper(post, userId, this.userModel)),
     );
 
     return new PaginationOutput<PostOutputModel>(
@@ -65,6 +69,6 @@ export class PostsQueryRepository {
     if (post === null) {
       return null;
     }
-    return PostOutputModelMapper(post, userId);
+    return PostOutputModelMapper(post, userId, this.userModel);
   }
 }

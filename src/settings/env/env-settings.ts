@@ -1,37 +1,29 @@
 import { EnvironmentVariable } from './configuration';
 import { IsEnum } from 'class-validator';
 
-export enum EnvironmentsEnum {
+export enum Environments {
   DEVELOPMENT = 'DEVELOPMENT',
   STAGING = 'STAGING',
-  // 'production' variable is not accessible, because isProduction will work incorrectly
   PRODUCTION = 'PRODUCTION',
   TESTING = 'TESTING',
 }
-
 export class EnvironmentSettings {
-  constructor(private readonly envVariables: EnvironmentVariable) {}
-
-  @IsEnum(EnvironmentsEnum)
-  private env = this.envVariables.ENV;
-
-  getEnv() {
-    return this.env;
+  constructor(private environmentVariables: EnvironmentVariable) {}
+  @IsEnum(Environments)
+  private ENV = this.environmentVariables.ENV;
+  get isProduction() {
+    return this.environmentVariables.ENV === Environments.PRODUCTION;
   }
-
-  isProduction() {
-    return this.env === 'PRODUCTION';
+  get isStaging() {
+    return this.environmentVariables.ENV === Environments.STAGING;
   }
-
-  isStaging() {
-    return this.env === 'STAGING';
+  get isTesting() {
+    return this.environmentVariables.ENV === Environments.TESTING;
   }
-
-  isDevelopment() {
-    return this.env === 'DEVELOPMENT';
+  get isDevelopment() {
+    return this.environmentVariables.ENV === Environments.DEVELOPMENT;
   }
-
-  isTesting() {
-    return this.env === 'TESTING';
+  get currentEnv() {
+    return this.ENV;
   }
 }

@@ -15,12 +15,18 @@ import {
   CommentOutputModelMapper,
 } from '../api/models/output/comment.output.model';
 import { Blog } from '../../blogs/domain/blog.entity';
+import {
+  PostOutputModel,
+  PostOutputModelMapper,
+} from '../../posts/api/models/output/post.output.model';
+import { PostDocument } from '../../posts/domain/post.entity';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(
     @InjectModel(Comment.name) private commentModel: CommentModelType,
   ) {}
+
   getAllPostComments(
     pagination: Pagination,
     postId: string,
@@ -36,6 +42,7 @@ export class CommentsQueryRepository {
 
     return this.__getResult(filter, pagination, userId);
   }
+
   private async __getResult(
     filter: any,
     pagination: Pagination,
@@ -61,5 +68,21 @@ export class CommentsQueryRepository {
       pagination.pageSize,
       totalCount,
     );
+  }
+
+  async findById(
+    id: string,
+    userId?: string,
+  ): Promise<CommentOutputModel | null> {
+    console.log('all comments', await this.commentModel.find());
+    console.log('comment id', id);
+    const comment: CommentDocument | null =
+      await this.commentModel.findById(id); // automatically converts string to ObjectId
+
+    if (comment === null) {
+      return null;
+    }
+
+    return CommentOutputModelMapper(comment, userId);
   }
 }

@@ -69,7 +69,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
 
     console.log('exception filter custom error');
 
-    if (!environmentSettings.isProduction()) {
+    if (!environmentSettings.isProduction) {
       response.status(exception.statusCode).json({
         statusCode: exception.statusCode,
         message: exception.message,

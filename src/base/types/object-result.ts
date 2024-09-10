@@ -73,12 +73,36 @@ export class Result<T = null> {
     );
   }
 
+  static forbidden<T = null>(
+    errorMessage?: string,
+    extensions?: Array<{ field: string; message: string }>,
+  ): Result<T> {
+    return new Result(
+      ResultStatus.Forbidden,
+      null as any,
+      errorMessage,
+      extensions,
+    );
+  }
+
   static tooManyRequests<T = null>(
     errorMessage?: string,
     extensions?: Array<{ field: string; message: string }>,
   ): Result<T> {
     return new Result(
       ResultStatus.TooManyRequests,
+      null as any,
+      errorMessage,
+      extensions,
+    );
+  }
+
+  static internalError<T = null>(
+    errorMessage?: string,
+    extensions?: Array<{ field: string; message: string }>,
+  ): Result<T> {
+    return new Result(
+      ResultStatus.InternalError,
       null as any,
       errorMessage,
       extensions,

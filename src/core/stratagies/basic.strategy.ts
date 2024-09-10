@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { UnauthorizedException } from '../exception-filters/http-exception-filter';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
-import { APISettings } from '../../settings/env/api-settings';
+import { ApiSettings } from '../../settings/env/api-settings';
 
 @Injectable()
 export class BasicStrategy extends PassportStrategy(Strategy) {
@@ -17,7 +17,7 @@ export class BasicStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(req, username, password): Promise<any> {
-    const apiSettings: APISettings = this.configService.get('apiSettings', {
+    const apiSettings: ApiSettings = this.configService.get('apiSettings', {
       infer: true,
     });
 

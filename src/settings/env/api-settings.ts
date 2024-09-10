@@ -1,38 +1,37 @@
 import { EnvironmentVariable } from './configuration';
-import { IsNumber, IsString, Length } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { Optional } from '@nestjs/common';
 
-export class APISettings {
-  constructor(private readonly envVariables: EnvironmentVariable) {}
-
+export class ApiSettings {
+  constructor(private envVariables: EnvironmentVariable) {}
   // Application
   @IsNumber()
-  public readonly APP_PORT: number = Number(this.envVariables.APP_PORT);
+  APP_PORT: number = Number(this.envVariables.APP_PORT);
+  //используется только в тестовом окружении - значение берем из .env
   @IsNumber()
-  public readonly HASH_ROUNDS: number = Number(this.envVariables.HASH_ROUNDS);
+  HASH_ROUNDS: number = Number(this.envVariables.HASH_ROUNDS);
   @IsString()
-  public readonly ADMIN_LOGIN: string = this.envVariables.ADMIN_LOGIN;
+  ADMIN_LOGIN: string = this.envVariables.ADMIN_LOGIN;
   @IsString()
-  public readonly ADMIN_PASSWORD: string = this.envVariables.ADMIN_PASSWORD;
+  ADMIN_PASSWORD: string = this.envVariables.ADMIN_PASSWORD;
 
   // Database
   @IsString()
-  public readonly MONGO_CONNECTION_URI: string =
-    this.envVariables.MONGO_CONNECTION_URI;
+  MONGO_CONNECTION_URI: string = this.envVariables.MONGO_CONNECTION_URI;
   @IsString()
   @Optional()
-  public readonly MONGO_CONNECTION_URI_FOR_TESTS: string =
+  MONGO_CONNECTION_URI_FOR_TESTS: string =
     this.envVariables.MONGO_CONNECTION_URI_FOR_TESTS;
 
   // Email
   @IsString()
-  public readonly EMAIL_USER: string = this.envVariables.EMAIL_USER;
+  EMAIL_USER: string = this.envVariables.EMAIL_USER;
   @IsString()
-  public readonly EMAIL_PASSWORD: string = this.envVariables.EMAIL_PASSWORD;
+  EMAIL_PASSWORD: string = this.envVariables.EMAIL_PASSWORD;
   @IsString()
-  public readonly EMAIL_HOST: string = this.envVariables.EMAIL_HOST;
+  EMAIL_HOST: string = this.envVariables.EMAIL_HOST;
   @IsString()
-  public readonly EMAIL_PORT: string = this.envVariables.EMAIL_PORT;
+  EMAIL_PORT: string = this.envVariables.EMAIL_PORT;
 
   // Jwt
   @IsString()

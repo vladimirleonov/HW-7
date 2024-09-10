@@ -1,11 +1,11 @@
-import { IsEnum, IsString, Length } from 'class-validator';
+import { IsEnum, IsString, MinLength } from 'class-validator';
 import { Trim } from '../../../../../core/decorators/transform/trim';
 import { LikeStatus } from '../../../../like/domain/like.entity';
 
-export class PostUpdateLikeStatusModel {
+export class CommentLikeStatusUpdateModel {
   @IsString()
   @Trim()
-  @Length(1, 30, { message: 'Length not correct' })
+  @MinLength(1, { message: 'Length not correct' })
   @IsEnum(LikeStatus)
   likeStatus: LikeStatus;
 }
