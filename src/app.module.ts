@@ -76,6 +76,8 @@ import { CommentsRepository } from './features/comments/infrastructure/comments.
 import { Like, LikeSchema } from './features/like/domain/like.entity';
 import { ApiSettings } from './settings/env/api-settings';
 import { CommentsController } from './features/comments/api/comments.controller';
+import { SecurityController } from './features/security/api/security.controller';
+import { DeviceQueryRepository } from './features/security/infrastructure/device.query-repository';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -110,7 +112,11 @@ const authProviders: Provider[] = [
   ApiAccessLogsRepository,
 ];
 
-const securityProviders: Provider[] = [SecurityService, DeviceRepository];
+const securityProviders: Provider[] = [
+  SecurityService,
+  DeviceRepository,
+  DeviceQueryRepository,
+];
 
 const usersProviders: Provider[] = [
   CreateUserUseCase,
@@ -222,6 +228,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
   ],
   controllers: [
     AuthController,
+    SecurityController,
     UsersController,
     BlogsController,
     PostsController,

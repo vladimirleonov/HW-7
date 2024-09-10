@@ -1,45 +1,39 @@
-import { Strategy } from 'passport-local';
+import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../../features/auth/application/auth.service';
 import { Result, ResultStatus } from '../../base/types/object-result';
 import { unixToISOString } from '../utils/convert-unix-to-iso';
-import { JwtPayload } from 'jsonwebtoken';
-
-export interface RequestWithDeviceAndCookies extends Request {
-  cookies: { [key: string]: string };
-  device: {
-    userId: string;
-    deviceId: string;
-    iat: string;
-  };
-}
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from '../../settings/env/configuration';
+import { RequestWithDeviceAndCookies } from '../../base/types/request-with-device-and-cookie';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
   'refresh-token',
 ) {
-  constructor(private authService: AuthService) {
-    super();
+  constructor(
+    private authService: AuthService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
+  ) {
+    super({
+      jwtFromRequest: (req: RequestWithDeviceAndCookies) => {
+        return req.cookies?.refreshToken || null;
+      },
+      ignoreExpiration: false,
+      secretOrKey: configService.get('apiSettings', {
+        infer: true,
+      }).JWT_SECRET,
+      passReqToCallback: true,
+    });
   }
 
-  async validate(req: RequestWithDeviceAndCookies) {
-    const refreshToken: string = req.cookies?.refreshToken;
+  async validate(req: RequestWithDeviceAndCookies, payload: any) {
+    // console.log(payload);
+    // console.log(req);
 
-    if (!refreshToken) {
-      throw new UnauthorizedException();
-    }
-
-    const validateRefreshTokenResult: Result<JwtPayload | null> =
-      await this.authService.validateRefreshToken(refreshToken);
-
-    if (validateRefreshTokenResult.status === ResultStatus.Unauthorized) {
-      throw new UnauthorizedException();
-    }
-
-    const { userId, deviceId, iat } =
-      validateRefreshTokenResult.data as JwtPayload;
+    const { userId, deviceId, iat } = payload;
 
     const validateUserByIdResult: Result =
       await this.authService.validateUserById(userId);
@@ -54,6 +48,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
       iat: unixToISOString(iat),
     };
 
-    return { userId, deviceId, iat };
+    // TODO: think about how not to pass default req.user
+    return {};
   }
 }

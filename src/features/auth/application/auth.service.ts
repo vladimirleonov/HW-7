@@ -338,17 +338,17 @@ export class AuthService {
   //   return Result.success();
   // }
 
-  async validateRefreshToken(
-    token: string,
-  ): Promise<Result<JwtPayload | null>> {
-    const payload = this.jwtService.verify(token);
-
-    if (!payload || !payload.deviceId || !payload.userId) {
-      return Result.unauthorized('Invalid refresh token');
-    }
-
-    return Result.success(payload);
-  }
+  // async validateRefreshToken(
+  //   token: string,
+  // ): Promise<Result<JwtPayload | null>> {
+  //   const payload = this.jwtService.verify(token);
+  //
+  //   if (!payload || !payload.deviceId || !payload.userId) {
+  //     return Result.unauthorized('Invalid refresh token');
+  //   }
+  //
+  //   return Result.success(payload);
+  // }
 
   // async checkAccessToken(
   //   authHeader: string,
