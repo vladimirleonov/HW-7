@@ -42,7 +42,7 @@ import { LocalStrategy } from './core/stratagies/local.strategy';
 import { JwtStrategy } from './core/stratagies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { BasicStrategy } from './core/stratagies/basic.strategy';
-import { RefreshTokenStrategy } from './core/stratagies/refresh-token.strategy';
+import { RefreshTokenJwtStrategy } from './core/stratagies/refresh-token-jwt.strategy';
 import { Environments, EnvironmentSettings } from './settings/env/env-settings';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateUserUseCase } from './features/users/application/use-cases/create-user.usecase';
@@ -79,12 +79,13 @@ import { CommentsController } from './features/comments/api/comments.controller'
 import { SecurityController } from './features/security/api/security.controller';
 import { DeviceQueryRepository } from './features/security/infrastructure/device.query-repository';
 import { TerminateAllOtherUserDevicesUseCase } from './features/security/application/use-cases/terminate-all-other-user-devices.usecase';
+import { TerminateUserDeviceUseCase } from './features/security/application/use-cases/terminate-user-device.usecase';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
   JwtStrategy,
   BasicStrategy,
-  RefreshTokenStrategy,
+  RefreshTokenJwtStrategy,
   OptionalJwtStrategy,
 ];
 
@@ -115,6 +116,7 @@ const authProviders: Provider[] = [
 
 const securityProviders: Provider[] = [
   TerminateAllOtherUserDevicesUseCase,
+  TerminateUserDeviceUseCase,
   SecurityService,
   DeviceRepository,
   DeviceQueryRepository,

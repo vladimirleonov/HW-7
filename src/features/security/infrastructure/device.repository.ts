@@ -32,4 +32,18 @@ export class DeviceRepository {
       userId: { $eq: userId },
     });
   }
+  async deleteOneByDeviceIdAndUserId(
+    deviceId: string,
+    userId: string,
+  ): Promise<boolean> {
+    const deletedInfo = await this.deviceModel.deleteOne({
+      deviceId: { $eq: deviceId },
+      userId: { $eq: userId },
+    });
+
+    return deletedInfo.deletedCount === 1;
+  }
+  async findByDeviceId(deviceId: string): Promise<DeviceDocument | null> {
+    return this.deviceModel.findOne({ deviceId });
+  }
 }

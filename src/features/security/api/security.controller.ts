@@ -1,9 +1,11 @@
 import {
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { RefreshTokenAuthGuard } from '../../../core/guards/passport/refresh-token-auth.guard';
@@ -14,6 +16,9 @@ import { DeviceOutputModel } from './models/output/device.output.model';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { CommandBus } from '@nestjs/cqrs';
 import { TerminateAllOtherUserDevicesCommand } from '../application/use-cases/terminate-all-other-user-devices.usecase';
+import { TerminateUserDeviceCommand } from '../application/use-cases/terminate-user-device.usecase';
+import { NotFoundException } from '../../../core/exception-filters/http-exception-filter';
+import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 
 @Controller('security/devices')
 export class SecurityController {
@@ -49,6 +54,32 @@ export class SecurityController {
     // const result: Result =
     //   await this.securityService.terminateAllOtherDeviceSessions(dto);
     if (result.status === ResultStatus.Success) {
+      return;
+    }
+  }
+
+  @Delete(':deviceId')
+  @UseGuards(RefreshTokenAuthGuard)
+  @HttpCode(204)
+  async terminateUserDevices(
+    @Param('deviceId') deviceId: string,
+    @CurrentUserIdFromDevice() userId: string,
+  ) {
+    console.log('userId', userId);
+    console.log('deviceId', deviceId);
+
+    const result: Result = await this.commandBus.execute(
+      new TerminateUserDeviceCommand(deviceId, userId),
+    );
+
+    // const result: Result =
+    //   await this.securityService.terminateDeviceSession(dto);
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException(result.errorMessage);
+    } else if (result.status === ResultStatus.Forbidden) {
+      throw new ForbiddenException(result.errorMessage);
+    } else if (result.status === ResultStatus.Success) {
       return;
     }
   }

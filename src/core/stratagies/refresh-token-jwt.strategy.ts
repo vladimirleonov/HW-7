@@ -9,7 +9,7 @@ import { ConfigurationType } from '../../settings/env/configuration';
 import { RequestWithDeviceAndCookies } from '../../base/types/request-with-device-and-cookie';
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(
+export class RefreshTokenJwtStrategy extends PassportStrategy(
   Strategy,
   'refresh-token',
 ) {
