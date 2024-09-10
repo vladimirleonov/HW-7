@@ -8,7 +8,7 @@ import {
 
 @Injectable()
 export class DeviceRepository {
-  constructor(@InjectModel(Device.name) private DeviceModel: DeviceModelType) {}
+  constructor(@InjectModel(Device.name) private deviceModel: DeviceModelType) {}
   async save(device: DeviceDocument): Promise<DeviceDocument> {
     return device.save();
   }
@@ -16,28 +16,20 @@ export class DeviceRepository {
     deviceId: string,
     iat: string,
   ): Promise<boolean> {
-    const deletedInfo = await this.DeviceModel.deleteOne({
+    const deletedInfo = await this.deviceModel.deleteOne({
       deviceId: { $eq: deviceId },
       iat: { $eq: iat },
     });
 
     return deletedInfo.deletedCount === 1;
   }
-  // async findByField(
-  //   field: string,
-  //   value: string,
-  // ): Promise<DeviceDocument | null> {
-  //   return this.DeviceModel.findOne({ [field]: value });
-  // }
-  // async findUserByLoginOrEmailField(
-  //   loginOrEmail: string,
-  // ): Promise<DeviceDocument | null> {
-  //   return this.DeviceModel.findOne({
-  //     $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
-  //   });
-  // }
-  // async delete(id: string): Promise<boolean> {
-  //   const deletedInfo = await this.DeviceModel.deleteOne({ _id: id });
-  //   return deletedInfo.deletedCount === 1;
-  // }
+  async deleteAllOtherByDeviceIdAndUserId(
+    deviceId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.deviceModel.deleteMany({
+      deviceId: { $ne: deviceId },
+      userId: { $eq: userId },
+    });
+  }
 }

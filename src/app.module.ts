@@ -78,6 +78,7 @@ import { ApiSettings } from './settings/env/api-settings';
 import { CommentsController } from './features/comments/api/comments.controller';
 import { SecurityController } from './features/security/api/security.controller';
 import { DeviceQueryRepository } from './features/security/infrastructure/device.query-repository';
+import { TerminateAllOtherUserDevicesUseCase } from './features/security/application/use-cases/terminate-all-other-user-devices.usecase';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -113,6 +114,7 @@ const authProviders: Provider[] = [
 ];
 
 const securityProviders: Provider[] = [
+  TerminateAllOtherUserDevicesUseCase,
   SecurityService,
   DeviceRepository,
   DeviceQueryRepository,
