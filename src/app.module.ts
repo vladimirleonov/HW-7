@@ -1,19 +1,16 @@
 import { Module, Provider } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersController } from './features/users/api/users.controller';
-import { UsersService } from './features/users/application/users.service';
 import { UsersRepository } from './features/users/infrastructure/users.repository';
 import { UsersQueryRepository } from './features/users/infrastructure/users.query-repository';
 import { User, UserSchema } from './features/users/domain/user.entity';
 import { AuthService } from './features/auth/application/auth.service';
 import { BlogsController } from './features/blogs/api/blogs.controller';
-import { BlogsService } from './features/blogs/application/blogs.service';
 import { BlogsRepository } from './features/blogs/infrastructure/blogs.repository';
 import { BlogsQueryRepository } from './features/blogs/infrastructure/blogs.query-repository';
 import { Blog, BlogSchema } from './features/blogs/domain/blog.entity';
 import { Post, PostSchema } from './features/posts/domain/post.entity';
 import { PostsController } from './features/posts/api/posts.controller';
-import { PostsService } from './features/posts/application/posts.service';
 import { PostsRepository } from './features/posts/infrastructure/posts.repository';
 import { PostsQueryRepository } from './features/posts/infrastructure/posts.query-repository';
 import { TestingService } from './features/testing/application/testing.service';
@@ -34,16 +31,13 @@ import { NodemailerService } from './core/application/nodemailer.service';
 import { LoginIsExistConstraint } from './core/decorators/validate/login-is-exist.decorator';
 import { EmailIsExistConstraint } from './core/decorators/validate/email-is-exist.decorator';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration, {
-  ConfigurationType,
-  validate,
-} from './settings/env/configuration';
+import configuration, { ConfigurationType } from './settings/env/configuration';
 import { LocalStrategy } from './core/stratagies/local.strategy';
 import { JwtStrategy } from './core/stratagies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { BasicStrategy } from './core/stratagies/basic.strategy';
 import { RefreshTokenJwtStrategy } from './core/stratagies/refresh-token-jwt.strategy';
-import { Environments, EnvironmentSettings } from './settings/env/env-settings';
+import { EnvironmentSettings } from './settings/env/env-settings';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateUserUseCase } from './features/users/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from './features/users/application/use-cases/delete-user.usecase';
@@ -65,7 +59,7 @@ import { ConfirmRegistrationUseCase } from './features/auth/application/use-case
 import { RegistrationEmailResendingUseCase } from './features/auth/application/use-cases/registration-email-resending.usecase';
 import { PasswordRecoveryUseCase } from './features/auth/application/use-cases/password-recovery.usecase';
 import { SetNewPasswordUseCase } from './features/auth/application/use-cases/set-new-password.usecase';
-import { LogoutCommand } from './features/auth/application/use-cases/logout';
+import { LogoutUseCase } from './features/auth/application/use-cases/logout';
 import { UpdatePostLikeStatusUseCase } from './features/posts/application/use-cases/update-post-like-status.usecase';
 import { OptionalJwtStrategy } from './core/stratagies/optional-jwt.strategy';
 import { CreateCommentUseCase } from './features/comments/application/use-cases/create-comment.usecase';
@@ -80,6 +74,8 @@ import { SecurityController } from './features/security/api/security.controller'
 import { DeviceQueryRepository } from './features/security/infrastructure/device.query-repository';
 import { TerminateAllOtherUserDevicesUseCase } from './features/security/application/use-cases/terminate-all-other-user-devices.usecase';
 import { TerminateUserDeviceUseCase } from './features/security/application/use-cases/terminate-user-device.usecase';
+import { ClearCookieInterceptor } from './core/interceptors/clear-cookie.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -109,7 +105,7 @@ const authProviders: Provider[] = [
   PasswordRecoveryUseCase,
   SetNewPasswordUseCase,
   LoginUseCase,
-  LogoutCommand,
+  LogoutUseCase,
   AuthService,
   ApiAccessLogsRepository,
 ];
@@ -250,6 +246,10 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     ...constraintProviders,
     ...basicProviders,
     ...strategyProviders,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClearCookieInterceptor,
+    },
     // {
     //   provide: AppSettings,
     //   useValue: appSettings,

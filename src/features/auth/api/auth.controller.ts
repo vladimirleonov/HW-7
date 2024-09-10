@@ -7,6 +7,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { Response } from 'express';
@@ -37,6 +38,8 @@ import { LoginCommand } from '../application/use-cases/login.usecase';
 import { LogoutCommand } from '../application/use-cases/logout';
 import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.usecase';
 import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.usecase';
+import { RefreshTokenAuthGuard } from '../../../core/guards/passport/refresh-token-auth.guard';
+import { ClearCookieInterceptor } from '../../../core/interceptors/clear-cookie.interceptor';
 
 @Controller('auth')
 export class AuthController {
@@ -197,11 +200,13 @@ export class AuthController {
   }
 
   @Post('logout')
+  @UseGuards(RefreshTokenAuthGuard)
+  @UseInterceptors(ClearCookieInterceptor)
   @HttpCode(204)
   async logout(
     @CurrentDeviceId() deviceId: string,
     @CurrentDeviceIat() iat: string,
-    @Res() res: Response,
+    // @Res() res: Response,
   ) {
     const result: Result = await this.commandBus.execute<LogoutCommand, Result>(
       new LogoutCommand(deviceId, iat),
@@ -213,12 +218,12 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    res.clearCookie('refreshToken', {
-      httpOnly: true, // cookie can only be accessed via http or https
-      secure: true, // send cookie only over https
-      sameSite: 'strict', // protects against CSRF attacks
-    });
-
+    // res.clearCookie('refreshToken', {
+    //   httpOnly: true, // cookie can only be accessed via http or https
+    //   secure: true, // send cookie only over https
+    //   sameSite: 'strict', // protects against CSRF attacks
+    // });
+    //
     // res.status(HttpStatus.NO_CONTENT).send();
   }
 }

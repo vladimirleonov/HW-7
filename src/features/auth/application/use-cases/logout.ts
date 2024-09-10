@@ -1,4 +1,4 @@
-import { ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../base/types/object-result';
 import { DeviceRepository } from '../../../security/infrastructure/device.repository';
 
@@ -9,6 +9,7 @@ export class LogoutCommand {
   ) {}
 }
 
+@CommandHandler(LogoutCommand)
 export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
   constructor(private readonly deviceRepository: DeviceRepository) {}
 
@@ -17,7 +18,7 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
 
     const isDeleted: boolean =
       await this.deviceRepository.deleteOneByDeviceIdAndIAt(deviceId, iat);
-
+    // console.log('ok!!!');
     if (!isDeleted) {
       // TODO: check error message
       return Result.unauthorized('Invalid or expired refresh token');

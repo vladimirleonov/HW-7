@@ -9,9 +9,11 @@ import {
 @Injectable()
 export class DeviceRepository {
   constructor(@InjectModel(Device.name) private deviceModel: DeviceModelType) {}
+
   async save(device: DeviceDocument): Promise<DeviceDocument> {
     return device.save();
   }
+
   async deleteOneByDeviceIdAndIAt(
     deviceId: string,
     iat: string,
@@ -23,6 +25,7 @@ export class DeviceRepository {
 
     return deletedInfo.deletedCount === 1;
   }
+
   async deleteAllOtherByDeviceIdAndUserId(
     deviceId: string,
     userId: string,
@@ -32,6 +35,7 @@ export class DeviceRepository {
       userId: { $eq: userId },
     });
   }
+
   async deleteOneByDeviceIdAndUserId(
     deviceId: string,
     userId: string,
@@ -43,6 +47,7 @@ export class DeviceRepository {
 
     return deletedInfo.deletedCount === 1;
   }
+
   async findByDeviceId(deviceId: string): Promise<DeviceDocument | null> {
     return this.deviceModel.findOne({ deviceId });
   }
