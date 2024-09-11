@@ -13,7 +13,7 @@ import { FilterQuery, Model } from 'mongoose';
 import {
   AuthMeOutputModel,
   AuthMeOutputModelMapper,
-} from '../../auth/api/models/output/auth-me.output';
+} from '../../auth/auth/api/models/output/auth-me.output';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -49,6 +49,7 @@ export class UsersQueryRepository {
 
     return UserOutputModelMapper(user);
   }
+
   // TODO: not sure about name
   async findAuthenticatedUserById(
     id: string,
@@ -56,6 +57,7 @@ export class UsersQueryRepository {
     const user: UserDocument | null = await this.UserModel.findOne({ _id: id });
     return user ? AuthMeOutputModelMapper(user) : null;
   }
+
   // TODO: change type any
   private async _getResult(
     filter: any,

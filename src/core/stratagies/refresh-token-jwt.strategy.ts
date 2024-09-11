@@ -1,7 +1,7 @@
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthService } from '../../features/auth/application/auth.service';
+import { AuthService } from '../../features/auth/auth/application/auth.service';
 import { Result, ResultStatus } from '../../base/types/object-result';
 import { unixToISOString } from '../utils/convert-unix-to-iso';
 import { ConfigService } from '@nestjs/config';

@@ -10,7 +10,7 @@ export class NodemailerService {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {
-    console.log('configService initialized', configService);
+    // console.log('configService initialized', configService);
   }
   async sendEmail(
     recipient: string,

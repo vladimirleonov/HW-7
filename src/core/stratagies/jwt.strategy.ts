@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { Result, ResultStatus } from '../../base/types/object-result';
 import { UnauthorizedException } from '../exception-filters/http-exception-filter';
-import { AuthService } from '../../features/auth/application/auth.service';
+import { AuthService } from '../../features/auth/auth/application/auth.service';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
 

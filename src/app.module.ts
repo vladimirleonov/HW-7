@@ -4,27 +4,27 @@ import { UsersController } from './features/users/api/users.controller';
 import { UsersRepository } from './features/users/infrastructure/users.repository';
 import { UsersQueryRepository } from './features/users/infrastructure/users.query-repository';
 import { User, UserSchema } from './features/users/domain/user.entity';
-import { AuthService } from './features/auth/application/auth.service';
-import { BlogsController } from './features/blogs/api/blogs.controller';
-import { BlogsRepository } from './features/blogs/infrastructure/blogs.repository';
-import { BlogsQueryRepository } from './features/blogs/infrastructure/blogs.query-repository';
-import { Blog, BlogSchema } from './features/blogs/domain/blog.entity';
-import { Post, PostSchema } from './features/posts/domain/post.entity';
-import { PostsController } from './features/posts/api/posts.controller';
-import { PostsRepository } from './features/posts/infrastructure/posts.repository';
-import { PostsQueryRepository } from './features/posts/infrastructure/posts.query-repository';
-import { TestingService } from './features/testing/application/testing.service';
-import { TestingRepository } from './features/testing/infrastructure/testing.repository';
-import { TestingController } from './features/testing/api/testing.controller';
-import { Device, DeviceSchema } from './features/security/domain/device.entity';
-import { DevicesRepository } from './features/security/infrastructure/device.repository';
-import { AuthController } from './features/auth/api/auth.controller';
-import { SecurityService } from './features/security/application/security.service';
-import { ApiAccessLogsRepository } from './features/auth/infrastructure/api-access-logs.repository';
+import { AuthService } from './features/auth/auth/application/auth.service';
+import { BlogsController } from './features/content/blogs/api/blogs.controller';
+import { BlogsRepository } from './features/content/blogs/infrastructure/blogs.repository';
+import { BlogsQueryRepository } from './features/content/blogs/infrastructure/blogs.query-repository';
+import { Blog, BlogSchema } from './features/content/blogs/domain/blog.entity';
+import { Post, PostSchema } from './features/content/posts/domain/post.entity';
+import { PostsController } from './features/content/posts/api/posts.controller';
+import { PostsRepository } from './features/content/posts/infrastructure/posts.repository';
+import { PostsQueryRepository } from './features/content/posts/infrastructure/posts.query-repository';
+import {
+  Device,
+  DeviceSchema,
+} from './features/auth/security/domain/device.entity';
+import { DevicesRepository } from './features/auth/security/infrastructure/device.repository';
+import { AuthController } from './features/auth/auth/api/auth.controller';
+import { SecurityService } from './features/auth/security/application/security.service';
+import { ApiAccessLogsRepository } from './features/auth/auth/infrastructure/api-access-logs.repository';
 import {
   ApiAccessLog,
   ApiAccessLogSchema,
-} from './features/auth/domain/api-access-log.entity';
+} from './features/auth/auth/domain/api-access-log.entity';
 import { UtilsService } from './core/application/utils.service';
 import { CryptoService } from './core/application/crypto.service';
 import { NodemailerService } from './core/application/nodemailer.service';
@@ -41,46 +41,42 @@ import { EnvironmentSettings } from './settings/env/env-settings';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateUserUseCase } from './features/users/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from './features/users/application/use-cases/delete-user.usecase';
-import { CreatePostUseCase } from './features/posts/application/use-cases/create-post.usecase';
-import { UpdatePostUseCase } from './features/posts/application/use-cases/update-post.usecase';
-import { DeletePostUseCase } from './features/posts/application/use-cases/delete-post.usecase';
-import { CreateBlogUseCase } from './features/blogs/application/use-cases/create-blog.usecase';
-import { UpdateBlogUseCase } from './features/blogs/application/use-cases/update-blog.usecase';
-import { DeleteBlogUseCase } from './features/blogs/application/use-cases/delete-blog.usecase';
-import { CommentsQueryRepository } from './features/comments/infrastructure/comments.query-repository';
+import { CreatePostUseCase } from './features/content/posts/application/use-cases/create-post.usecase';
+import { UpdatePostUseCase } from './features/content/posts/application/use-cases/update-post.usecase';
+import { DeletePostUseCase } from './features/content/posts/application/use-cases/delete-post.usecase';
+import { CreateBlogUseCase } from './features/content/blogs/application/use-cases/create-blog.usecase';
+import { UpdateBlogUseCase } from './features/content/blogs/application/use-cases/update-blog.usecase';
+import { DeleteBlogUseCase } from './features/content/blogs/application/use-cases/delete-blog.usecase';
+import { CommentsQueryRepository } from './features/content/comments/infrastructure/comments.query-repository';
 import {
   Comment,
   CommentSchema,
-} from './features/comments/domain/comments.entity';
+} from './features/content/comments/domain/comments.entity';
 import { BlogIsExistConstraint } from './core/decorators/validate/blog-is-exist.decorator';
-import { LoginUseCase } from './features/auth/application/use-cases/login.usecase';
-import { RegistrationUseCase } from './features/auth/application/use-cases/registration-user.usecase';
-import { ConfirmRegistrationUseCase } from './features/auth/application/use-cases/confirm-registration.usecase';
-import { RegistrationEmailResendingUseCase } from './features/auth/application/use-cases/registration-email-resending.usecase';
-import { PasswordRecoveryUseCase } from './features/auth/application/use-cases/password-recovery.usecase';
-import { SetNewPasswordUseCase } from './features/auth/application/use-cases/set-new-password.usecase';
-import { LogoutUseCase } from './features/auth/application/use-cases/logout';
-import { UpdatePostLikeStatusUseCase } from './features/posts/application/use-cases/update-post-like-status.usecase';
+import { LoginUseCase } from './features/auth/auth/application/use-cases/login.usecase';
+import { RegistrationUseCase } from './features/auth/auth/application/use-cases/registration-user.usecase';
+import { ConfirmRegistrationUseCase } from './features/auth/auth/application/use-cases/confirm-registration.usecase';
+import { RegistrationEmailResendingUseCase } from './features/auth/auth/application/use-cases/registration-email-resending.usecase';
+import { PasswordRecoveryUseCase } from './features/auth/auth/application/use-cases/password-recovery.usecase';
+import { SetNewPasswordUseCase } from './features/auth/auth/application/use-cases/set-new-password.usecase';
+import { LogoutUseCase } from './features/auth/auth/application/use-cases/logout';
+import { UpdatePostLikeStatusUseCase } from './features/content/posts/application/use-cases/update-post-like-status.usecase';
 import { OptionalJwtStrategy } from './core/stratagies/optional-jwt.strategy';
-import { CreateCommentUseCase } from './features/comments/application/use-cases/create-comment.usecase';
-import { DeleteCommentUseCase } from './features/comments/application/use-cases/delete-comment.usecase';
-import { UpdateCommentUseCase } from './features/comments/application/use-cases/update-comment.usecase';
-import { UpdateCommentLikeStatusUseCase } from './features/comments/application/use-cases/update-comment-like-status.usecase';
-import { CommentsRepository } from './features/comments/infrastructure/comments.repository';
+import { CreateCommentUseCase } from './features/content/comments/application/use-cases/create-comment.usecase';
+import { DeleteCommentUseCase } from './features/content/comments/application/use-cases/delete-comment.usecase';
+import { UpdateCommentUseCase } from './features/content/comments/application/use-cases/update-comment.usecase';
+import { UpdateCommentLikeStatusUseCase } from './features/content/comments/application/use-cases/update-comment-like-status.usecase';
+import { CommentsRepository } from './features/content/comments/infrastructure/comments.repository';
 import { Like, LikeSchema } from './features/like/domain/like.entity';
 import { ApiSettings } from './settings/env/api-settings';
-import { CommentsController } from './features/comments/api/comments.controller';
-import { SecurityController } from './features/security/api/security.controller';
-import { DeviceQueryRepository } from './features/security/infrastructure/device.query-repository';
-import { TerminateAllOtherUserDevicesUseCase } from './features/security/application/use-cases/terminate-all-other-user-devices.usecase';
-import { TerminateUserDeviceUseCase } from './features/security/application/use-cases/terminate-user-device.usecase';
-import { ClearCookieInterceptor } from './core/interceptors/clear-cookie.interceptor';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import {
-  RefreshTokenCommand,
-  RefreshTokenUseCase,
-} from './features/auth/application/use-cases/refresh-token.usecase';
+import { CommentsController } from './features/content/comments/api/comments.controller';
+import { SecurityController } from './features/auth/security/api/security.controller';
+import { DeviceQueryRepository } from './features/auth/security/infrastructure/device.query-repository';
+import { TerminateAllOtherUserDevicesUseCase } from './features/auth/security/application/use-cases/terminate-all-other-user-devices.usecase';
+import { TerminateUserDeviceUseCase } from './features/auth/security/application/use-cases/terminate-user-device.usecase';
+import { RefreshTokenUseCase } from './features/auth/auth/application/use-cases/refresh-token.usecase';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { TestingModule } from './features/testing/testing.module';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -159,8 +155,6 @@ const commentsProviders: Provider[] = [
   CommentsRepository,
   CommentsQueryRepository,
 ];
-
-const testingProviders: Provider[] = [TestingService, TestingRepository];
 
 @Module({
   imports: [
@@ -247,6 +241,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
       { name: Like.name, schema: LikeSchema },
     ]),
     CqrsModule,
+    TestingModule.register(),
   ],
   controllers: [
     AuthController,
@@ -255,7 +250,7 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     BlogsController,
     PostsController,
     CommentsController,
-    TestingController,
+    // TestingController,
   ],
   providers: [
     ...authProviders,
@@ -264,7 +259,6 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     ...blogsProviders,
     ...postsProviders,
     ...commentsProviders,
-    ...testingProviders,
     ...constraintProviders,
     ...basicProviders,
     ...strategyProviders,
