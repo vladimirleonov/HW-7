@@ -26,7 +26,7 @@ export class Device {
 
   @Prop({
     type: String,
-    maxLength: 100,
+    // maxLength: 100,
     required: true,
   })
   deviceName: string;

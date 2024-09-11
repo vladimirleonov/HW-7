@@ -8,7 +8,7 @@ import {
 } from '../../users/domain/user.entity';
 import { Device, DeviceModelType } from '../../security/domain/device.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { DeviceRepository } from '../../security/infrastructure/device.repository';
+import { DevicesRepository } from '../../security/infrastructure/device.repository';
 import { NodemailerService } from '../../../core/application/nodemailer.service';
 import { CryptoService } from '../../../core/application/crypto.service';
 import { JwtService } from '@nestjs/jwt';
@@ -17,7 +17,7 @@ import { JwtPayload } from 'jsonwebtoken';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly deviceRepository: DeviceRepository,
+    private readonly devicesRepository: DevicesRepository,
     private readonly jwtService: JwtService,
     private readonly userRepository: UsersRepository,
     private readonly cryptoService: CryptoService,

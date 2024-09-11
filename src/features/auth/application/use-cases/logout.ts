@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../base/types/object-result';
-import { DeviceRepository } from '../../../security/infrastructure/device.repository';
+import { DevicesRepository } from '../../../security/infrastructure/device.repository';
 
 export class LogoutCommand {
   constructor(
@@ -11,7 +11,7 @@ export class LogoutCommand {
 
 @CommandHandler(LogoutCommand)
 export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
-  constructor(private readonly deviceRepository: DeviceRepository) {}
+  constructor(private readonly deviceRepository: DevicesRepository) {}
 
   async execute(command: LogoutCommand) {
     const { deviceId, iat } = command;

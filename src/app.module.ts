@@ -17,7 +17,7 @@ import { TestingService } from './features/testing/application/testing.service';
 import { TestingRepository } from './features/testing/infrastructure/testing.repository';
 import { TestingController } from './features/testing/api/testing.controller';
 import { Device, DeviceSchema } from './features/security/domain/device.entity';
-import { DeviceRepository } from './features/security/infrastructure/device.repository';
+import { DevicesRepository } from './features/security/infrastructure/device.repository';
 import { AuthController } from './features/auth/api/auth.controller';
 import { SecurityService } from './features/security/application/security.service';
 import { ApiAccessLogsRepository } from './features/auth/infrastructure/api-access-logs.repository';
@@ -76,6 +76,10 @@ import { TerminateAllOtherUserDevicesUseCase } from './features/security/applica
 import { TerminateUserDeviceUseCase } from './features/security/application/use-cases/terminate-user-device.usecase';
 import { ClearCookieInterceptor } from './core/interceptors/clear-cookie.interceptor';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import {
+  RefreshTokenCommand,
+  RefreshTokenUseCase,
+} from './features/auth/application/use-cases/refresh-token.usecase';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -105,6 +109,7 @@ const authProviders: Provider[] = [
   PasswordRecoveryUseCase,
   SetNewPasswordUseCase,
   LoginUseCase,
+  RefreshTokenUseCase,
   LogoutUseCase,
   AuthService,
   ApiAccessLogsRepository,
@@ -114,7 +119,7 @@ const securityProviders: Provider[] = [
   TerminateAllOtherUserDevicesUseCase,
   TerminateUserDeviceUseCase,
   SecurityService,
-  DeviceRepository,
+  DevicesRepository,
   DeviceQueryRepository,
 ];
 
@@ -166,7 +171,6 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
       // ignoreEnvFile:
       //   process.env.ENV !== Environments.DEVELOPMENT &&
       //   process.env.ENV !== Environments.TESTING,arn run start:dev
-
       envFilePath: ['.env.development', '.env'],
     }),
     // JwtModule.register({
@@ -246,10 +250,10 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
     ...constraintProviders,
     ...basicProviders,
     ...strategyProviders,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ClearCookieInterceptor,
-    },
+    // {!!!!!!!!!!!!!!!! not use - clear before all requests
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: ClearCookieInterceptor,
+    // },
     // {
     //   provide: AppSettings,
     //   useValue: appSettings,

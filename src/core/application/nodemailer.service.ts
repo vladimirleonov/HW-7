@@ -3,7 +3,9 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
 import { ApiSettings } from '../../settings/env/api-settings';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class NodemailerService {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
@@ -15,7 +17,7 @@ export class NodemailerService {
     emailTemplate: string,
     subject: string,
   ): Promise<boolean> {
-    console.log('configService', this.configService);
+    console.log('NodemailerService');
 
     const apiSettings: ApiSettings = this.configService.get('apiSettings', {
       infer: true,

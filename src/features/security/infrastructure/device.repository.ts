@@ -7,7 +7,7 @@ import {
 } from '../domain/device.entity';
 
 @Injectable()
-export class DeviceRepository {
+export class DevicesRepository {
   constructor(@InjectModel(Device.name) private deviceModel: DeviceModelType) {}
 
   async save(device: DeviceDocument): Promise<DeviceDocument> {
@@ -50,5 +50,15 @@ export class DeviceRepository {
 
   async findByDeviceId(deviceId: string): Promise<DeviceDocument | null> {
     return this.deviceModel.findOne({ deviceId });
+  }
+
+  async findOneByDeviceIdAndIat(
+    deviceId: string,
+    iat: string,
+  ): Promise<DeviceDocument | null> {
+    return this.deviceModel.findOne({
+      deviceId,
+      iat,
+    });
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -40,6 +41,10 @@ import { RegistrationEmailResendingCommand } from '../application/use-cases/regi
 import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.usecase';
 import { RefreshTokenAuthGuard } from '../../../core/guards/passport/refresh-token-auth.guard';
 import { ClearCookieInterceptor } from '../../../core/interceptors/clear-cookie.interceptor';
+import { CurrentUserIdFromDevice } from '../../../core/decorators/param-decorators/current-user-id-from-device.param.decorator';
+import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usecase';
+import { OptionalJwtAuthGuard } from '../../../core/guards/passport/optional-jwt-auth-guard';
+import { Cookie } from '../../../core/decorators/param-decorators/cookie.param.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -142,20 +147,26 @@ export class AuthController {
     }
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
+  @UseGuards(LocalAuthGuard)
+  @UseGuards(RateLimitGuard)
   async login(
     @Req() req: RequestWithCookies,
     @CurrentUserId() userId: string,
+    @Cookie('refreshToken') refreshToken: string,
     @Res() res: Response,
   ) {
+    // console.log('in login controller');
     const ip: string = this.utilsService.getIpAddress(req);
     const deviceName: string = this.utilsService.getDeviceName(req);
+    console.log(ip);
+    console.log(deviceName);
 
-    // TODO: use decorator or no?
-    const refreshToken: string = req.cookies?.refreshToken;
-
-    // const dto: LoginDto = new LoginDto(userId, ip, deviceName, refreshToken);
+    //
+    // // TODO: use decorator or no?
+    // const refreshToken: string = req.cookies?.refreshToken;
+    //
+    // // const dto: LoginDto = new LoginDto(userId, ip, deviceName, refreshToken);
 
     const loginResult = await this.commandBus.execute(
       new LoginCommand(userId, ip, deviceName, refreshToken),
@@ -164,28 +175,33 @@ export class AuthController {
       throw new UnauthorizedException(loginResult.errorMessage!);
     }
 
-    // const loginResult = await this.authService.login(dto);
-    // if (loginResult.status === ResultStatus.Unauthorized) {
-    //   throw new UnauthorizedException(loginResult.errorMessage!);
-    // }
+    // // const loginResult = await this.authService.login(dto);
+    // // if (loginResult.status === ResultStatus.Unauthorized) {
+    // //   throw new UnauthorizedException(loginResult.errorMessage!);
+    // // }
+    //
+    // // const loginResult = await this.authService.login(dto);
+    // // if (loginResult.status === ResultStatus.Unauthorized) {
+    // //   throw new UnauthorizedException(loginResult.errorMessage!);
+    // // }
+    //
 
-    // const loginResult = await this.authService.login(dto);
-    // if (loginResult.status === ResultStatus.Unauthorized) {
-    //   throw new UnauthorizedException(loginResult.errorMessage!);
-    // }
+    console.log('Set-Cookie:', res.getHeaders()['set-cookie']);
 
-    res.cookie('refreshToken', loginResult.data?.refreshToken, {
+    res.cookie('refreshToken', loginResult.data.refreshToken, {
       httpOnly: true, // cookie can only be accessed via http or https
       secure: true, // send cookie only over https
       sameSite: 'strict', // protects against CSRF attacks
     });
+
+    console.log('Set-Cookie:', res.getHeaders()['set-cookie']);
 
     res.status(HttpStatus.OK).send({
       accessToken: loginResult.data?.accessToken,
     });
   }
 
-  @Post('me')
+  @Get('me')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
   async authMe(@CurrentUserId() userId: string) {
@@ -199,6 +215,48 @@ export class AuthController {
     return user;
   }
 
+  @Post('refresh-token')
+  @UseGuards(RefreshTokenAuthGuard)
+  // @UseInterceptors(SetCookieInterceptor)
+  @HttpCode(200)
+  async refreshToken(
+    @CurrentUserIdFromDevice() userId: string,
+    @CurrentDeviceId() deviceId: string,
+    @CurrentDeviceIat() iat: string,
+    @Res() res: Response,
+  ) {
+    console.log('ok!!!');
+    const result = await this.commandBus.execute(
+      new RefreshTokenCommand(userId, deviceId, iat),
+    );
+
+    // const result: Result<{
+    //   accessToken: string,
+    //   refreshToken: string
+    // } | null> = await this.authService.refreshToken(dto)
+
+    if (result.status === ResultStatus.Unauthorized) {
+      throw new UnauthorizedException();
+    }
+
+    // console.log('in refreshToken');
+    // return {
+    //   accessToken: result.data?.accessToken!,
+    //   refreshToken: result.data?.refreshToken!, // передаем refreshToken для интерсептора
+    // };
+
+    res.cookie('refreshToken', result.data?.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      // secure: SETTINGS.NODE_ENV === 'production',
+      sameSite: 'strict',
+    });
+
+    res.status(HttpStatus.OK).send({
+      accessToken: result.data?.accessToken!,
+    });
+  }
+
   @Post('logout')
   @UseGuards(RefreshTokenAuthGuard)
   @UseInterceptors(ClearCookieInterceptor)
@@ -206,7 +264,7 @@ export class AuthController {
   async logout(
     @CurrentDeviceId() deviceId: string,
     @CurrentDeviceIat() iat: string,
-    // @Res() res: Response,
+    @Res() res: Response,
   ) {
     const result: Result = await this.commandBus.execute<LogoutCommand, Result>(
       new LogoutCommand(deviceId, iat),
@@ -218,12 +276,12 @@ export class AuthController {
       throw new UnauthorizedException();
     }
 
-    // res.clearCookie('refreshToken', {
-    //   httpOnly: true, // cookie can only be accessed via http or https
-    //   secure: true, // send cookie only over https
-    //   sameSite: 'strict', // protects against CSRF attacks
-    // });
-    //
-    // res.status(HttpStatus.NO_CONTENT).send();
+    res.clearCookie('refreshToken', {
+      httpOnly: true, // cookie can only be accessed via http or https
+      secure: true, // send cookie only over https
+      sameSite: 'strict', // protects against CSRF attacks
+    });
+
+    res.status(HttpStatus.NO_CONTENT).send();
   }
 }

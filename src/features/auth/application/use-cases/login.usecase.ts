@@ -11,7 +11,7 @@ import { unixToISOString } from '../../../../core/utils/convert-unix-to-iso';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
-import { DeviceRepository } from '../../../security/infrastructure/device.repository';
+import { DevicesRepository } from '../../../security/infrastructure/device.repository';
 import { JwtPayload } from 'jsonwebtoken';
 
 export class LoginCommand {
@@ -27,23 +27,23 @@ export class LoginCommand {
 export class LoginUseCase implements ICommandHandler<LoginCommand> {
   constructor(
     private readonly userRepository: UsersRepository,
-    private readonly deviceRepository: DeviceRepository,
+    private readonly devicesRepository: DevicesRepository,
     private readonly jwtService: JwtService,
     @InjectModel(Device.name) private readonly DeviceModel: DeviceModelType,
   ) {}
 
   async execute(command: LoginCommand) {
-    if (command.refreshToken) {
-      try {
-        this.jwtService.verify(command.refreshToken);
-
-        return Result.unauthorized(
-          'Refresh token is still valid. Logout before logging in again',
-        );
-      } catch (err) {
-        // console.log('Invalid refresh token, proceeding with login')
-      }
-    }
+    // if (command.refreshToken) {
+    //   try {
+    //     this.jwtService.verify(command.refreshToken);
+    //
+    //     return Result.unauthorized(
+    //       'Refresh token is still valid. Logout before logging in again',
+    //     );
+    //   } catch (err) {
+    //     // console.log('Invalid refresh token, proceeding with login')
+    //   }
+    // }
 
     const user: UserDocument | null = await this.userRepository.findById(
       command.userId,
@@ -87,7 +87,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       JwtRefreshTokenPayload,
       {
         secret: 'secret',
-        expiresIn: '20h',
+        expiresIn: '20s',
       },
     );
 
@@ -110,7 +110,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
         exp: unixToISOString(exp),
       });
 
-      await this.deviceRepository.save(newDevice);
+      await this.devicesRepository.save(newDevice);
 
       return Result.success({
         accessToken,
