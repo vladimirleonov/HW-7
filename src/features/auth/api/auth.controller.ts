@@ -45,7 +45,9 @@ import { CurrentUserIdFromDevice } from '../../../core/decorators/param-decorato
 import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usecase';
 import { OptionalJwtAuthGuard } from '../../../core/guards/passport/optional-jwt-auth-guard';
 import { Cookie } from '../../../core/decorators/param-decorators/cookie.param.decorator';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -55,7 +57,7 @@ export class AuthController {
   ) {}
 
   @Post('registration')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async registration(@Body() registrationModel: RegistrationModel) {
     const { login, password, email } = registrationModel;
@@ -73,7 +75,7 @@ export class AuthController {
   }
 
   @Post('registration-confirmation')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async confirmRegistration(
     @Body() confirmRegistrationModel: ConfirmRegistrationModel,
@@ -93,7 +95,7 @@ export class AuthController {
   }
 
   @Post('registration-email-resending')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async registrationEmailResending(
     @Body() registrationEmailResendingModel: RegistrationEmailResendingModel,
@@ -114,7 +116,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async passwordRecovery(@Body() passwordRecoveryModel: PasswordRecoveryModel) {
     const { email } = passwordRecoveryModel;
@@ -128,7 +130,7 @@ export class AuthController {
   }
 
   @Post('new-password')
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   @HttpCode(204)
   async newPassword(@Body() newPasswordModel: NewPasswordModel) {
     const { newPassword, recoveryCode } = newPasswordModel;
@@ -149,7 +151,7 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
-  @UseGuards(RateLimitGuard)
+  // @UseGuards(RateLimitGuard)
   async login(
     @Req() req: RequestWithCookies,
     @CurrentUserId() userId: string,
@@ -201,6 +203,7 @@ export class AuthController {
     });
   }
 
+  @SkipThrottle()
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @HttpCode(200)
@@ -215,6 +218,7 @@ export class AuthController {
     return user;
   }
 
+  @SkipThrottle()
   @Post('refresh-token')
   @UseGuards(RefreshTokenAuthGuard)
   // @UseInterceptors(SetCookieInterceptor)
@@ -257,6 +261,7 @@ export class AuthController {
     });
   }
 
+  @SkipThrottle()
   @Post('logout')
   @UseGuards(RefreshTokenAuthGuard)
   @UseInterceptors(ClearCookieInterceptor)

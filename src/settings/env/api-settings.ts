@@ -35,8 +35,14 @@ export class ApiSettings {
 
   // Jwt
   @IsString()
-  public readonly JWT_SECRET: string = this.envVariables.JWT_SECRET;
+  JWT_SECRET: string = this.envVariables.JWT_SECRET;
   @IsString()
-  public readonly JWT_EXPIRATION_TIME: string =
-    this.envVariables.JWT_EXPIRATION_TIME;
+  JWT_EXPIRATION_TIME: string = this.envVariables.JWT_EXPIRATION_TIME;
+
+  // Rate limit ThrottlerModule settings
+  @IsNumber()
+  THROTTLE_TTL_MS: number = Number(this.envVariables.THROTTLE_TTL_MS);
+  THROTTLE_MAX_REQUESTS: number = Number(
+    this.envVariables.THROTTLE_MAX_REQUESTS,
+  );
 }

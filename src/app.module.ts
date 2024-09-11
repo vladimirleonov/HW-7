@@ -80,6 +80,7 @@ import {
   RefreshTokenCommand,
   RefreshTokenUseCase,
 } from './features/auth/application/use-cases/refresh-token.usecase';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const strategyProviders: Provider[] = [
   LocalStrategy,
@@ -188,6 +189,23 @@ const testingProviders: Provider[] = [TestingService, TestingRepository];
           signOptions: {
             expiresIn: apiSettings.JWT_EXPIRATION_TIME,
           },
+        };
+      },
+      inject: [ConfigService],
+    }),
+    ThrottlerModule.forRootAsync({
+      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+        const apiSettings: ApiSettings =
+          configService.get<ApiSettings>('apiSettings');
+
+        return {
+          global: true,
+          throttlers: [
+            {
+              ttl: apiSettings.THROTTLE_TTL_MS,
+              limit: apiSettings.THROTTLE_MAX_REQUESTS,
+            },
+          ],
         };
       },
       inject: [ConfigService],
