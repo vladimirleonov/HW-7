@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Ip,
   Post,
   Req,
   Res,
@@ -21,7 +22,6 @@ import { NewPasswordModel } from './models/input/new-password.model';
 import { CurrentUserId } from '../../../../core/decorators/param/current-user-id.param.decorator';
 import { CurrentDeviceId } from '../../../../core/decorators/param/current-device-id.param.decorator';
 import { CurrentDeviceIat } from '../../../../core/decorators/param/current-device-iat.param.decorator';
-import { RequestService } from '../../../../core/application/request.service';
 import {
   BadRequestException,
   UnauthorizedException,
@@ -42,13 +42,13 @@ import { CurrentUserIdFromDevice } from '../../../../core/decorators/param/curre
 import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usecase';
 import { Cookie } from '../../../../core/decorators/param/cookie.param.decorator';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
+import { UserAgent } from '../../../../core/decorators/param/user-agent.param.decorator';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly utilsService: RequestService,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
@@ -135,10 +135,13 @@ export class AuthController {
     @Req() req: RequestWithCookies,
     @CurrentUserId() userId: string,
     @Cookie('refreshToken') refreshToken: string,
+    @Ip() ip: string,
+    @UserAgent() deviceName: string,
     @Res() res: Response,
   ) {
-    const ip: string = this.utilsService.getIpAddress(req);
-    const deviceName: string = this.utilsService.getDeviceName(req);
+    //const ip: string = this.utilsService.getIpAddress(req);
+    // const deviceName: string = this.utilsService.getDeviceName(req);
+    console.log(ip, deviceName);
 
     const loginResult = await this.commandBus.execute(
       new LoginCommand(userId, ip, deviceName, refreshToken),

@@ -28,7 +28,6 @@ import {
   ApiAccessLogSchema,
 } from './auth/domain/api-access-log.entity';
 import { CqrsModule } from '@nestjs/cqrs';
-import { RequestService } from '../../core/application/request.service';
 import { LocalStrategy } from '../../core/stratagies/local.strategy';
 import { JwtStrategy } from '../../core/stratagies/jwt.strategy';
 import { BasicStrategy } from '../../core/stratagies/basic.strategy';
@@ -90,7 +89,6 @@ const securityProviders: Provider[] = [
     CryptoService,
     NodemailerService,
     JwtService,
-    RequestService,
   ],
   exports: [AuthService],
 })
