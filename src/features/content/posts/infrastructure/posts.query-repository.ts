@@ -18,9 +18,11 @@ export class PostsQueryRepository {
     @InjectModel(Post.name) private postModel: Model<Post>,
     @InjectModel('User') private readonly userModel: UserModelType,
   ) {}
+
   getAllPosts(pagination: Pagination, userId?: string): any {
     return this.__getResult({}, pagination, userId);
   }
+
   getAllBlogPosts(
     pagination: Pagination,
     blogId?: string,
@@ -36,6 +38,7 @@ export class PostsQueryRepository {
 
     return this.__getResult(filter, pagination, userId);
   }
+
   // TODO: change type any
   private async __getResult(
     filter: any,
@@ -63,9 +66,10 @@ export class PostsQueryRepository {
       totalCount,
     );
   }
+
   async findById(id: string, userId?: string): Promise<PostOutputModel | null> {
     const post: PostDocument | null = await this.postModel.findById(id); // automatically converts string to ObjectId
-    //.findOne({_id: new ObjectId(postId)})
+
     if (post === null) {
       return null;
     }

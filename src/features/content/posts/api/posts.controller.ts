@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -36,7 +37,6 @@ import { CreatePostCommand } from '../application/use-cases/create-post.usecase'
 import { PostUpdateLikeStatusModel } from './models/input/update-post-like-status.model';
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
 import { JwtAuthGuard } from '../../../../core/guards/passport/jwt-auth.guard';
-import { AuthService } from '../../../auth/auth/application/auth.service';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
 import { CommentCreateModel } from '../../comments/api/models/input/create-comment.input.model';
@@ -51,7 +51,6 @@ export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly authService: AuthService,
     private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
@@ -80,7 +79,7 @@ export class PostsController {
       await this.postsQueryRepository.findById(id, userId);
 
     if (!post) {
-      throw new NotFoundException(`Post with id ${id} not found`);
+      throw new NotFoundException();
     }
 
     return post;
@@ -101,6 +100,7 @@ export class PostsController {
     // TODO: CreateDecorator to check corrent postId
     const post: PostOutputModel | null =
       await this.postsQueryRepository.findById(postId);
+
     if (!post) {
       throw new NotFoundException();
     }
@@ -127,13 +127,6 @@ export class PostsController {
     const result: Result<string | null> = await this.commandBus.execute(
       new CreateCommentCommand(postId, content, userId),
     );
-
-    // const result: Result<string | null> =
-    //   await this.commentService.createComment(
-    //     req.params.postId,
-    //     req.body,
-    //     req.user.userId,
-    //   );
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
@@ -164,13 +157,6 @@ export class PostsController {
       Result<string | null>
     >(new CreatePostCommand(title, shortDescription, content, blogId));
 
-    // const result: Result<string | null> = await this.postsService.create(
-    //   title,
-    //   shortDescription,
-    //   content,
-    //   blogId,
-    // );
-
     // TODO: add check wasn't before
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
@@ -191,30 +177,17 @@ export class PostsController {
 
   @Put(':id')
   @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async update(
     @Param('id', new ParseMongoIdPipe()) id: string,
     @Body() updateModel: PostUpdateModel,
   ) {
-    // if (!req.user || !req.user.userId) {
-    //   res.status(HTTP_CODES.UNAUTHORIZED).send()
-    //   return
-    // }
-
     const { title, shortDescription, content, blogId } = updateModel;
 
     const result: Result = await this.commandBus.execute<
       UpdatePostCommand,
       Result
     >(new UpdatePostCommand(id, title, shortDescription, content, blogId));
-
-    // const result: Result = await this.postsService.update(
-    //   id,
-    //   title,
-    //   shortDescription,
-    //   content,
-    //   blogId,
-    // );
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
@@ -223,23 +196,17 @@ export class PostsController {
 
   @Put(':postId/like-status')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async updatePostLikeStatus(
     @Param('postId', new ParseMongoIdPipe()) postId: string,
     @CurrentUserId() userId: string,
     @Body() postUpdateLikeStatusModel: PostUpdateLikeStatusModel,
   ) {
-    console.log(postId);
     const { likeStatus } = postUpdateLikeStatusModel;
+
     const result: Result = await this.commandBus.execute(
       new UpdatePostLikeStatusCommand(likeStatus, postId, userId),
     );
-
-    // const result: Result = await this.postService.updateLikeStatus(
-    //   likeStatus,
-    //   postId,
-    //   userId,
-    // );
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();
@@ -250,14 +217,12 @@ export class PostsController {
 
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
     const result: Result = await this.commandBus.execute<
       DeletePostCommand,
       Result
     >(new DeletePostCommand(id));
-
-    // const result: Result = await this.postsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);

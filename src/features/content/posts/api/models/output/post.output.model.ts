@@ -1,7 +1,6 @@
 import { Like, LikeStatus } from '../../../../like/domain/like.entity';
 import { UserModelType } from '../../../../../users/domain/user.entity';
 
-// TODO: change LikeStatus to another file
 class ExtendedLikesInfo {
   likesCount: number = 0;
   dislikesCount: number = 0;

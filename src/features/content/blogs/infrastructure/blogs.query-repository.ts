@@ -30,8 +30,8 @@ export class BlogsQueryRepository {
 
     return this._getResult(filter, pagination);
   }
-  // TODO: change type any
 
+  // TODO: change type any
   async _getResult(
     filter: any,
     pagination: PaginationWithSearchNameTerm,

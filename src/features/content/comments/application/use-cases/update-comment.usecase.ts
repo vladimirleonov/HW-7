@@ -22,7 +22,7 @@ export class UpdateCommentUseCase
 
     const comment: CommentDocument | null =
       await this.commentsRepository.findById(commentId);
-    console.log('comment by id', comment);
+
     if (!comment) {
       return Result.notFound(`Comment with ${commentId} doesn't exist`);
     }
@@ -36,7 +36,7 @@ export class UpdateCommentUseCase
       content,
     );
 
-    //? check !isUpdated
+    //TODO: should check !isUpdated???
     if (!isUpdated) {
       // return Result.internalError
     }

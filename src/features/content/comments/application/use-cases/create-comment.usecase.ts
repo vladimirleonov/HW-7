@@ -33,11 +33,10 @@ export class CreateCommentUseCase
 
   async execute(command: CreateCommentCommand) {
     const { postId, content, userId } = command;
-    console.log('check postId!!!', postId);
-    console.log(typeof postId);
+
     const post: PostDocument | null =
       await this.postsRepository.findById(postId);
-    console.log('check post id exists!!!', post);
+
     if (!post) {
       return Result.notFound(`Post with postId doesn't exist`);
     }
@@ -61,20 +60,6 @@ export class CreateCommentUseCase
       dislikesCount: 0,
       createdAt: new Date(),
     });
-
-    // const commentData: Comment = new Comment(
-    //   new ObjectId(),
-    //   new ObjectId(postId),
-    //   input.content,
-    //   {
-    //     userId,
-    //     userLogin,
-    //   },
-    //   [],
-    //   0,
-    //   0,
-    //   new Date().toISOString(),
-    // );
 
     const createdComment: CommentDocument =
       await this.commentsRepository.save(newComment);

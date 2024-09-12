@@ -11,10 +11,6 @@ export enum LikeStatus {
 export class Like {
   @Prop({
     type: Date,
-    // validators: {
-    //   validator: isValidISOString,
-    //   message: "createdAt must be a valid ISO string",
-    // },
     required: true,
   })
   createdAt: Date;

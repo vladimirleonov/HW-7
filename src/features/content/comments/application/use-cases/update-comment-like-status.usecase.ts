@@ -1,6 +1,6 @@
 import { Like, LikeStatus } from '../../../like/domain/like.entity';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ResultStatus } from '../../../../../base/types/object-result';
+import { Result } from '../../../../../base/types/object-result';
 import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { CommentDocument } from '../../domain/comments.entity';
 import { InjectModel } from '@nestjs/mongoose';
@@ -28,16 +28,9 @@ export class UpdateCommentLikeStatusUseCase
       await this.commentsRepository.findById(command.commentId);
 
     if (!comment) {
-      return {
-        status: ResultStatus.NotFound,
-        extensions: [
-          {
-            field: 'commentId',
-            message: `Comment with ${command.commentId} does not exist`,
-          },
-        ],
-        data: null,
-      };
+      return Result.notFound(
+        `Comment with ${command.commentId} does not exist`,
+      );
     }
 
     // get use like
@@ -50,10 +43,7 @@ export class UpdateCommentLikeStatusUseCase
       console.log('!userLike');
       // for input.likeStatus = None
       if (command.likeStatus === LikeStatus.None) {
-        return {
-          status: ResultStatus.Success,
-          data: null,
-        };
+        return Result.success();
       }
       // input.likeStatus = (LikeStatus.Like || LikeStatus.Dislike)
 
@@ -63,12 +53,6 @@ export class UpdateCommentLikeStatusUseCase
         authorId: command.userId,
       });
 
-      // const likeToAdd: Like = new Like(
-      //   new Date(),
-      //   command.likeStatus as LikeStatus,
-      //   command.userId,
-      // );
-
       comment.likes.push(likeToAdd);
       // for input.likeStatus = LikeStatus.Like
       if (command.likeStatus === LikeStatus.Like) comment.likesCount += 1;
@@ -76,18 +60,12 @@ export class UpdateCommentLikeStatusUseCase
       if (command.likeStatus === LikeStatus.Dislike) comment.dislikesCount += 1;
 
       await this.commentsRepository.save(comment);
-      return {
-        status: ResultStatus.Success,
-        data: null,
-      };
+      return Result.success();
     }
     // Existing like with same status
     if (userLike.status === command.likeStatus) {
       console.log('nothing change');
-      return {
-        status: ResultStatus.Success,
-        data: null,
-      };
+      return Result.success();
     }
     // Existing like with status None
     if (command.likeStatus === LikeStatus.None) {
@@ -121,12 +99,8 @@ export class UpdateCommentLikeStatusUseCase
       userLike.createdAt = new Date();
     }
 
-    const res: CommentDocument = await this.commentsRepository.save(comment);
-    console.log('like-status res', res);
+    await this.commentsRepository.save(comment);
 
-    return {
-      status: ResultStatus.Success,
-      data: null,
-    };
+    return Result.success();
   }
 }

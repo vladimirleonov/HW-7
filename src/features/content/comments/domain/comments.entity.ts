@@ -66,10 +66,6 @@ export class Comment {
 
   @Prop({
     type: Date,
-    // validators: {
-    //   validator: isValidISOString,
-    //   message: 'createdAt must be a valid ISO string',
-    // },
     required: true,
   })
   createdAt: Date;
@@ -80,11 +76,10 @@ export const CommentSchema = SchemaFactory.createForClass(Comment);
 CommentSchema.methods.getUserLikeStatusByUserId = function (
   userId: string,
 ): LikeStatus {
-  console.log('in getUserLikeStatusByUserId', userId);
   const userLike = this.likes.find(
     (like: Like): boolean => like.authorId.toString() === userId,
   );
-  console.log('userLike', userLike);
+
   return userLike ? userLike.status : 'None';
 };
 

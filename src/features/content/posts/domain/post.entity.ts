@@ -62,10 +62,6 @@ export class Post {
 
   @Prop({
     type: Date,
-    // validators: {
-    //   validator: isValidISOString,
-    //   message: "createdAt must be a valid ISO string",
-    // },
     required: true,
   })
   createdAt: Date;
@@ -91,13 +87,6 @@ PostSchema.methods.updateLikeStatus = function (
     if (likeStatus === LikeStatus.None) {
       return;
     }
-    // input.likeStatus = (LikeStatus.Like || LikeStatus.Dislike)
-    // const likeToAdd: Like = new Like(
-    //   new Date().toISOString(),
-    //   likeStatus,
-    //   userId,
-    // );
-    // post.likes.push(likeToAdd);
 
     post.likes.push({
       createdAt: new Date(),
@@ -156,12 +145,11 @@ PostSchema.methods.updateLikeStatus = function (
 PostSchema.methods.getUserLikeStatusByUserId = function (
   userId?: string,
 ): LikeStatus {
-  // console.log("in getUserLikeStatusByUserId", userId)
   if (!userId) return LikeStatus.None;
   const userLike = this.likes.find(
     (like: Like): boolean => like.authorId.toString() === userId,
   );
-  // console.log("userLike", userLike)
+
   return userLike ? userLike.status : LikeStatus.None;
 };
 
@@ -188,19 +176,16 @@ PostSchema.methods.getNewestLikes = async function (
     .slice(0, count);
 
   if (likes.length === 0) return [];
-  console.log('likes', likes);
 
   const userIds = likes.map((like: Like) => like.authorId);
-  console.log('userIds', userIds);
 
   const users = await userModel.find({ _id: { $in: userIds } });
-  console.log('users', users);
 
   return likes.map((like: Like): NewestLike => {
     const user = users.find(
       (u) => u._id.toString() === like.authorId.toString(),
     );
-    console.log('user map', user);
+
     return {
       addedAt: like.createdAt.toISOString(),
       userId: like.authorId,
@@ -218,80 +203,3 @@ export type PostDocument = HydratedDocument<Post> & {
     userModel: UserModelType,
   ): Promise<NewestLike[]>;
 };
-
-// export class Like {
-//   constructor(
-//     public createdAt: string,
-//     public status: LikeStatus,
-//     public authorId: string
-//   ) {
-//   }
-// }
-
-// export class NewestLike {
-//   constructor(
-//     public addedAt: string,
-//     public userId: string,
-//     public login: string
-//   ) {
-//   }
-// }
-
-// export class Post {
-//   constructor(
-//     public _id: ObjectId,
-//     public title: string,
-//     public shortDescription: string,
-//     public content: string,
-//     public blogId: ObjectId,
-//     public blogName: string,
-//     public likes: Like[],
-//     public likesCount: number,
-//     public dislikesCount: number,
-//     public createdAt: string,
-//   ) {
-//   }
-//
-//   getUserLikeStatusByUserId(userId: string): LikeStatus {
-//     throw new Error("Method implemented in schema")
-//   }
-//
-//   getNewestLikes(postId: ObjectId, count: number): Promise<NewestLike[]> {
-//     throw new Error("Method implemented in schema")
-//   }
-//
-//   updateLikeStatus(userId: string, likeStatus: LikeStatus): void {
-//     throw new Error("Method implemented in schema")
-//   }
-// }
-
-// const postSchema = new mongoose.Schema<Post>({});
-
-// postSchema.methods.getUserLikeStatusByUserId = function (userId?: string): LikeStatus {
-//   // console.log("in getUserLikeStatusByUserId", userId)
-//   if (!userId) return LikeStatus.None
-//   const userLike = this.likes.find((like: Like): boolean => like.authorId === userId)
-//   // console.log("userLike", userLike)
-//   return userLike ? userLike.status : LikeStatus.None
-// }
-//
-// postSchema.methods.getNewestLikes = async function (postId: ObjectId, count: number): Promise<NewestLike[]> {
-//   //const likes = await this.likes.find().sort({createdAt: -1}).limit(count)
-//   const likes = this.likes.slice().sort((a: Like, b: Like) => b.createdAt.localeCompare(a.createdAt)).slice(0, count)
-//   if (likes.length === 0) return []
-//
-//   const userIds = likes.map((like: Like) => like.authorId)
-//   const users = await UserModel.find({_id: {$in: userIds}})
-//
-//   return this.likes.map((like: Like): NewestLike => {
-//     const user = users.find(u => u._id.toString() === like.authorId.toString())
-//     return {
-//       addedAt: like.createdAt,
-//       userId: like.authorId,
-//       login: user ? user.login : 'Unknown'
-//     }
-//   })
-// }
-
-//
-// export const PostModel = mongoose.model<Post>('Post', postSchema)

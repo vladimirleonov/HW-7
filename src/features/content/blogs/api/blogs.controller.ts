@@ -4,13 +4,13 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogsService } from '../application/blogs.service';
 import {
   Pagination,
   PaginationOutput,
@@ -25,7 +25,6 @@ import { BlogUpdateModel } from './models/input/update-blog.input.model';
 import { PostsQueryRepository } from '../../posts/infrastructure/posts.query-repository';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
-import { PostsService } from '../../posts/application/posts.service';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { ParseMongoIdPipe } from '../../../../core/pipes/parse-mongo-id.pipe';
 import {
@@ -50,9 +49,7 @@ const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
 export class BlogsController {
   constructor(
     private readonly commandBus: CommandBus,
-    // private readonly blogsService: BlogsService,
     private readonly blogsQueryRepository: BlogsQueryRepository,
-    // private readonly postService: PostsService,
     private readonly postQueryRepository: PostsQueryRepository,
   ) {}
 
@@ -121,12 +118,6 @@ export class BlogsController {
       Result<string>
     >(new CreateBlogCommand(name, description, websiteUrl));
 
-    // const result: Result<string> = await this.blogsService.create(
-    //   name,
-    //   description,
-    //   websiteUrl,
-    // );
-
     const createdId: string = result.data;
 
     const createdBlog: BlogOutputModel | null =
@@ -153,13 +144,6 @@ export class BlogsController {
       Result<string | null>
     >(new CreatePostCommand(title, shortDescription, content, blogId));
 
-    // const result: Result<string | null> = await this.postService.create(
-    //   title,
-    //   shortDescription,
-    //   content,
-    //   blogId,
-    // );
-
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
     }
@@ -178,7 +162,7 @@ export class BlogsController {
 
   @Put(':id')
   @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async update(
     @Param('id', new ParseMongoIdPipe()) id: string,
     @Body() updateModel: BlogUpdateModel,
@@ -190,13 +174,6 @@ export class BlogsController {
       Result
     >(new UpdateBlogCommand(id, name, description, websiteUrl));
 
-    // const result: Result = await this.blogsService.update(
-    //   id,
-    //   name,
-    //   description,
-    //   websiteUrl,
-    // );
-
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);
     }
@@ -204,13 +181,12 @@ export class BlogsController {
 
   @Delete(':id')
   @UseGuards(BasicAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
     const result: Result = await this.commandBus.execute<
       DeleteBlogCommand,
       Result
     >(new DeleteBlogCommand(id));
-    // const result: Result = await this.blogsService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);

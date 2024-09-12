@@ -15,11 +15,6 @@ import {
   CommentOutputModelMapper,
 } from '../api/models/output/comment.output.model';
 import { Blog } from '../../blogs/domain/blog.entity';
-import {
-  PostOutputModel,
-  PostOutputModelMapper,
-} from '../../posts/api/models/output/post.output.model';
-import { PostDocument } from '../../posts/domain/post.entity';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -74,8 +69,6 @@ export class CommentsQueryRepository {
     id: string,
     userId?: string,
   ): Promise<CommentOutputModel | null> {
-    console.log('all comments', await this.commentModel.find());
-    console.log('comment id', id);
     const comment: CommentDocument | null =
       await this.commentModel.findById(id); // automatically converts string to ObjectId
 

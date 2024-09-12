@@ -18,8 +18,6 @@ export class CommentsRepository {
 
   async findById(id: string): Promise<CommentDocument | null> {
     return this.commentModel.findById(id);
-    // console.log('all comments', await this.commentModel.find());
-    // return this.commentModel.findOne({ _id: id });
   }
 
   async update(id: string, content): Promise<boolean> {

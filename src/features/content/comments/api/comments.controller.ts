@@ -7,6 +7,7 @@ import {
   ForbiddenException,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
   Put,
   UseGuards,
@@ -41,17 +42,14 @@ export class CommentsController {
   ) {}
 
   @Get(':id')
-  // @HttpCode(204)
   @UseGuards(OptionalJwtAuthGuard)
   async getOne(
     @Param('id', new ParseMongoIdPipe()) id: string,
     @OptionalUserId() userId: string,
   ) {
-    console.log('userId', userId);
-    console.log('id', id);
-
     const comment: CommentOutputModel | null =
       await this.commentsQueryRepository.findById(id, userId);
+
     if (!comment) {
       throw new NotFoundException();
     }
@@ -67,19 +65,11 @@ export class CommentsController {
     @CurrentUserId() userId: string,
     @Body() commentUpdateModel: CommentUpdateModel,
   ) {
-    console.log('commentUpdateModel', commentUpdateModel);
     const { content } = commentUpdateModel;
 
-    console.log('commentId', commentId);
     const result: Result = await this.commandBus.execute(
       new UpdateCommentCommand(commentId, content, userId),
     );
-
-    // const result: Result = await this.commentService.updateComment(
-    //   req.params.commentId,
-    //   req.body,
-    //   req.user.userId,
-    // );
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();
@@ -90,7 +80,7 @@ export class CommentsController {
 
   @Put('/:commentId/like-status')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async updateCommentLikeStatus(
     @Param('commentId', new ParseMongoIdPipe()) commentId: string,
     @Body() commentLikeStatusUpdateModel: CommentLikeStatusUpdateModel,
@@ -98,16 +88,10 @@ export class CommentsController {
   ) {
     const { likeStatus } = commentLikeStatusUpdateModel;
 
-    // const dto = {
-    //   commentId: req.params.commentId,
-    //   likeStatus: req.body.likeStatus,
-    //   userId: req.user.userId,
-    // };
-
     const result: Result = await this.commandBus.execute(
       new UpdateCommentLikeStatusCommand(commentId, likeStatus, userId),
     );
-    // const result: Result = await this.commentService.updateLikeStatus(dto);
+
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();
     }
@@ -115,7 +99,7 @@ export class CommentsController {
 
   @Delete(':commentId')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async delete(
     @Param('commentId', new ParseMongoIdPipe()) commentId: string,
     @CurrentUserId() userId: string,
@@ -124,16 +108,9 @@ export class CommentsController {
       new DeleteCommentCommand(commentId, userId),
     );
 
-    // const result: Result<boolean | null> =
-    //   await this.commentService.deleteComment(
-    //     req.params.commentId,
-    //     req.user.userId,
-    //   );
-
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();
-    }
-    if (result.status === ResultStatus.Forbidden) {
+    } else if (result.status === ResultStatus.Forbidden) {
       throw new ForbiddenException();
     }
   }
