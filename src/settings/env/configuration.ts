@@ -20,7 +20,6 @@ export class Configuration {
   static createConfig(
     environmentVariables: Record<string, string>,
   ): Configuration {
-    // console.log('apiSettings', new ApiSettings(environmentVariables));
     return new this({
       apiSettings: new ApiSettings(environmentVariables),
       environmentSettings: new EnvironmentSettings(environmentVariables),
@@ -30,17 +29,18 @@ export class Configuration {
 
 export function validate(environmentVariables: Record<string, string>) {
   const config = Configuration.createConfig(environmentVariables);
-  // console.log(config);
+
   const errors = validateSync(config, { skipMissingProperties: false });
+
   if (errors.length > 0) {
     throw new Error(errors.toString());
   }
+
   return config;
 }
 
 export default () => {
   const environmentVariables = process.env as EnvironmentVariable;
-  // console.log('environmentVariables', environmentVariables);
   console.log('process.env.ENV =', environmentVariables.ENV);
   return Configuration.createConfig(environmentVariables);
 };
