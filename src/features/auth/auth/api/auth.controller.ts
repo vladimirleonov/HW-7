@@ -39,7 +39,6 @@ import { LogoutCommand } from '../application/use-cases/logout';
 import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.usecase';
 import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.usecase';
 import { RefreshTokenAuthGuard } from '../../../../core/guards/passport/refresh-token-auth.guard';
-import { ClearCookieInterceptor } from '../../../../core/interceptors/clear-cookie.interceptor';
 import { CurrentUserIdFromDevice } from '../../../../core/decorators/param/current-user-id-from-device.param.decorator';
 import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usecase';
 import { Cookie } from '../../../../core/decorators/param/cookie.param.decorator';
@@ -55,8 +54,7 @@ export class AuthController {
   ) {}
 
   @Post('registration')
-  // @UseGuards(RateLimitGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() registrationModel: RegistrationModel) {
     const { login, password, email } = registrationModel;
 
@@ -65,16 +63,13 @@ export class AuthController {
       Result<string | null>
     >(new RegistrationUserCommand(login, password, email));
 
-    // const result: Result<string | null> = await this.authService.registration(login, password, email);
-
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
     }
   }
 
   @Post('registration-confirmation')
-  // @UseGuards(RateLimitGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async confirmRegistration(
     @Body() confirmRegistrationModel: ConfirmRegistrationModel,
   ) {
@@ -84,17 +79,13 @@ export class AuthController {
       new ConfirmRegistrationCommand(code),
     );
 
-    // const result: Result<boolean | null> =
-    //   await this.authService.confirmRegistration(code);
-
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
     }
   }
 
   @Post('registration-email-resending')
-  // @UseGuards(RateLimitGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async registrationEmailResending(
     @Body() registrationEmailResendingModel: RegistrationEmailResendingModel,
   ) {
@@ -105,23 +96,19 @@ export class AuthController {
       Result
     >(new RegistrationEmailResendingCommand(email));
 
-    // const result: Result =
-    //   await this.authService.registrationEmailResending(email);
-
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
     }
   }
 
   @Post('password-recovery')
-  // @UseGuards(RateLimitGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(@Body() passwordRecoveryModel: PasswordRecoveryModel) {
     const { email } = passwordRecoveryModel;
 
-    await this.commandBus.execute(new PasswordRecoveryCommand(email));
-
-    // await this.authService.passwordRecovery(email);
+    await this.commandBus.execute<PasswordRecoveryCommand, Result>(
+      new PasswordRecoveryCommand(email),
+    );
 
     // to prevent user's email detection send NO_CONTENT
     // for user by email not found or email send successfully
@@ -129,18 +116,13 @@ export class AuthController {
 
   @Post('new-password')
   // @UseGuards(RateLimitGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(@Body() newPasswordModel: NewPasswordModel) {
     const { newPassword, recoveryCode } = newPasswordModel;
 
     const result: Result = await this.commandBus.execute(
       new SetNewPasswordCommand(newPassword, recoveryCode),
     );
-
-    // const result: Result = await this.authService.setNewPassword(
-    //   newPassword,
-    //   recoveryCode,
-    // );
 
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
@@ -149,23 +131,15 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
-  // @UseGuards(RateLimitGuard)
+  @HttpCode(HttpStatus.OK)
   async login(
     @Req() req: RequestWithCookies,
     @CurrentUserId() userId: string,
     @Cookie('refreshToken') refreshToken: string,
     @Res() res: Response,
   ) {
-    // console.log('in login controller');
     const ip: string = this.utilsService.getIpAddress(req);
     const deviceName: string = this.utilsService.getDeviceName(req);
-    console.log(ip);
-    console.log(deviceName);
-
-    // // TODO: use decorator or no?
-    // const refreshToken: string = req.cookies?.refreshToken;
-    //
-    // // const dto: LoginDto = new LoginDto(userId, ip, deviceName, refreshToken);
 
     const loginResult = await this.commandBus.execute(
       new LoginCommand(userId, ip, deviceName, refreshToken),
@@ -174,26 +148,11 @@ export class AuthController {
       throw new UnauthorizedException(loginResult.errorMessage!);
     }
 
-    // // const loginResult = await this.authService.login(dto);
-    // // if (loginResult.status === ResultStatus.Unauthorized) {
-    // //   throw new UnauthorizedException(loginResult.errorMessage!);
-    // // }
-    //
-    // // const loginResult = await this.authService.login(dto);
-    // // if (loginResult.status === ResultStatus.Unauthorized) {
-    // //   throw new UnauthorizedException(loginResult.errorMessage!);
-    // // }
-    //
-
-    console.log('Set-Cookie:', res.getHeaders()['set-cookie']);
-
     res.cookie('refreshToken', loginResult.data.refreshToken, {
       httpOnly: true, // cookie can only be accessed via http or https
       secure: true, // send cookie only over https
       sameSite: 'strict', // protects against CSRF attacks
     });
-
-    console.log('Set-Cookie:', res.getHeaders()['set-cookie']);
 
     res.status(HttpStatus.OK).send({
       accessToken: loginResult.data?.accessToken,
@@ -203,7 +162,7 @@ export class AuthController {
   @SkipThrottle()
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async authMe(@CurrentUserId() userId: string) {
     const user: AuthMeOutputModel | null =
       await this.usersQueryRepository.findAuthenticatedUserById(userId);
@@ -218,33 +177,20 @@ export class AuthController {
   @SkipThrottle()
   @Post('refresh-token')
   @UseGuards(RefreshTokenAuthGuard)
-  // @UseInterceptors(SetCookieInterceptor)
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   async refreshToken(
     @CurrentUserIdFromDevice() userId: string,
     @CurrentDeviceId() deviceId: string,
     @CurrentDeviceIat() iat: string,
     @Res() res: Response,
   ) {
-    console.log('ok!!!');
     const result = await this.commandBus.execute(
       new RefreshTokenCommand(userId, deviceId, iat),
     );
 
-    // const result: Result<{
-    //   accessToken: string,
-    //   refreshToken: string
-    // } | null> = await this.authService.refreshToken(dto)
-
     if (result.status === ResultStatus.Unauthorized) {
       throw new UnauthorizedException();
     }
-
-    // console.log('in refreshToken');
-    // return {
-    //   accessToken: result.data?.accessToken!,
-    //   refreshToken: result.data?.refreshToken!, // передаем refreshToken для интерсептора
-    // };
 
     res.cookie('refreshToken', result.data?.refreshToken, {
       httpOnly: true,
@@ -261,8 +207,7 @@ export class AuthController {
   @SkipThrottle()
   @Post('logout')
   @UseGuards(RefreshTokenAuthGuard)
-  // @UseInterceptors(ClearCookieInterceptor)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async logout(
     @CurrentDeviceId() deviceId: string,
     @CurrentDeviceIat() iat: string,
@@ -271,8 +216,6 @@ export class AuthController {
     const result: Result = await this.commandBus.execute<LogoutCommand, Result>(
       new LogoutCommand(deviceId, iat),
     );
-
-    // const result: Result = await this.authService.logout(deviceId, iat);
 
     if (result.status === ResultStatus.Unauthorized) {
       throw new UnauthorizedException();

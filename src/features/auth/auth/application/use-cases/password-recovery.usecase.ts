@@ -20,7 +20,7 @@ export class PasswordRecoveryUseCase
     private readonly nodemailerService: NodemailerService,
   ) {}
 
-  async execute(command: PasswordRecoveryCommand): Promise<any> {
+  async execute(command: PasswordRecoveryCommand): Promise<Result> {
     const { email } = command;
 
     const existingUser: UserDocument | null =

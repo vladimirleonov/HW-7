@@ -33,25 +33,21 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   ) {}
 
   async execute(command: LoginCommand) {
-    // if (command.refreshToken) {
-    //   try {
-    //     this.jwtService.verify(command.refreshToken);
-    //
-    //     return Result.unauthorized(
-    //       'Refresh token is still valid. Logout before logging in again',
-    //     );
-    //   } catch (err) {
-    //     // console.log('Invalid refresh token, proceeding with login')
-    //   }
-    // }
+    if (command.refreshToken) {
+      try {
+        this.jwtService.verify(command.refreshToken);
+
+        return Result.unauthorized(
+          'Refresh token is still valid. Logout before logging in again',
+        );
+      } catch (err) {
+        // console.log('Invalid refresh token, proceeding with login')
+      }
+    }
 
     const user: UserDocument | null = await this.userRepository.findById(
       command.userId,
     );
-
-    // const user: UserDocument | null = await this.checkIsExistUseCase.checkIsExist(
-    //   command.userId,
-    // );
 
     if (!user) {
       return Result.unauthorized('User not found');
@@ -75,9 +71,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     };
 
     // generate access token
-    // const accessToken: string = this.nestJwtService.sign(JwtAccessTokenPayload);
-    // console.log("accessToken", accessToken);
-
     const accessToken = await this.jwtService.signAsync(JwtAccessTokenPayload, {
       secret: 'secret',
     });

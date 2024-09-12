@@ -18,7 +18,7 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
 
     const isDeleted: boolean =
       await this.deviceRepository.deleteOneByDeviceIdAndIAt(deviceId, iat);
-    // console.log('ok!!!');
+
     if (!isDeleted) {
       // TODO: check error message
       return Result.unauthorized('Invalid or expired refresh token');

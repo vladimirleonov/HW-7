@@ -5,6 +5,7 @@ import {
   ApiAccessLogModelType,
 } from '../domain/api-access-log.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { getTenSeccondsAgo } from '../../../../core/utils/get-time-ten-secconds-ago';
 
 @Injectable()
 export class ApiAccessLogsRepository {
@@ -22,8 +23,7 @@ export class ApiAccessLogsRepository {
     ip: string,
     originUrl: string,
   ): Promise<number> {
-    // TODO: put it in util function
-    const tenSecondsAgo: Date = new Date(new Date().getTime() - 10000);
+    const tenSecondsAgo: Date = getTenSeccondsAgo();
 
     return this.apiAccessLog.countDocuments({
       ip,

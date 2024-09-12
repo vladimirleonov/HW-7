@@ -69,20 +69,7 @@ export class RefreshTokenUseCase implements ICommandHandler {
         accessToken,
         refreshToken,
       });
-
-      // return {
-      //   status: ResultStatus.Success,
-      //   data: {
-      //     accessToken,
-      //     refreshToken,
-      //   },
-      // };
     }
     return Result.unauthorized();
-
-    // return {
-    //   status: ResultStatus.Unauthorized,
-    //   data: null,
-    // };
   }
 }
