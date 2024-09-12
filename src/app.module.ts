@@ -64,6 +64,9 @@ import { UsersModule } from './features/users/users.module';
         const apiSettings: ApiSettings =
           configService.get<ApiSettings>('apiSettings');
 
+        console.log('secret!#2', apiSettings.JWT_SECRET);
+        console.log('expiresIn!#2', apiSettings.JWT_EXPIRATION_TIME);
+
         return {
           global: true,
           secret: apiSettings.JWT_SECRET,

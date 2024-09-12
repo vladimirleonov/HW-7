@@ -8,7 +8,6 @@ import {
   Req,
   Res,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { Response } from 'express';
@@ -22,7 +21,7 @@ import { NewPasswordModel } from './models/input/new-password.model';
 import { CurrentUserId } from '../../../../core/decorators/param/current-user-id.param.decorator';
 import { CurrentDeviceId } from '../../../../core/decorators/param/current-device-id.param.decorator';
 import { CurrentDeviceIat } from '../../../../core/decorators/param/current-device-iat.param.decorator';
-import { RequestService } from '../../../../core/application/utils.service';
+import { RequestService } from '../../../../core/application/request.service';
 import {
   BadRequestException,
   UnauthorizedException,
