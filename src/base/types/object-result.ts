@@ -8,13 +8,6 @@ export enum ResultStatus {
   InternalError = 'Internal Error',
 }
 
-// export type Result<T = null> = {
-//   status: ResultStatus;
-//   errorMessage?: string;
-//   extensions?: [{ field: string; message: string }];
-//   data: T;
-// };
-
 export class Result<T = null> {
   status: ResultStatus;
   data: T;

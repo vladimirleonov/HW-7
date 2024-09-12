@@ -104,13 +104,4 @@ export class PaginationWithSearchNameTerm extends Pagination {
 }
 
 // TYPES
-
 export type SortDirectionType = 'desc' | 'asc';
-
-// export type PaginationType = {
-//   searchNameTerm: string | null;
-//   sortBy: string;
-//   sortDirection: SortDirectionType;
-//   pageNumber: number;
-//   pageSize: number;
-// };
