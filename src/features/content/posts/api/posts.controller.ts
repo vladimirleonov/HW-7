@@ -29,7 +29,7 @@ import {
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdatePostCommand } from '../application/use-cases/update-post.usecase';
 import { DeletePostCommand } from '../application/use-cases/delete-post.usecase';
-import { CurrentUserId } from '../../../../core/decorators/param-decorators/current-user-id.param.decorator';
+import { CurrentUserId } from '../../../../core/decorators/param/current-user-id.param.decorator';
 import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
 import { CommentsQueryRepository } from '../../comments/infrastructure/comments.query-repository';
 import { CreatePostCommand } from '../application/use-cases/create-post.usecase';
@@ -38,7 +38,7 @@ import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-pos
 import { JwtAuthGuard } from '../../../../core/guards/passport/jwt-auth.guard';
 import { AuthService } from '../../../auth/auth/application/auth.service';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
-import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
+import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
 import { CommentCreateModel } from '../../comments/api/models/input/create-comment.input.model';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.usecase';
 import { CommentOutputModel } from '../../comments/api/models/output/comment.output.model';

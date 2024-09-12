@@ -1,7 +1,7 @@
 import { IsString, Length, Matches, MinLength } from 'class-validator';
-import { Trim } from '../../../../../core/decorators/transform/trim';
-import { LoginIsExist } from '../../../../../core/decorators/validate/login-is-exist.decorator';
-import { EmailIsExist } from '../../../../../core/decorators/validate/email-is-exist.decorator';
+import { Trim } from '../../../../../core/decorators/transformers/trim';
+import { LoginIsExist } from '../../../../../core/decorators/validators/login-is-exist.decorator';
+import { EmailIsExist } from '../../../../../core/decorators/validators/email-is-exist.decorator';
 
 export class UserCreateModel {
   @IsString()

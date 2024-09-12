@@ -27,7 +27,7 @@ export class Blog {
   websiteUrl: string;
   @Prop({
     type: Date,
-    // validate: {
+    // validators: {
     //   validator: isValidISOString,
     //   message: "createdAt must be a valid ISO string",
     // },

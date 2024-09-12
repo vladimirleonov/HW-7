@@ -11,12 +11,10 @@ export class BasicStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {
-    super({
-      passReqToCallback: true,
-    });
+    super();
   }
 
-  async validate(req, username, password): Promise<any> {
+  async validate(username: string, password: string): Promise<any> {
     const apiSettings: ApiSettings = this.configService.get('apiSettings', {
       infer: true,
     });

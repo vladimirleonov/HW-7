@@ -1,5 +1,5 @@
 import { IsString, Length, MinLength } from 'class-validator';
-import { Trim } from '../../../../../../core/decorators/transform/trim';
+import { Trim } from '../../../../../../core/decorators/transformers/trim';
 
 export class NewPasswordModel {
   @IsString()

@@ -9,9 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RefreshTokenAuthGuard } from '../../../../core/guards/passport/refresh-token-auth.guard';
-import { CurrentDeviceId } from '../../../../core/decorators/param-decorators/current-device-id.param.decorator';
+import { CurrentDeviceId } from '../../../../core/decorators/param/current-device-id.param.decorator';
 import { DeviceQueryRepository } from '../infrastructure/device.query-repository';
-import { CurrentUserIdFromDevice } from '../../../../core/decorators/param-decorators/current-user-id-from-device.param.decorator';
+import { CurrentUserIdFromDevice } from '../../../../core/decorators/param/current-user-id-from-device.param.decorator';
 import { DeviceOutputModel } from './models/output/device.output.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CommandBus } from '@nestjs/cqrs';

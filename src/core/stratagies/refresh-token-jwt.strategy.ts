@@ -30,9 +30,6 @@ export class RefreshTokenJwtStrategy extends PassportStrategy(
   }
 
   async validate(req: RequestWithDeviceAndCookies, payload: any) {
-    // console.log(payload);
-    // console.log(req);
-
     const { userId, deviceId, iat } = payload;
 
     const validateUserByIdResult: Result =

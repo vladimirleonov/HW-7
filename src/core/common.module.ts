@@ -7,9 +7,9 @@
 // import { BasicStrategy } from './stratagies/basic.strategy';
 // import { RefreshTokenJwtStrategy } from './stratagies/refresh-token-jwt.strategy';
 // import { OptionalJwtStrategy } from './stratagies/optional-jwt.strategy';
-// import { BlogIsExistConstraint } from './decorators/validate/blog-is-exist.decorator';
-// import { LoginIsExistConstraint } from './decorators/validate/login-is-exist.decorator';
-// import { EmailIsExistConstraint } from './decorators/validate/email-is-exist.decorator';
+// import { BlogIsExistConstraint } from './decorators/validators/blog-is-exist.decorator';
+// import { LoginIsExistConstraint } from './decorators/validators/login-is-exist.decorator';
+// import { EmailIsExistConstraint } from './decorators/validators/email-is-exist.decorator';
 //
 // const basicProviders: Provider[] = [
 //   UtilsService,

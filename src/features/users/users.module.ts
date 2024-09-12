@@ -8,8 +8,8 @@ import { UsersQueryRepository } from './infrastructure/users.query-repository';
 import { UsersController } from './api/users.controller';
 import { CryptoService } from '../../core/application/crypto.service';
 import { CqrsModule } from '@nestjs/cqrs';
-import { LoginIsExistConstraint } from '../../core/decorators/validate/login-is-exist.decorator';
-import { EmailIsExistConstraint } from '../../core/decorators/validate/email-is-exist.decorator';
+import { LoginIsExistConstraint } from '../../core/decorators/validators/login-is-exist.decorator';
+import { EmailIsExistConstraint } from '../../core/decorators/validators/email-is-exist.decorator';
 
 const usersProviders: Provider[] = [
   // use cases

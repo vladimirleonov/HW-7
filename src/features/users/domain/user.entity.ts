@@ -17,7 +17,7 @@ class EmailConfirmation {
 
   @Prop({
     type: String,
-    // validate: {
+    // validators: {
     //   validator: isValidISOString,
     //   message: 'expirationDate must be a valid ISO string',
     // },
@@ -43,7 +43,7 @@ class PasswordRecovery {
   @Prop({
     type: Date,
     default: null,
-    // validate: {
+    // validators: {
     //     validator: isValidISOString,
     //     message: "expirationDate must be a valid ISO string",
     // }
@@ -84,7 +84,7 @@ export class User {
 
   @Prop({
     type: Date,
-    // validate: {
+    // validators: {
     //   validator: isValidISOString,
     //   message: "createdAt must be a valid ISO string",
     // },

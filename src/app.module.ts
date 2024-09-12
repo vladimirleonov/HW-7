@@ -16,7 +16,7 @@ import { UsersModule } from './features/users/users.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
-      // validate: validate,
+      // validators: validators,
       // ignoreEnvFile:
       //   process.env.ENV !== Environments.DEVELOPMENT &&
       //   process.env.ENV !== Environments.TESTING,arn run start:dev

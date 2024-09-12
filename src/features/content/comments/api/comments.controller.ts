@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ParseMongoIdPipe } from '../../../../core/pipes/parse-mongo-id.pipe';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
-import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
+import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
 import { CommentOutputModel } from './models/output/comment.output.model';
 import { CommentsQueryRepository } from '../infrastructure/comments.query-repository';
 import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
@@ -23,7 +23,7 @@ import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentCommand } from '../application/use-cases/update-comment.usecase';
 import { CommentLikeStatusUpdateModel } from './models/input/update-comment-like-status';
-import { CurrentUserId } from '../../../../core/decorators/param-decorators/current-user-id.param.decorator';
+import { CurrentUserId } from '../../../../core/decorators/param/current-user-id.param.decorator';
 import { UpdateCommentLikeStatusCommand } from '../application/use-cases/update-comment-like-status.usecase';
 import { DeleteCommentCommand } from '../application/use-cases/delete-comment.usecase';
 

@@ -19,10 +19,10 @@ import { AuthMeOutputModel } from './models/output/auth-me.output';
 import { UsersQueryRepository } from '../../../users/infrastructure/users.query-repository';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
-import { CurrentUserId } from '../../../../core/decorators/param-decorators/current-user-id.param.decorator';
-import { CurrentDeviceId } from '../../../../core/decorators/param-decorators/current-device-id.param.decorator';
-import { CurrentDeviceIat } from '../../../../core/decorators/param-decorators/current-device-iat.param.decorator';
-import { UtilsService } from '../../../../core/application/utils.service';
+import { CurrentUserId } from '../../../../core/decorators/param/current-user-id.param.decorator';
+import { CurrentDeviceId } from '../../../../core/decorators/param/current-device-id.param.decorator';
+import { CurrentDeviceIat } from '../../../../core/decorators/param/current-device-iat.param.decorator';
+import { RequestService } from '../../../../core/application/utils.service';
 import {
   BadRequestException,
   UnauthorizedException,
@@ -40,9 +40,9 @@ import { RegistrationEmailResendingCommand } from '../application/use-cases/regi
 import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.usecase';
 import { RefreshTokenAuthGuard } from '../../../../core/guards/passport/refresh-token-auth.guard';
 import { ClearCookieInterceptor } from '../../../../core/interceptors/clear-cookie.interceptor';
-import { CurrentUserIdFromDevice } from '../../../../core/decorators/param-decorators/current-user-id-from-device.param.decorator';
+import { CurrentUserIdFromDevice } from '../../../../core/decorators/param/current-user-id-from-device.param.decorator';
 import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usecase';
-import { Cookie } from '../../../../core/decorators/param-decorators/cookie.param.decorator';
+import { Cookie } from '../../../../core/decorators/param/cookie.param.decorator';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
 @UseGuards(ThrottlerGuard)
@@ -50,7 +50,7 @@ import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly utilsService: UtilsService,
+    private readonly utilsService: RequestService,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
@@ -261,7 +261,7 @@ export class AuthController {
   @SkipThrottle()
   @Post('logout')
   @UseGuards(RefreshTokenAuthGuard)
-  @UseInterceptors(ClearCookieInterceptor)
+  // @UseInterceptors(ClearCookieInterceptor)
   @HttpCode(204)
   async logout(
     @CurrentDeviceId() deviceId: string,

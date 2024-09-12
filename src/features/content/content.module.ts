@@ -28,7 +28,7 @@ import { Like, LikeSchema } from './like/domain/like.entity';
 import { UsersModule } from '../users/users.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { AuthModule } from '../auth/auth.module';
-import { BlogIsExistConstraint } from '../../core/decorators/validate/blog-is-exist.decorator';
+import { BlogIsExistConstraint } from '../../core/decorators/validators/blog-is-exist.decorator';
 
 const blogsProviders: Provider[] = [
   // use cases

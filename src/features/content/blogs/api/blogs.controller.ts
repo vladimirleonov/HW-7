@@ -37,7 +37,7 @@ import { CreatePostCommand } from '../../posts/application/use-cases/create-post
 import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase';
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase';
-import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
+import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
 import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 
