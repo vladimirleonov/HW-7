@@ -63,7 +63,6 @@ export class UsersQueryRepository {
     filter: any,
     pagination: PaginationWithSearchLoginAndEmailTerm,
   ): Promise<PaginationOutput<UserOutputModel>> {
-    // pagination: pageNumber, pageSize, sortDirection, sortBy, searchLoginTerm, searchEmailTerm
     const users: UserDocument[] = await this.UserModel.find(filter)
       .sort({
         [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),

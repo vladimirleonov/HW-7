@@ -23,9 +23,7 @@ export class ConfirmRegistrationUseCase
       return Result.badRequest('Invalid confirmation code');
     }
 
-    if (
-      existingUser.emailConfirmation.expirationDate < new Date().toISOString()
-    ) {
+    if (existingUser.emailConfirmation.expirationDate < new Date()) {
       return Result.badRequest('Confirmation code has expired');
     }
 

@@ -1,11 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 
-// const isValidISOString = (value: string) => {
-//   const isoRegex: RegExp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/
-//   return isoRegex.test(value)
-// }
-
 @Schema()
 class EmailConfirmation {
   @Prop({
@@ -16,14 +11,10 @@ class EmailConfirmation {
   confirmationCode: string;
 
   @Prop({
-    type: String,
-    // validators: {
-    //   validator: isValidISOString,
-    //   message: 'expirationDate must be a valid ISO string',
-    // },
+    type: Date,
     required: true,
   })
-  expirationDate: string;
+  expirationDate: Date;
 
   @Prop({
     type: Boolean,

@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from '../application/users.service';
+
 import { UserOutputModel } from './models/output/user.output.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import {
@@ -38,7 +38,6 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    // private readonly usersService: UsersService,
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
@@ -66,12 +65,6 @@ export class UsersController {
       Result<string | null>
     >(new CreateUserCommand(login, password, email));
 
-    // const result: Result<string | null> = await this.usersService.create(
-    //   login,
-    //   password,
-    //   email,
-    // );
-
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.errorMessage!);
     }
@@ -96,7 +89,6 @@ export class UsersController {
       DeleteUserCommand,
       Result
     >(new DeleteUserCommand(id));
-    // const result: Result = await this.usersService.delete(id);
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage!);

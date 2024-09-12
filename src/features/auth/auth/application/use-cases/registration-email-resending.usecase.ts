@@ -34,10 +34,10 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler {
     }
 
     const confirmationCode: string = randomUUID();
-    const expirationDate: string = add(new Date(), {
+    const expirationDate: Date = add(new Date(), {
       hours: 1,
       minutes: 30,
-    }).toISOString();
+    });
 
     existingUser.emailConfirmation.confirmationCode = confirmationCode;
     existingUser.emailConfirmation.expirationDate = expirationDate;
