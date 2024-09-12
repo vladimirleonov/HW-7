@@ -9,21 +9,15 @@ import { Injectable } from '@nestjs/common';
 export class NodemailerService {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
-  ) {
-    // console.log('configService initialized', configService);
-  }
+  ) {}
   async sendEmail(
     recipient: string,
     emailTemplate: string,
     subject: string,
   ): Promise<boolean> {
-    console.log('NodemailerService');
-
     const apiSettings: ApiSettings = this.configService.get('apiSettings', {
       infer: true,
     });
-
-    console.log('NodemailerService apiSettings', apiSettings);
 
     const transporter: Transporter<SMTPTransport.SentMessageInfo> =
       nodemailer.createTransport({

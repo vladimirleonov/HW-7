@@ -4,7 +4,7 @@ import { Request } from 'express';
 import { RequestWithCookies } from '../../base/types/request-with-cookie';
 
 @Injectable()
-export class UtilsService {
+export class RequestUtils {
   getIpAddress = (req: RequestWithCookies | Request): string => {
     let ipAddress: string | undefined = undefined;
 
