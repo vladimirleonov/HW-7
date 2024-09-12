@@ -10,7 +10,7 @@ const TEST_ADMIN_CREDENTIALS = {
   password: 'qwerty',
 };
 
-describe.skip('users', () => {
+describe('users', () => {
   let app: INestApplication;
   let userTestManger: UsersTestManager;
 

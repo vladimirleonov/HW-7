@@ -47,7 +47,6 @@ export class UsersTestManager {
     pageNumber: number = 1,
     pageSize: number = 10,
   ) {
-    console.log('sortDirection', sortDirection);
     return request(this.app.getHttpServer())
       .get('/api/users')
       .auth(adminUsername, adminPassword)

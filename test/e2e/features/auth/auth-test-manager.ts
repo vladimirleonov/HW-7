@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { RegistrationModel } from '../../../../src/features/auth/api/models/input/registration.input.model';
+import { RegistrationModel } from '../../../../src/features/auth/auth/api/models/input/registration.input.model';
 import request from 'supertest';
 
 export class AuthTestManager {

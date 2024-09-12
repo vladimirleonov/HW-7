@@ -2,7 +2,6 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { Connection } from 'mongoose';
 import { AppModule } from '../../../src/app.module';
-import { appSettings } from '../../../src/settings/env/app-settings';
 import { deleteAllData } from './delete-all-data';
 import { UsersTestManager } from '../features/users/users-test-manager';
 import { applyAppSettings } from '../../../src/settings/apply-app-settings';
@@ -13,7 +12,7 @@ export const initSettings = async (
   //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
   addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
 ) => {
-  console.log('in tests ENV: ', appSettings.env.getEnv());
+  // console.log('in tests ENV: ', appSettings.env.getEnv());
   const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
     imports: [AppModule],
   });
@@ -40,7 +39,6 @@ export const initSettings = async (
   // Init userManager, authManager
   const userTestManger: UsersTestManager = new UsersTestManager(app);
   const authTestManager: AuthTestManager = new AuthTestManager(app);
-  console.log('authTestManger', authTestManager);
 
   await deleteAllData(databaseConnection);
 
