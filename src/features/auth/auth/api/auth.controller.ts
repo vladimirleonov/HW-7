@@ -141,7 +141,8 @@ export class AuthController {
   ) {
     //const ip: string = this.utilsService.getIpAddress(req);
     // const deviceName: string = this.utilsService.getDeviceName(req);
-    console.log(ip, deviceName);
+
+    // console.log(ip, deviceName);
 
     const loginResult = await this.commandBus.execute(
       new LoginCommand(userId, ip, deviceName, refreshToken),
