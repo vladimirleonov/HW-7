@@ -25,6 +25,7 @@ jobs:
         env:
           ENV: ${{ vars.ENV_GH }} # указываем необходимые переменные для тестов
 
+
   #  https://vercel.com/guides/how-can-i-use-github-actions-with-vercel
   deploy:
     name: Deploy # название работы в нашем pipeline
