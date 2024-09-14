@@ -50,6 +50,7 @@ export class InternalServerErrorException extends CustomError {
   }
 }
 
+// my
 // check if this error is an instance of class CustomError
 @Catch(CustomError)
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -85,6 +86,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
   }
 }
 
+// libs
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -115,6 +117,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     response.status(status).json(errorsResponse);
   }
 }
+
+// common catch - all other errors
+// @Catch(CustomError)
+// export class CustomExceptionFilter implements ExceptionFilter {}
 
 // check if this error is an instance of class Error
 // @Catch(Error)
