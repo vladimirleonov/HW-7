@@ -5,9 +5,9 @@ export class UsersPostgresqlQueryRepository {
   constructor() {}
 
   // async getAll(pagination: PaginationWithSearchLoginAndEmailTerm): Promise<> {}
-  //
-  // async findById(id: string): Promise<> {}
-  //
+
+  async findById(id: string): Promise<any> {}
+
   // // TODO: not sure about name
   async findAuthenticatedUserById(id: string): Promise<any> {}
   //

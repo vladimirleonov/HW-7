@@ -18,12 +18,18 @@ import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { UsersPostgresqlQueryRepository } from '../infrastructure/postgresql/users-postgresql.query-repository';
+import { Result, ResultStatus } from '../../../base/types/object-result';
+import { CreateUserCommand } from '../application/use-cases/create-user.usecase';
+import {
+  BadRequestException,
+  InternalServerErrorException,
+} from '../../../core/exception-filters/http-exception-filter';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
 
 @Controller('users')
-@UseGuards(BasicAuthGuard)
+// @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -48,28 +54,28 @@ export class UsersController {
 
   @Post()
   async create(@Body() createModel: UserCreateModel) {
-    // const { login, password, email } = createModel;
-    //
-    // const result: Result<string | null> = await this.commandBus.execute<
-    //   CreateUserCommand,
-    //   Result<string | null>
-    // >(new CreateUserCommand(login, password, email));
-    //
-    // if (result.status === ResultStatus.BadRequest) {
-    //   throw new BadRequestException(result.errorMessage!);
-    // }
-    //
-    // const createdUserId: string = result.data!;
-    //
-    // const createdUser: UserOutputModel | null =
-    //   await this.usersPostgresqlQueryRepository.findById(createdUserId);
-    //
-    // if (!createdUser) {
-    //   // error if just created blog not found
-    //   throw new InternalServerErrorException(result.errorMessage!);
-    // }
-    //
-    // return createdUser;
+    const { login, password, email } = createModel;
+
+    const result: Result<string | null> = await this.commandBus.execute<
+      CreateUserCommand,
+      Result<string | null>
+    >(new CreateUserCommand(login, password, email));
+
+    if (result.status === ResultStatus.BadRequest) {
+      throw new BadRequestException(result.errorMessage!);
+    }
+
+    const createdUserId: string = result.data!;
+
+    const createdUser: UserOutputModel | null =
+      await this.usersPostgresqlQueryRepository.findById(createdUserId);
+
+    if (!createdUser) {
+      // error if just created blog not found
+      throw new InternalServerErrorException(result.errorMessage!);
+    }
+
+    return createdUser;
   }
 
   @Delete(':id')

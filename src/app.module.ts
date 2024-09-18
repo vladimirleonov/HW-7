@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ApiSettings } from './settings/env/api-settings';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UsersModule } from './features/users/users.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -16,6 +17,18 @@ import { UsersModule } from './features/users/users.module';
       //   process.env.ENV !== Environments.DEVELOPMENT &&
       //   process.env.ENV !== Environments.TESTING,arn run start:dev
       envFilePath: ['.env.development', '.env'],
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: 'postgres',
+        host: 'localhost',
+        port: 5432,
+        username: 'nodejs',
+        password: 'nodejs',
+        database: 'blogger',
+        // entities: [],
+        //synchronize: true,
+      }),
     }),
     // MongooseModule.forRootAsync({
     //   useFactory: (configService: ConfigService<ConfigurationType, true>) => {

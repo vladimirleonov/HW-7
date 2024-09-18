@@ -6,7 +6,7 @@ import { Result } from '../../../../base/types/object-result';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../../../settings/env/configuration';
 import { CryptoService } from '../../../../core/application/crypto.service';
-import { UsersPostgresqlRepository } from '../../infrastructure/postgresql/users-postgresql.repository';
+import { UsersPostgresRepository } from '../../infrastructure/postgresql/users-postgresql.repository';
 
 export class CreateUserCommand {
   constructor(
@@ -21,7 +21,7 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(
     //@InjectModel(User.name) private userModel: Model<User>,
     // private readonly usersRepository: UsersMongoRepository,
-    private readonly usersPostgresqlRepository: UsersPostgresqlRepository,
+    private readonly usersPostgresRepository: UsersPostgresRepository,
     private cryptoService: CryptoService,
     private configService: ConfigService<ConfigurationType, true>,
   ) {}
@@ -31,22 +31,22 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       infer: true,
     });
 
-    // const [foundUserByLogin, foundUserByEmail]: [User | null, User | null] =
-    //   await Promise.all([
-    //     this.usersRepository.findByField('login', command.login),
-    //     this.usersRepository.findByField('email', command.email),
-    //   ]);
+    const [foundUserByLogin, foundUserByEmail]: [User | null, User | null] =
+      await Promise.all([
+        this.usersPostgresRepository.findByField('login', command.login),
+        this.usersPostgresRepository.findByField('email', command.email),
+      ]);
 
-    // if (foundUserByLogin || foundUserByEmail) {
-    //   return Result.badRequest('User already exists');
-    // }
-    //
-    // const generatedPasswordHash: string = await this.cryptoService.createHash(
-    //   command.password,
-    //   apiSettings.HASH_ROUNDS,
-    // );
+    if (foundUserByLogin || foundUserByEmail) {
+      return Result.badRequest('User already exists');
+    }
 
-    // ??? how to create user correctly
+    const generatedPasswordHash: string = await this.cryptoService.createHash(
+      command.password,
+      apiSettings.HASH_ROUNDS,
+    );
+
+    // // ??? how to create user correctly
     // const newUser: UserDocument = new this.userModel({
     //   login: command.login,
     //   password: generatedPasswordHash,
@@ -62,10 +62,9 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     //     expirationDate: new Date(),
     //   },
     // });
-
-    //const createdUser: UserDocument = await this.usersRepository.save(newUser);
-
-    //return Result.success(createdUser.id);
-    return Result.success();
+    //
+    // const createdUser: UserDocument = await this.usersRepository.save(newUser);
+    //
+    // return Result.success(createdUser.id);
   }
 }

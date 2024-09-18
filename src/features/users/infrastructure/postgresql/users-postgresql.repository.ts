@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
-export class UsersPostgresqlRepository {
-  constructor() {}
+export class UsersPostgresRepository {
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
   // async save(user: UserDocument): Promise<> {}
   //
   async findById(id: string) {}
 
   async findByField(field: string, value: string): Promise<any> {
-    //return this.UserModel.findOne({ [field]: value });
+    const query: string = `SELECT * FROM "Users" WHERE "${field}" = $1`;
+    const result = await this.dataSource.query(query, [value]);
+    return result;
   }
+
+  async create() {}
 
   // async findUserByConfirmationCode(confirmationCode: string): Promise<> {}
   //
