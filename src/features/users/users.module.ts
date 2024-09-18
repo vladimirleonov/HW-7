@@ -1,15 +1,13 @@
 import { Module, Provider } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './domain/user.entity';
 import { CreateUserUseCase } from './application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from './application/use-cases/delete-user.usecase';
-import { UsersRepository } from './infrastructure/users.repository';
-import { UsersQueryRepository } from './infrastructure/users.query-repository';
 import { UsersController } from './api/users.controller';
 import { CryptoService } from '../../core/application/crypto.service';
 import { CqrsModule } from '@nestjs/cqrs';
-import { LoginIsExistConstraint } from '../../core/decorators/validators/login-is-exist.decorator';
+// import { LoginIsExistConstraint } from '../../core/decorators/validators/login-is-exist.decorator';
 import { EmailIsExistConstraint } from '../../core/decorators/validators/email-is-exist.decorator';
+import { UsersPostgresqlRepository } from './infrastructure/postgresql/users-postgresql.repository';
+import { UsersPostgresqlQueryRepository } from './infrastructure/postgresql/users-postgresql.query-repository';
 
 const usersProviders: Provider[] = [
   // use cases
@@ -17,21 +15,23 @@ const usersProviders: Provider[] = [
   DeleteUserUseCase,
 
   // repositories
-  UsersRepository,
-  UsersQueryRepository,
+  // UsersMongoRepository,
+  // UsersMongoQueryRepository,
+  UsersPostgresqlRepository,
+  UsersPostgresqlQueryRepository,
 
   // validation constraints
-  LoginIsExistConstraint,
+  // LoginIsExistConstraint,
   EmailIsExistConstraint,
 ];
 
 @Module({
   imports: [
     CqrsModule,
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    // MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
   controllers: [UsersController],
   providers: [...usersProviders, CryptoService],
-  exports: [UsersRepository, UsersQueryRepository],
+  exports: [UsersPostgresqlRepository, UsersPostgresqlQueryRepository],
 })
 export class UsersModule {}

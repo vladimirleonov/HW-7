@@ -23,6 +23,14 @@ export class ApiSettings {
   MONGO_CONNECTION_URI_FOR_TESTS: string =
     this.envVariables.MONGO_CONNECTION_URI_FOR_TESTS;
 
+  @IsString()
+  POSTGRESQL_CONNECTION_URI: string =
+    this.envVariables.POSTGRESQL_CONNECTION_URI;
+  @IsString()
+  @Optional()
+  POSTGRESQL_CONNECTION_URI_FOR_TESTS: string =
+    this.envVariables.POSTGRESQL_CONNECTION_URI_FOR_TESTS;
+
   // Email
   @IsString()
   EMAIL_USER: string = this.envVariables.EMAIL_USER;

@@ -16,7 +16,7 @@ import { RegistrationModel } from './models/input/registration.input.model';
 import { ConfirmRegistrationModel } from './models/input/confirm-registration.model';
 import { RegistrationEmailResendingModel } from './models/input/registration-email-resending.model';
 import { AuthMeOutputModel } from './models/output/auth-me.output';
-import { UsersQueryRepository } from '../../../users/infrastructure/users.query-repository';
+// import { UsersMongoQueryRepository } from '../../../users/infrastructure/mongo/users-mongo.query-repository';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
 import { CurrentUserId } from '../../../../core/decorators/param/current-user-id.param.decorator';
@@ -43,13 +43,15 @@ import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usec
 import { Cookie } from '../../../../core/decorators/param/cookie.param.decorator';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { UserAgent } from '../../../../core/decorators/param/user-agent.param.decorator';
+import { UsersPostgresqlQueryRepository } from '../../../users/infrastructure/postgresql/users-postgresql.query-repository';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersQueryRepository: UsersQueryRepository,
+    // private readonly usersQueryRepository: UsersMongoQueryRepository,
+    private readonly usersPostgresqlQueryRepository: UsersPostgresqlQueryRepository,
   ) {}
 
   @Post('registration')
@@ -168,7 +170,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async authMe(@CurrentUserId() userId: string) {
     const user: AuthMeOutputModel | null =
-      await this.usersQueryRepository.findAuthenticatedUserById(userId);
+      await this.usersPostgresqlQueryRepository.findAuthenticatedUserById(
+        userId,
+      );
 
     if (!user) {
       throw new UnauthorizedException();
@@ -203,7 +207,8 @@ export class AuthController {
     });
 
     res.status(HttpStatus.OK).send({
-      accessToken: result.data?.accessToken!,
+      // accessToken: result.data?.accessToken!,
+      accessToken: '123',
     });
   }
 

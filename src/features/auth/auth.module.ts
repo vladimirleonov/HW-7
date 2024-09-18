@@ -8,7 +8,6 @@ import { LoginUseCase } from './auth/application/use-cases/login.usecase';
 import { RefreshTokenUseCase } from './auth/application/use-cases/refresh-token.usecase';
 import { LogoutUseCase } from './auth/application/use-cases/logout';
 import { AuthService } from './auth/application/auth.service';
-import { ApiAccessLogsRepository } from './auth/infrastructure/api-access-logs.repository';
 import { TerminateAllOtherUserDevicesUseCase } from './security/application/use-cases/terminate-all-other-user-devices.usecase';
 import { TerminateUserDeviceUseCase } from './security/application/use-cases/terminate-user-device.usecase';
 import { SecurityService } from './security/application/security.service';
@@ -49,7 +48,7 @@ const authProviders: Provider[] = [
   AuthService,
 
   // repository
-  ApiAccessLogsRepository,
+  // ApiAccessLogsMongoRepository,
 
   // strategies
   LocalStrategy,
@@ -68,18 +67,18 @@ const securityProviders: Provider[] = [
   SecurityService,
 
   // repositories
-  DevicesRepository,
-  DeviceQueryRepository,
+  // DevicesRepository,
+  // DeviceQueryRepository,
 ];
 
 @Module({
   imports: [
     CqrsModule,
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: Device.name, schema: DeviceSchema },
-      { name: ApiAccessLog.name, schema: ApiAccessLogSchema },
-    ]),
+    // MongooseModule.forFeature([
+    //   { name: User.name, schema: UserSchema },
+    //   { name: Device.name, schema: DeviceSchema },
+    //   { name: ApiAccessLog.name, schema: ApiAccessLogSchema },
+    // ]),
     UsersModule,
   ],
   controllers: [AuthController, SecurityController],

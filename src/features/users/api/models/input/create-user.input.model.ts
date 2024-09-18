@@ -1,13 +1,13 @@
 import { IsString, Length, Matches, MinLength } from 'class-validator';
 import { Trim } from '../../../../../core/decorators/transformers/trim';
-import { LoginIsExist } from '../../../../../core/decorators/validators/login-is-exist.decorator';
+// import { LoginIsExist } from '../../../../../core/decorators/validators/login-is-exist.decorator';
 import { EmailIsExist } from '../../../../../core/decorators/validators/email-is-exist.decorator';
 
 export class UserCreateModel {
   @IsString()
   @Trim()
   @Length(3, 10, { message: 'Length not correct' })
-  @LoginIsExist()
+  // @LoginIsExist()
   login: string;
   @IsString()
   @Trim()

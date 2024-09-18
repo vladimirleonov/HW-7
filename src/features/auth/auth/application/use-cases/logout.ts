@@ -11,18 +11,18 @@ export class LogoutCommand {
 
 @CommandHandler(LogoutCommand)
 export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
-  constructor(private readonly deviceRepository: DevicesRepository) {}
+  constructor() {} //private readonly deviceRepository: DevicesRepository
 
   async execute(command: LogoutCommand) {
     const { deviceId, iat } = command;
 
-    const isDeleted: boolean =
-      await this.deviceRepository.deleteOneByDeviceIdAndIAt(deviceId, iat);
-
-    if (!isDeleted) {
-      // TODO: check error message
-      return Result.unauthorized('Invalid or expired refresh token');
-    }
+    // const isDeleted: boolean =
+    //   await this.deviceRepository.deleteOneByDeviceIdAndIAt(deviceId, iat);
+    //
+    // if (!isDeleted) {
+    //   // TODO: check error message
+    //   return Result.unauthorized('Invalid or expired refresh token');
+    // }
 
     return Result.success();
   }

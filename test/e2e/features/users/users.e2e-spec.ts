@@ -19,10 +19,10 @@ describe('users', () => {
     // await initSettings((moduleBuilder) =>
     //   //override UsersService еще раз
     //   moduleBuilder.overrideProvider(UsersService).useFactory({
-    //     factory: (repo: UsersRepository, authService: AuthService) => {
+    //     factory: (repo: UsersMongoRepository, authService: AuthService) => {
     //       return new UserServiceMock(repo, authService);
     //     },
-    //     inject: [UsersRepository, AuthService],
+    //     inject: [UsersMongoRepository, AuthService],
     //   }),
     // );
     // app = result.app;
