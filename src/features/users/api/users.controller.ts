@@ -12,7 +12,10 @@ import {
 
 import { UserOutputModel } from './models/output/user.output.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
-import { PaginationWithSearchLoginAndEmailTerm } from '../../../base/models/pagination.base.model';
+import {
+  PaginationOutput,
+  PaginationWithSearchLoginAndEmailTerm,
+} from '../../../base/models/pagination.base.model';
 import { UserCreateModel } from './models/input/create-user.input.model';
 import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
@@ -23,7 +26,9 @@ import { CreateUserCommand } from '../application/use-cases/create-user.usecase'
 import {
   BadRequestException,
   InternalServerErrorException,
+  NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
+import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -33,7 +38,6 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    // private readonly usersQueryRepository: UsersMongoQueryRepository,
     private readonly usersPostgresqlQueryRepository: UsersPostgresqlQueryRepository,
   ) {}
 
@@ -46,7 +50,7 @@ export class UsersController {
         USERS_SORTING_PROPERTIES,
       );
 
-    // const users: PaginationOutput<UserOutputModel> =
+    // const users: PaginationOutput<any> =
     //   await this.usersPostgresqlQueryRepository.getAll(pagination);
     //
     // return users;
@@ -67,7 +71,7 @@ export class UsersController {
 
     const createdUserId: string = result.data!;
 
-    const createdUser: UserOutputModel | null =
+    const createdUser =
       await this.usersPostgresqlQueryRepository.findById(createdUserId);
 
     if (!createdUser) {
@@ -80,16 +84,16 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(204)
-  async delete(@Param('id', new ParseMongoIdPipe()) id: string) {
-    // const result: Result = await this.commandBus.execute<
-    //   DeleteUserCommand,
-    //   Result
-    // >(new DeleteUserCommand(id));
-    //
-    // if (result.status === ResultStatus.NotFound) {
-    //   throw new NotFoundException(result.errorMessage!);
-    // }
-    //
-    // return;
+  async delete(@Param('id') id: string) {
+    const result: Result = await this.commandBus.execute<
+      DeleteUserCommand,
+      Result
+    >(new DeleteUserCommand(id));
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException(result.errorMessage!);
+    }
+
+    return;
   }
 }

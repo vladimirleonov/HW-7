@@ -118,7 +118,45 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 }
 
-// common catch - all other errors
+// General Error Filter
+@Catch()
+export class ErrorExceptionFilter implements ExceptionFilter {
+  constructor(
+    private readonly configService: ConfigService<ConfigurationType, true>,
+  ) {}
+
+  catch(exception: Error, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+
+    const environmentSettings: EnvironmentSettings = this.configService.get(
+      'environmentSettings',
+      { infer: true },
+    );
+
+    const statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    const message = 'Some unexpected error occurred';
+
+    if (!environmentSettings.isProduction) {
+      response.status(statusCode).json({
+        statusCode,
+        message,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        stack: exception.stack,
+      });
+    } else {
+      response.status(statusCode).json({
+        statusCode,
+        message,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+      });
+    }
+  }
+}
+
 // @Catch(CustomError)
 // export class CustomExceptionFilter implements ExceptionFilter {}
 

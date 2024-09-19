@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../base/types/object-result';
+import { UsersPostgresRepository } from '../../infrastructure/postgresql/users-postgresql.repository';
 
 export class DeleteUserCommand {
   constructor(public readonly id: string) {}
@@ -7,15 +8,17 @@ export class DeleteUserCommand {
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
-  constructor() {} //private usersRepository: UsersMongoRepository
+  constructor(private usersPostgresRepository: UsersPostgresRepository) {}
 
   async execute(command: DeleteUserCommand) {
-    // const isDeleted: boolean = await this.usersRepository.delete(command.id);
-    //
-    // if (isDeleted) {
-    return Result.success();
-    // } else {
-    //   return Result.notFound(`User with id ${command.id} does not exist`);
-    // }
+    const { id } = command;
+
+    const isDeleted: boolean = await this.usersPostgresRepository.delete(id);
+
+    if (isDeleted) {
+      return Result.success();
+    } else {
+      return Result.notFound(`User with id ${command.id} does not exist`);
+    }
   }
 }

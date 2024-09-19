@@ -1,5 +1,3 @@
-import { UserDocument } from '../../../domain/user.entity';
-
 export class UserOutputModel {
   id: string;
   login: string;
@@ -9,13 +7,24 @@ export class UserOutputModel {
 
 // MAPPERS
 
-export const UserOutputModelMapper = (user: UserDocument): UserOutputModel => {
+export const UserOutputModelMapper = (user): UserOutputModel => {
   const outputModel: UserOutputModel = new UserOutputModel();
 
   outputModel.id = user.id;
   outputModel.login = user.login;
   outputModel.email = user.email;
-  outputModel.createdAt = user.createdAt.toISOString();
+  outputModel.createdAt = user.created_at.toISOString();
 
   return outputModel;
 };
+
+// export const UserOutputModelMapper = (user: UserDocument): UserOutputModel => {
+//   const outputModel: UserOutputModel = new UserOutputModel();
+//
+//   outputModel.id = user.id;
+//   outputModel.login = user.login;
+//   outputModel.email = user.email;
+//   outputModel.createdAt = user.createdAt.toISOString();
+//
+//   return outputModel;
+// };
