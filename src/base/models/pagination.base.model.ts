@@ -54,7 +54,8 @@ export class Pagination {
   }
 
   private getSortBy(query: ParsedQs, sortProperties: string[]): string {
-    let result = 'createdAt';
+    //let result = 'createdAt';
+    let result = 'created_at';
 
     const querySortBy = query.sortBy;
 

@@ -50,10 +50,12 @@ export class UsersController {
         USERS_SORTING_PROPERTIES,
       );
 
-    // const users: PaginationOutput<any> =
-    //   await this.usersPostgresqlQueryRepository.getAll(pagination);
-    //
-    // return users;
+    console.log(pagination);
+
+    const users: PaginationOutput<any> =
+      await this.usersPostgresqlQueryRepository.getAll(pagination);
+
+    return users;
   }
 
   @Post()
