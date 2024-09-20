@@ -54,7 +54,12 @@ export class UsersPostgresqlQueryRepository {
   }
 
   // // TODO: not sure about name
-  async findAuthenticatedUserById(id: string): Promise<any> {}
+  async findAuthenticatedUserById(id: string): Promise<any> {
+    const query: string = `SELECT * FROM users WHERE id=$1`;
+
+    const result = await this.dataSource.query(query, [id]);
+    return result.length > 0 ? UserOutputModelMapper(result[0]) : null;
+  }
   //
   // // TODO: change type any
   private async _getResult(

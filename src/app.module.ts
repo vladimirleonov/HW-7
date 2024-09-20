@@ -6,6 +6,7 @@ import { ApiSettings } from './settings/env/api-settings';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UsersModule } from './features/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './features/auth/auth.module';
 
 @Module({
   imports: [
@@ -30,26 +31,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         //synchronize: true,
       }),
     }),
-    // MongooseModule.forRootAsync({
-    //   useFactory: (configService: ConfigService<ConfigurationType, true>) => {
-    //     const apiSettings: ApiSettings = configService.get('apiSettings', {
-    //       infer: true,
-    //     });
-    //     const environmentSettings: EnvironmentSettings = configService.get(
-    //       'environmentSettings',
-    //       { infer: true },
-    //     );
-    //
-    //     const uri: string = environmentSettings.isTesting
-    //       ? apiSettings.MONGO_CONNECTION_URI_FOR_TESTS
-    //       : apiSettings.MONGO_CONNECTION_URI;
-    //
-    //     return {
-    //       uri,
-    //     };
-    //   },
-    //   inject: [ConfigService],
-    // }),
     ThrottlerModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
         const apiSettings: ApiSettings =
@@ -82,7 +63,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       },
       inject: [ConfigService],
     }),
-    //AuthModule,
+    AuthModule,
     UsersModule,
     //ContentModule,
     //TestingModule.register(),

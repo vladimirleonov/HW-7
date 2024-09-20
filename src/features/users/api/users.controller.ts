@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -17,8 +18,6 @@ import {
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/models/pagination.base.model';
 import { UserCreateModel } from './models/input/create-user.input.model';
-import { ParseMongoIdPipe } from '../../../core/pipes/parse-mongo-id.pipe';
-import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
 import { UsersPostgresqlQueryRepository } from '../infrastructure/postgresql/users-postgresql.query-repository';
 import { Result, ResultStatus } from '../../../base/types/object-result';
@@ -29,12 +28,13 @@ import {
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
 import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
+import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
 
 @Controller('users')
-// @UseGuards(BasicAuthGuard)
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -85,7 +85,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id') id: string) {
     const result: Result = await this.commandBus.execute<
       DeleteUserCommand,

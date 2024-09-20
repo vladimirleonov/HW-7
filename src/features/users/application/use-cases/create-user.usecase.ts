@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ApiSettings } from '../../../../settings/env/api-settings';
-import { User } from '../../domain/user.entity';
 import { Result } from '../../../../base/types/object-result';
 import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
@@ -31,11 +30,10 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       infer: true,
     });
 
-    const [foundUserByLogin, foundUserByEmail]: [User | null, User | null] =
-      await Promise.all([
-        this.usersPostgresRepository.findByField('login', login),
-        this.usersPostgresRepository.findByField('email', email),
-      ]);
+    const [foundUserByLogin, foundUserByEmail] = await Promise.all([
+      this.usersPostgresRepository.findByField('login', login),
+      this.usersPostgresRepository.findByField('email', email),
+    ]);
 
     if (foundUserByLogin || foundUserByEmail) {
       return Result.badRequest('User already exists');
