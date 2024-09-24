@@ -78,6 +78,7 @@ export class UsersPostgresRepository {
   }
 
   async findUserByRecoveryCode(recoveryCode: string): Promise<any> {
+    console.log('recoveryCode', recoveryCode);
     const query: string = `
       SELECT 
         u.id, 
@@ -93,7 +94,7 @@ export class UsersPostgresRepository {
       FROM users u
       LEFT JOIN email_confirmation ec ON u.id = ec.user_id
       LEFT JOIN password_recovery pr ON u.id = pr.user_id 
-      WHERE pr.recovery_code=$1
+      WHERE recovery_code = $1
     `;
 
     const result = await this.dataSource.query(query, [recoveryCode]);
@@ -201,7 +202,7 @@ export class UsersPostgresRepository {
       email,
     ]);
 
-    const userId: string | null =
+    const userId: number | null =
       userResult.length > 0 ? userResult[0].id : null;
 
     // create email_confirmation record
@@ -260,6 +261,7 @@ export class UsersPostgresRepository {
   async updatePasswordRecoveryData(
     newRecoveryCode: string,
     newExpirationDate: Date,
+    userId: number,
   ): Promise<boolean> {
     const query: string = `
       UPDATE password_recovery 
@@ -270,6 +272,7 @@ export class UsersPostgresRepository {
     const result = await this.dataSource.query(query, [
       newRecoveryCode,
       newExpirationDate,
+      userId,
     ]);
 
     // TODO: check update
@@ -281,6 +284,7 @@ export class UsersPostgresRepository {
   async updateEmailConfirmationData(
     newConfirmationCode: string,
     newExpirationDate: Date,
+    userId: number,
   ): Promise<boolean> {
     const query: string = `
       UPDATE email_confirmation 
@@ -291,6 +295,7 @@ export class UsersPostgresRepository {
     const result = await this.dataSource.query(query, [
       newConfirmationCode,
       newExpirationDate,
+      userId,
     ]);
 
     // TODO: check update
@@ -303,15 +308,18 @@ export class UsersPostgresRepository {
     passwordHash: string,
     recoveryCode: string,
     expirationDate: Date,
+    userId: number,
   ) {
     // update user
     const queryUser: string = `
       UPDATE users 
       SET password = $1
+      WHERE id = $2
     `;
 
     const updateUserResult = await this.dataSource.query(queryUser, [
       passwordHash,
+      userId,
     ]);
 
     const updatedUserRows = updateUserResult[1];
@@ -319,13 +327,14 @@ export class UsersPostgresRepository {
     // update password_recovery
 
     const queryPasswordRecovery: string = `
-      UPDATE users 
+      UPDATE password_recovery 
       SET recovery_code = $1, expiration_date = $2
+      WHERE user_id = $3
     `;
 
     const updatePasswordRecoveryResult = await this.dataSource.query(
       queryPasswordRecovery,
-      [recoveryCode, expirationDate],
+      [recoveryCode, expirationDate, userId],
     );
 
     const updatedPasswordRecoveryRows = updatePasswordRecoveryResult[1];
@@ -333,10 +342,10 @@ export class UsersPostgresRepository {
     return updatedUserRows > 1 && updatedPasswordRecoveryRows > 1;
   }
 
-  async updateIsConfirmed(isConfirmed: boolean, userId: string) {
+  async updateIsConfirmed(isConfirmed: boolean, userId: number) {
     const query: string = `
       UPDATE email_confirmation
-      SET isConfirmed=$1 
+      SET is_confirmed=$1 
       WHERE user_id=$2
     `;
 

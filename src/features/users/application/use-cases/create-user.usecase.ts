@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../../../settings/env/configuration';
 import { CryptoService } from '../../../../core/application/crypto.service';
-import { UsersPostgresRepository } from '../../infrastructure/postgresql/users-postgresql.repository';
+import { UsersPostgresRepository } from '../../infrastructure/postgresql/users-postgres.repository';
 
 export class CreateUserCommand {
   constructor(
@@ -35,8 +35,24 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       this.usersPostgresRepository.findByField('email', email),
     ]);
 
-    if (foundUserByLogin || foundUserByEmail) {
-      return Result.badRequest('User already exists');
+    if (foundUserByLogin) {
+      // return Result.badRequest('User already exists');
+      return Result.badRequest([
+        {
+          message: 'User already exists',
+          field: 'login',
+        },
+      ]);
+    }
+
+    if (foundUserByEmail) {
+      // return Result.badRequest('User already exists');
+      return Result.badRequest([
+        {
+          message: 'User already exists',
+          field: 'email',
+        },
+      ]);
     }
 
     const generatedPasswordHash: string = await this.cryptoService.createHash(

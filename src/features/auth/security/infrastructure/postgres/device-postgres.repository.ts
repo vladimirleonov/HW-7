@@ -47,7 +47,7 @@ export class DevicesPostgresRepository {
   }
 
   async create(
-    userId: string,
+    userId: number,
     deviceId: string,
     iat: string,
     deviceName: string,
@@ -80,7 +80,7 @@ export class DevicesPostgresRepository {
       WHERE device_id = $2
     `;
 
-    const result = await this.dataSource.query(query, [deviceId, iat]);
+    const result = await this.dataSource.query(query, [iat, deviceId]);
 
     const updatedRows = result[1];
 
@@ -89,11 +89,11 @@ export class DevicesPostgresRepository {
 
   async deleteAllOtherByDeviceIdAndUserId(
     deviceId: string,
-    userId: string,
+    userId: number,
   ): Promise<any> {
     const query: string = `
       DELETE FROM device 
-      WHERE device_id <> $1 AND userId = $2
+      WHERE device_id <> $1 AND user_id = $2
     `;
 
     const result = await this.dataSource.query(query, [deviceId, userId]);
@@ -105,7 +105,7 @@ export class DevicesPostgresRepository {
 
   async deleteOneByDeviceIdAndUserId(
     deviceId: string,
-    userId: string,
+    userId: number,
   ): Promise<boolean> {
     // const deletedInfo = await this.deviceModel.deleteOne({
     //   deviceId: { $eq: deviceId },

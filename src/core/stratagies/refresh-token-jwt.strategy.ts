@@ -40,7 +40,7 @@ export class RefreshTokenJwtStrategy extends PassportStrategy(
     }
 
     req.device = {
-      userId,
+      userId: userId,
       deviceId,
       iat: unixToISOString(iat),
     };

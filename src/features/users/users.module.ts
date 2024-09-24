@@ -6,8 +6,8 @@ import { CryptoService } from '../../core/application/crypto.service';
 import { CqrsModule } from '@nestjs/cqrs';
 // import { LoginIsExistConstraint } from '../../core/decorators/validators/login-is-exist.decorator';
 import { EmailIsExistConstraint } from '../../core/decorators/validators/email-is-exist.decorator';
-import { UsersPostgresRepository } from './infrastructure/postgresql/users-postgresql.repository';
-import { UsersPostgresqlQueryRepository } from './infrastructure/postgresql/users-postgresql.query-repository';
+import { UsersPostgresRepository } from './infrastructure/postgresql/users-postgres.repository';
+import { UsersPostgresQueryRepository } from './infrastructure/postgresql/users-postgres.query-repository';
 
 const usersProviders: Provider[] = [
   // use cases
@@ -18,7 +18,7 @@ const usersProviders: Provider[] = [
   // UsersMongoRepository,
   // UsersMongoQueryRepository,
   UsersPostgresRepository,
-  UsersPostgresqlQueryRepository,
+  UsersPostgresQueryRepository,
 
   // validation constraints
   // LoginIsExistConstraint,
@@ -32,6 +32,6 @@ const usersProviders: Provider[] = [
   ],
   controllers: [UsersController],
   providers: [...usersProviders, CryptoService],
-  exports: [UsersPostgresRepository, UsersPostgresqlQueryRepository],
+  exports: [UsersPostgresRepository, UsersPostgresQueryRepository],
 })
 export class UsersModule {}

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import {
+  AuthenticatedUserModelMapper,
   UserOutputModel,
   UserOutputModelMapper,
 } from '../../api/models/output/user.output.model';
@@ -10,7 +11,7 @@ import {
 } from '../../../../base/models/pagination.base.model';
 
 @Injectable()
-export class UsersPostgresqlQueryRepository {
+export class UsersPostgresQueryRepository {
   constructor(private readonly dataSource: DataSource) {}
 
   async getAll(
@@ -58,7 +59,8 @@ export class UsersPostgresqlQueryRepository {
     const query: string = `SELECT * FROM users WHERE id=$1`;
 
     const result = await this.dataSource.query(query, [id]);
-    return result.length > 0 ? UserOutputModelMapper(result[0]) : null;
+    console.log('result !QWe', result);
+    return result.length > 0 ? AuthenticatedUserModelMapper(result[0]) : null;
   }
   //
   // // TODO: change type any
@@ -68,9 +70,9 @@ export class UsersPostgresqlQueryRepository {
     params: string[],
   ) {
     //: Promise<PaginationOutput<any>>
-    console.log(filter);
-    console.log(pagination);
-    console.log(params);
+    console.log('filter', filter);
+    console.log('pagination', pagination);
+    console.log('params', params);
 
     const query: string = `
       SELECT * FROM users
@@ -80,11 +82,20 @@ export class UsersPostgresqlQueryRepository {
       LIMIT ${pagination.pageSize}
     `;
 
-    console.log(query);
+    console.log('users query', query);
 
     const result = await this.dataSource.query(query, params);
 
-    const totalCount: number = result.length;
+    // count documents with filter
+    const countQuery: string = `
+      SELECT COUNT(*) as count FROM users
+      ${filter ? filter : ''}
+    `;
+
+    const countResult = await this.dataSource.query(countQuery, params);
+    // console.log('countResult', countResult);
+    const totalCount: number = Number(countResult[0].count);
+
     const mappedUsers: any[] = result.map(UserOutputModelMapper);
 
     return new PaginationOutput<UserOutputModel>(
@@ -93,26 +104,5 @@ export class UsersPostgresqlQueryRepository {
       pagination.pageSize,
       totalCount,
     );
-
-    // const users = await this.UserModel.find(filter)
-    //   .sort({
-    //     [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
-    //   })
-    //   .skip(pagination.getSkipItemsCount())
-    //   .limit(pagination.pageSize);
-
-    // const query: string = `
-    //
-    // `
-
-    //     const totalCount: number = await this.UserModel.countDocuments(filter);
-    //     const mappedUsers: UserOutputModel[] = users.map(UserOutputModelMapper);
-    //
-    //     return new PaginationOutput<UserOutputModel>(
-    //       mappedUsers,
-    //       pagination.pageNumber,
-    //       pagination.pageSize,
-    //       totalCount,
-    // );
   }
 }

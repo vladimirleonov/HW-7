@@ -19,7 +19,7 @@ import {
 } from '../../../base/models/pagination.base.model';
 import { UserCreateModel } from './models/input/create-user.input.model';
 import { CommandBus } from '@nestjs/cqrs';
-import { UsersPostgresqlQueryRepository } from '../infrastructure/postgresql/users-postgresql.query-repository';
+import { UsersPostgresQueryRepository } from '../infrastructure/postgresql/users-postgres.query-repository';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { CreateUserCommand } from '../application/use-cases/create-user.usecase';
 import {
@@ -33,12 +33,12 @@ import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
 
-@Controller('users')
+@Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersPostgresqlQueryRepository: UsersPostgresqlQueryRepository,
+    private readonly usersPostgresqlQueryRepository: UsersPostgresQueryRepository,
   ) {}
 
   @Get()
@@ -68,7 +68,7 @@ export class UsersController {
     >(new CreateUserCommand(login, password, email));
 
     if (result.status === ResultStatus.BadRequest) {
-      throw new BadRequestException(result.errorMessage!);
+      throw new BadRequestException(result.extensions!);
     }
 
     const createdUserId: string = result.data!;

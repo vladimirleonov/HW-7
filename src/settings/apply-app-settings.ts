@@ -8,7 +8,6 @@ import { AppModule } from '../app.module';
 import cookieParser from 'cookie-parser';
 import {
   CustomExceptionFilter,
-  ErrorExceptionFilter,
   HttpExceptionFilter,
 } from '../core/exception-filters/http-exception-filter';
 import { ConfigService } from '@nestjs/config';
@@ -74,8 +73,8 @@ const setAppExceptionsFilters = (app: INestApplication) => {
     ConfigService<ConfigurationType, true>,
   );
   app.useGlobalFilters(
+    new CustomExceptionFilter(configService),
     new HttpExceptionFilter(),
     // new ErrorExceptionFilter(configService),
-    new CustomExceptionFilter(configService),
   );
 };

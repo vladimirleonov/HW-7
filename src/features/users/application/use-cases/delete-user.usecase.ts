@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../base/types/object-result';
-import { UsersPostgresRepository } from '../../infrastructure/postgresql/users-postgresql.repository';
+import { UsersPostgresRepository } from '../../infrastructure/postgresql/users-postgres.repository';
 
 export class DeleteUserCommand {
   constructor(public readonly id: string) {}

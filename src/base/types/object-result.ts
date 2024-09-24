@@ -31,13 +31,13 @@ export class Result<T = null> {
   }
 
   static badRequest<T = null>(
-    errorMessage?: string,
+    //errorMessage?: string,
     extensions?: Array<{ field: string; message: string }>,
   ): Result<T> {
     return new Result(
       ResultStatus.BadRequest,
       null as any,
-      errorMessage,
+      undefined,
       extensions,
     );
   }

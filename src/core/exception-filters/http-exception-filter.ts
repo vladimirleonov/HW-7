@@ -13,7 +13,8 @@ import { EnvironmentSettings } from '../../settings/env/env-settings';
 export class CustomError extends Error {
   constructor(
     public readonly statusCode: number,
-    public readonly message: string,
+    public readonly message: string = 'An error occurred',
+    public readonly errorMessages?: Array<{ field: string; message: string }>,
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -21,8 +22,8 @@ export class CustomError extends Error {
 }
 
 export class BadRequestException extends CustomError {
-  constructor(message: string) {
-    super(400, message);
+  constructor(errorMessages: Array<{ field: string; message: string }>) {
+    super(400, 'Bad Request', errorMessages);
   }
 }
 
@@ -61,6 +62,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+    const status: number = exception.statusCode;
 
     const environmentSettings: EnvironmentSettings = this.configService.get(
       'environmentSettings',
@@ -68,6 +70,17 @@ export class CustomExceptionFilter implements ExceptionFilter {
     );
 
     console.log('exception filter custom error');
+
+    if (status === HttpStatus.BAD_REQUEST) {
+      const errorsResponse = {
+        errorsMessages: exception.errorMessages || [
+          { message: 'Unknown error', field: 'unknown' },
+        ],
+      };
+
+      response.status(status).json(errorsResponse);
+      return;
+    }
 
     if (!environmentSettings.isProduction) {
       response.status(exception.statusCode).json({
@@ -101,6 +114,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (status === HttpStatus.BAD_REQUEST) {
       const responseBody: any = exception.getResponse();
+      console.log('responseBody.message', responseBody.message);
       errorsResponse.errorsMessages = Array.isArray(responseBody.message)
         ? responseBody.message
         : [responseBody.message];
@@ -119,43 +133,43 @@ export class HttpExceptionFilter implements ExceptionFilter {
 }
 
 // General Error Filter
-@Catch()
-export class ErrorExceptionFilter implements ExceptionFilter {
-  constructor(
-    private readonly configService: ConfigService<ConfigurationType, true>,
-  ) {}
-
-  catch(exception: Error, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-
-    const environmentSettings: EnvironmentSettings = this.configService.get(
-      'environmentSettings',
-      { infer: true },
-    );
-
-    const statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-    const message = 'Some unexpected error occurred';
-
-    if (!environmentSettings.isProduction) {
-      response.status(statusCode).json({
-        statusCode,
-        message,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-        stack: exception.stack,
-      });
-    } else {
-      response.status(statusCode).json({
-        statusCode,
-        message,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      });
-    }
-  }
-}
+// @Catch()
+// export class ErrorExceptionFilter implements ExceptionFilter {
+//   constructor(
+//     private readonly configService: ConfigService<ConfigurationType, true>,
+//   ) {}
+//
+//   catch(exception: Error, host: ArgumentsHost) {
+//     const ctx = host.switchToHttp();
+//     const response = ctx.getResponse<Response>();
+//     const request = ctx.getRequest<Request>();
+//
+//     const environmentSettings: EnvironmentSettings = this.configService.get(
+//       'environmentSettings',
+//       { infer: true },
+//     );
+//
+//     const statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+//     const message = 'Some unexpected error occurred';
+//
+//     if (!environmentSettings.isProduction) {
+//       response.status(statusCode).json({
+//         statusCode,
+//         message,
+//         timestamp: new Date().toISOString(),
+//         path: request.url,
+//         stack: exception.stack,
+//       });
+//     } else {
+//       response.status(statusCode).json({
+//         statusCode,
+//         message,
+//         timestamp: new Date().toISOString(),
+//         path: request.url,
+//       });
+//     }
+//   }
+// }
 
 // @Catch(CustomError)
 // export class CustomExceptionFilter implements ExceptionFilter {}

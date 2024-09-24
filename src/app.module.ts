@@ -7,6 +7,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { UsersModule } from './features/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './features/auth/auth.module';
+import { TestingModule } from './features/testing/testing.module';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { AuthModule } from './features/auth/auth.module';
         host: 'localhost',
         port: 5432,
         username: 'postgres',
-        password: '1234',
+        password: 'root',
         database: 'blogger',
         // entities: [],
         //synchronize: true,
@@ -66,7 +67,7 @@ import { AuthModule } from './features/auth/auth.module';
     AuthModule,
     UsersModule,
     //ContentModule,
-    //TestingModule.register(),
+    TestingModule.register(),
   ],
   providers: [
     // REGISTER EXAMPLES
