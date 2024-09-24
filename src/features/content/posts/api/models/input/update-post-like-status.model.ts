@@ -1,6 +1,6 @@
 import { IsEnum, IsString, Length } from 'class-validator';
 import { Trim } from '../../../../../../core/decorators/transformers/trim';
-import { LikeStatus } from '../../../../like/domain/like.entity';
+import { LikeStatus } from '../../../../../../base/types/like-status';
 
 export class PostUpdateLikeStatusModel {
   @IsString()

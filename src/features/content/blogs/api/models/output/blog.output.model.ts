@@ -1,5 +1,3 @@
-import { BlogDocument } from '../../../domain/blog.entity';
-
 export class BlogOutputModel {
   id: string;
   name: string;
@@ -11,7 +9,7 @@ export class BlogOutputModel {
 
 // MAPPERS
 
-export const BlogOutputModelMapper = (blog: BlogDocument): BlogOutputModel => {
+export const BlogOutputModelMapper = (blog): BlogOutputModel => {
   const outputModel: BlogOutputModel = new BlogOutputModel();
 
   outputModel.id = blog.id;

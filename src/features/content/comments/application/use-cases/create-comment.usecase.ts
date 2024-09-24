@@ -1,5 +1,5 @@
 // import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-// import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
+// import { PostsMongoRepository } from '../../../posts/infrastructure/posts.repository';
 // import { UsersRepository } from '../../../../users/infrastructure/users.repository';
 // import { PostDocument } from '../../../posts/domain/post.entity';
 // import { Result } from '../../../../../base/types/object-result';
@@ -25,7 +25,7 @@
 //   implements ICommandHandler<CreateCommentCommand>
 // {
 //   constructor(
-//     private readonly postsRepository: PostsRepository,
+//     private readonly postsRepository: PostsMongoRepository,
 //     private readonly usersRepository: UsersRepository,
 //     private readonly commentsRepository: CommentsRepository,
 //     @InjectModel(Comment.name) private readonly commentModel: CommentModelType,

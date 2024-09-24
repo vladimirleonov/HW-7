@@ -26,7 +26,7 @@ import { TestingModule } from './features/testing/testing.module';
         host: 'localhost',
         port: 5432,
         username: 'postgres',
-        password: 'root',
+        password: '1234',
         database: 'blogger',
         // entities: [],
         //synchronize: true,
