@@ -27,10 +27,10 @@ import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guar
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { BlogsPostgresQueryRepository } from '../infrastructure/postgres/blogs-postgres.query-repository';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
+import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
-  'createdAt',
 ];
 
 @Controller('blogs')
@@ -44,25 +44,25 @@ export class BlogsController {
   @Get()
   // TODO: change type any
   async getAll(@Query() query: any) {
-    // const pagination: PaginationWithSearchNameTerm =
-    //   new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
-    //
-    // const users: PaginationOutput<BlogOutputModel> =
-    //   await this.blogsPostgresQueryRepository.getAll(pagination);
-    //
-    // return users;
+    const pagination: PaginationWithSearchNameTerm =
+      new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
+
+    const users: PaginationOutput<BlogOutputModel> =
+      await this.blogsPostgresQueryRepository.getAll(pagination);
+
+    return users;
   }
 
   @Get(':id')
   async getOne(@Param('id', new ParseIntPipe()) id: number) {
-    // const blog: BlogOutputModel | null =
-    //   await this.blogsQueryRepository.findById(id);
-    //
-    // if (!blog) {
-    //   throw new NotFoundException(`Blog with id ${id} not found`);
-    // }
-    //
-    // return blog;
+    const blog: BlogOutputModel | null =
+      await this.blogsPostgresQueryRepository.findById(id);
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with id ${id} not found`);
+    }
+
+    return blog;
   }
 
   // TODO: change any type

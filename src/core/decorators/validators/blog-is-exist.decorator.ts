@@ -18,9 +18,9 @@ export class BlogIsExistConstraint implements ValidatorConstraintInterface {
 
   async validate(blogId: string) {
     console.log('check blog is exist!!!');
-    const blog = await this.blogsPostgresRepository.findById(blogId); // Checking if blog exist
+    //const blog = await this.blogsPostgresRepository.findById(blogId); // Checking if blog exist
 
-    if (!blog) return false;
+    //if (!blog) return false;
 
     return true;
   }

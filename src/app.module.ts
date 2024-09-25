@@ -8,6 +8,7 @@ import { UsersModule } from './features/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';
+import { ContentModule } from './features/content/content.module';
 
 @Module({
   imports: [
@@ -66,7 +67,7 @@ import { TestingModule } from './features/testing/testing.module';
     }),
     AuthModule,
     UsersModule,
-    //ContentModule,
+    ContentModule,
     TestingModule.register(),
   ],
   providers: [
