@@ -27,7 +27,7 @@ export class PostOutputModel {
   blogId: string;
   blogName: string;
   createdAt: string;
-  extendedLikesInfo: [];
+  extendedLikesInfo: any;
   // constructor(extendedLikesInfo: ExtendedLikesInfo) {
   //   this.extendedLikesInfo = extendedLikesInfo;
   // }
@@ -35,15 +35,24 @@ export class PostOutputModel {
 
 // MAPPERS
 
-export const PostOutputModelMapper = async (post): Promise<PostOutputModel> => {
+export const PostOutputModelMapper = (post): PostOutputModel => {
+  console.log(post);
+  console.log(typeof post.created_at);
+
   const outputModel: PostOutputModel = new PostOutputModel();
   outputModel.id = post.id;
   outputModel.title = post.title;
-  outputModel.shortDescription = post.shortDescription;
+  outputModel.shortDescription = post.short_description;
   outputModel.content = post.content;
-  outputModel.blogId = post.blogId.toString();
-  outputModel.blogName = post.blogName;
-  outputModel.createdAt = post.createdAt.toISOString();
+  outputModel.blogId = post.blog_id;
+  outputModel.blogName = post.blog_name;
+  outputModel.createdAt = post.created_at;
+  outputModel.extendedLikesInfo = {
+    likesCount: 0,
+    dislikesCount: 0,
+    myStatus: 'None',
+    newestLikes: [],
+  };
 
   return outputModel;
 };

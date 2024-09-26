@@ -25,6 +25,10 @@ import { OptionalUserId } from '../../../../core/decorators/param/current-user-o
 import { CommentCreateModel } from '../../comments/api/models/input/create-comment.input.model';
 import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
 import { PostsPostgresQueryRepository } from '../infrastructure/postgres/posts-postgres.query-repository';
+import {
+  Pagination,
+  PaginationOutput,
+} from '../../../../base/models/pagination.base.model';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -40,15 +44,15 @@ export class PostsController {
   @UseGuards(OptionalJwtAuthGuard)
   // TODO: change type any
   async getAll(@OptionalUserId() userId: string, @Query() query: any) {
-    // const pagination: Pagination = new Pagination(
-    //   query,
-    //   POSTS_SORTING_PROPERTIES,
-    // );
-    //
-    // const posts: PaginationOutput<PostOutputModel> =
-    //   await this.postsQueryRepository.getAllPosts(pagination, userId);
-    //
-    // return posts;
+    const pagination: Pagination = new Pagination(
+      query,
+      POSTS_SORTING_PROPERTIES,
+    );
+
+    const posts: PaginationOutput<PostOutputModel> =
+      await this.postsPostgresQueryRepository.getAllPosts(pagination, userId);
+
+    return posts;
   }
 
   @Get(':id')
