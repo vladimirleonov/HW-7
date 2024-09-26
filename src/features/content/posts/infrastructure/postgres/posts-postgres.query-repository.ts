@@ -95,12 +95,24 @@ export class PostsPostgresQueryRepository {
     // );
   }
 
-  // async findById(id: string, userId?: string): Promise<PostOutputModel | null> {
-  //   const post: PostDocument | null = await this.postModel.findById(id); // automatically converts string to ObjectId
-  //
-  //   if (post === null) {
-  //     return null;
-  //   }
-  //   return PostOutputModelMapper(post, userId, this.userModel);
-  // }
+  async findById(id: number, userId?: number): Promise<PostOutputModel | null> {
+    const query = `
+      SELECT p.*, b.name as blog_name 
+      FROM posts p
+      JOIN blogs b 
+      ON p.blog_id = b.id
+      WHERE p.id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    return result.length > 0 ? PostOutputModelMapper(result[0]) : null;
+
+    // const post: PostDocument | null = await this.postModel.findById(id); // automatically converts string to ObjectId
+    //
+    // if (post === null) {
+    //   return null;
+    // }
+    // return PostOutputModelMapper(post, userId, this.userModel);
+  }
 }

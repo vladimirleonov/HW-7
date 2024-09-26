@@ -29,6 +29,7 @@ import {
   Pagination,
   PaginationOutput,
 } from '../../../../base/models/pagination.base.model';
+import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -61,14 +62,14 @@ export class PostsController {
     @Param('id', new ParseIntPipe()) id: number,
     @OptionalUserId() userId: number,
   ) {
-    // const post: PostOutputModel | null =
-    //   await this.postsQueryRepository.findById(id, userId);
-    //
-    // if (!post) {
-    //   throw new NotFoundException();
-    // }
-    //
-    // return post;
+    const post: PostOutputModel | null =
+      await this.postsPostgresQueryRepository.findById(id, userId);
+
+    if (!post) {
+      throw new NotFoundException();
+    }
+
+    return post;
   }
 
   @Get(':postId/comments')
