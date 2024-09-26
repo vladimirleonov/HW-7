@@ -96,9 +96,15 @@ export class BlogsPostgresQueryRepository {
   }
 
   async findById(id: number) {
-    // const query: string = `
-    //
-    // `;
+    const query: string = `
+      SELECT * FROM blogs
+      WHERE id = $1
+    `;
+
+    const result: string = await this.dataSource.query(query, [id]);
+
+    return result.length > 0 ? BlogOutputModelMapper(result[0]) : null;
+
     // const blog: BlogDocument | null = await this.blogModel.findById(id);
     //
     // if (blog === null) {

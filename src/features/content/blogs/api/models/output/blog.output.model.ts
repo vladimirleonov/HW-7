@@ -12,8 +12,6 @@ export class BlogOutputModel {
 export const BlogOutputModelMapper = (blog): BlogOutputModel => {
   const outputModel: BlogOutputModel = new BlogOutputModel();
 
-  console.log(blog);
-
   outputModel.id = blog.id;
   outputModel.name = blog.name;
   outputModel.description = blog.description;

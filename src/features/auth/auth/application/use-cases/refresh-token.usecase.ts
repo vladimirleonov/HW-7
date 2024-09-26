@@ -44,7 +44,7 @@ export class RefreshTokenUseCase implements ICommandHandler {
 
     const accessToken = await this.jwtService.signAsync(JwtAccessTokenPayload, {
       secret: 'secret',
-      expiresIn: '10s',
+      expiresIn: '10h',
     });
 
     //generate refresh token
@@ -52,7 +52,7 @@ export class RefreshTokenUseCase implements ICommandHandler {
       JwtRefreshTokenPayload,
       {
         secret: 'secret',
-        expiresIn: '20s',
+        expiresIn: '20h',
       },
     );
 

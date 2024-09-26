@@ -51,6 +51,7 @@ export class UsersPostgresQueryRepository {
     const query: string = `SELECT * FROM users WHERE id=$1`;
 
     const result = await this.dataSource.query(query, [id]);
+
     return result.length > 0 ? UserOutputModelMapper(result[0]) : null;
   }
 
@@ -59,7 +60,7 @@ export class UsersPostgresQueryRepository {
     const query: string = `SELECT * FROM users WHERE id=$1`;
 
     const result = await this.dataSource.query(query, [id]);
-    console.log('result !QWe', result);
+
     return result.length > 0 ? AuthenticatedUserModelMapper(result[0]) : null;
   }
   //
@@ -70,9 +71,6 @@ export class UsersPostgresQueryRepository {
     params: string[],
   ) {
     //: Promise<PaginationOutput<any>>
-    console.log('filter', filter);
-    console.log('pagination', pagination);
-    console.log('params', params);
 
     const query: string = `
       SELECT * FROM users
@@ -81,8 +79,6 @@ export class UsersPostgresQueryRepository {
       OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
       LIMIT ${pagination.pageSize}
     `;
-
-    console.log('users query', query);
 
     const result = await this.dataSource.query(query, params);
 
