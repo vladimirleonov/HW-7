@@ -6,10 +6,7 @@ import { CreatePostUseCase } from './posts/application/use-cases/create-post.use
 import { UpdatePostUseCase } from './posts/application/use-cases/update-post.usecase';
 import { DeletePostUseCase } from './posts/application/use-cases/delete-post.usecase';
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.usecase';
-import {
-  BlogsController,
-  BlogsSAController,
-} from './blogs/api/blogs.controller';
+import { BlogsController } from './blogs/api/blogs.controller';
 import { PostsController } from './posts/api/posts.controller';
 import { UsersModule } from '../users/users.module';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -19,6 +16,7 @@ import { BlogsPostgresRepository } from './blogs/infrastructure/postgres/blogs-p
 import { BlogsPostgresQueryRepository } from './blogs/infrastructure/postgres/blogs-postgres.query-repository';
 import { PostsPostgresRepository } from './posts/infrastructure/postgres/posts-postgres.repository';
 import { PostsPostgresQueryRepository } from './posts/infrastructure/postgres/posts-postgres.query-repository';
+import { BlogsSAController } from './blogs/api/blogs-sa.controller';
 
 const blogsProviders: Provider[] = [
   // use cases
