@@ -13,6 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  Pagination,
   PaginationOutput,
   PaginationWithSearchNameTerm,
 } from '../../../../base/models/pagination.base.model';
@@ -28,6 +29,8 @@ import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-
 import { BlogsPostgresQueryRepository } from '../infrastructure/postgres/blogs-postgres.query-repository';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
 import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
+import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
+import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -73,27 +76,28 @@ export class BlogsController {
     @OptionalUserId() userId: number,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
+    console.log('OK!!!');
     // TODO: ask if is it ok?
-    // const blog: BlogOutputModel | null =
-    //   await this.blogsQueryRepository.findById(blogId);
-    //
-    // if (!blog) {
-    //   throw new NotFoundException(`Blog with id ${blogId} not found`);
-    // }
-    //
-    // const pagination: Pagination = new Pagination(
-    //   query,
-    //   POSTS_SORTING_PROPERTIES,
-    // );
-    //
-    // const blogPosts: PaginationOutput<PostOutputModel> =
-    //   await this.postQueryRepository.getAllBlogPosts(
-    //     pagination,
-    //     blogId,
-    //     userId,
-    //   );
-    //
-    // return blogPosts;
+    const blog: BlogOutputModel | null =
+      await this.blogsPostgresQueryRepository.findById(blogId);
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with id ${blogId} not found`);
+    }
+
+    const pagination: Pagination = new Pagination(
+      query,
+      POSTS_SORTING_PROPERTIES,
+    );
+
+    const blogPosts: PaginationOutput<PostOutputModel> =
+      await this.blogsPostgresQueryRepository.getAllBlogPosts(
+        pagination,
+        blogId,
+        userId,
+      );
+
+    return blogPosts;
   }
 
   @Post()

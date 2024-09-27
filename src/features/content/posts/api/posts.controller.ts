@@ -62,6 +62,7 @@ export class PostsController {
     @Param('id', new ParseIntPipe()) id: number,
     @OptionalUserId() userId: number,
   ) {
+    console.log('OK!!!');
     const post: PostOutputModel | null =
       await this.postsPostgresQueryRepository.findById(id, userId);
 

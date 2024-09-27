@@ -59,7 +59,8 @@ const postsProviders: Provider[] = [
   imports: [CqrsModule, AuthModule, UsersModule],
   controllers: [
     BlogsController,
-    PostsController, //CommentsController
+    PostsController,
+    //CommentsController
   ],
   providers: [
     ...blogsProviders,

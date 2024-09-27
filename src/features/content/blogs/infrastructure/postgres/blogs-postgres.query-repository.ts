@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import {
+  Pagination,
   PaginationOutput,
   PaginationWithSearchNameTerm,
 } from '../../../../../base/models/pagination.base.model';
@@ -40,11 +41,32 @@ export class BlogsPostgresQueryRepository {
     return this._getResult(finalWhereClause, pagination, params);
   }
 
+  getAllBlogPosts(
+    pagination: Pagination,
+    blogId?: number,
+    userId?: number,
+  ): any {
+    // const filterByBlogId: FilterQuery<Post> = blogId
+    //   ? { blogId: new mongoose.Types.ObjectId(blogId) }
+    //   : {};
+    //
+    // const filter: FilterQuery<Post> = {
+    //   ...filterByBlogId,
+    // };
+
+    const whereClause: string | null = blogId ? `WHERE blogId=$1` : null;
+    const params = [blogId];
+
+    return this._getResult(whereClause, pagination, params);
+
+    // return this.__getResult(filter, pagination, userId);
+  }
+
   // // TODO: change type any
   async _getResult(
     filter: any,
-    pagination: PaginationWithSearchNameTerm,
-    params: string[],
+    pagination: Pagination,
+    params: any,
   ): Promise<PaginationOutput<BlogOutputModel>> {
     const query: string = `
       SELECT * FROM blogs
