@@ -6,7 +6,10 @@ import { CreatePostUseCase } from './posts/application/use-cases/create-post.use
 import { UpdatePostUseCase } from './posts/application/use-cases/update-post.usecase';
 import { DeletePostUseCase } from './posts/application/use-cases/delete-post.usecase';
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.usecase';
-import { BlogsController } from './blogs/api/blogs.controller';
+import {
+  BlogsController,
+  BlogsSAController,
+} from './blogs/api/blogs.controller';
 import { PostsController } from './posts/api/posts.controller';
 import { UsersModule } from '../users/users.module';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -60,6 +63,7 @@ const postsProviders: Provider[] = [
   controllers: [
     BlogsController,
     PostsController,
+    BlogsSAController,
     //CommentsController
   ],
   providers: [

@@ -41,26 +41,26 @@ export class BlogsPostgresQueryRepository {
     return this._getResult(finalWhereClause, pagination, params);
   }
 
-  getAllBlogPosts(
-    pagination: Pagination,
-    blogId?: number,
-    userId?: number,
-  ): any {
-    // const filterByBlogId: FilterQuery<Post> = blogId
-    //   ? { blogId: new mongoose.Types.ObjectId(blogId) }
-    //   : {};
-    //
-    // const filter: FilterQuery<Post> = {
-    //   ...filterByBlogId,
-    // };
-
-    const whereClause: string | null = blogId ? `WHERE blogId=$1` : null;
-    const params = [blogId];
-
-    return this._getResult(whereClause, pagination, params);
-
-    // return this.__getResult(filter, pagination, userId);
-  }
+  // getAllBlogPosts(
+  //   pagination: Pagination,
+  //   blogId?: number,
+  //   userId?: number,
+  // ): any {
+  //   // const filterByBlogId: FilterQuery<Post> = blogId
+  //   //   ? { blogId: new mongoose.Types.ObjectId(blogId) }
+  //   //   : {};
+  //   //
+  //   // const filter: FilterQuery<Post> = {
+  //   //   ...filterByBlogId,
+  //   // };
+  //
+  //   const whereClause: string | null = blogId ? `WHERE blog_id=$1` : null;
+  //   const params = [blogId];
+  //
+  //   return this._getResult(whereClause, pagination, params);
+  //
+  //   // return this.__getResult(filter, pagination, userId);
+  // }
 
   // // TODO: change type any
   async _getResult(
@@ -75,6 +75,8 @@ export class BlogsPostgresQueryRepository {
       OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
       LIMIT ${pagination.pageSize}
     `;
+
+    console.log('query', query);
 
     const result = await this.dataSource.query(query, params);
     //console.log('result', result);

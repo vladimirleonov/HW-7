@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsPostgresRepository } from '../../infrastructure/postgres/blogs-postgres.repository';
+import { Result } from '../../../../../base/types/object-result';
 
 export class CreateBlogCommand {
   constructor(
@@ -16,16 +17,25 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   ) {}
 
   async execute(command: CreateBlogCommand) {
-    // const newBlog: BlogDocument = new this.blogModel({
+    const { name, description, websiteUrl } = command;
+
+    // const newBlog = new this.blogModel({
     //   name: command.name,
     //   description: command.description,
     //   websiteUrl: command.websiteUrl,
     //   createdAt: new Date(),
     //   isMembership: false,
     // });
-    //
+
     // const createdBlog: BlogDocument = await this.blogsRepository.save(newBlog);
-    //
-    // return Result.success(createdBlog.id);
+
+    const createdId: number = await this.blogsPostgresRepository.create(
+      name,
+      description,
+      websiteUrl,
+      false,
+    );
+
+    return Result.success(createdId);
   }
 }

@@ -28,9 +28,14 @@ import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guar
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { BlogsPostgresQueryRepository } from '../infrastructure/postgres/blogs-postgres.query-repository';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
-import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '../../../../core/exception-filters/http-exception-filter';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
+import { Result } from '../../../../base/types/object-result';
+import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -50,10 +55,10 @@ export class BlogsController {
     const pagination: PaginationWithSearchNameTerm =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
-    const users: PaginationOutput<BlogOutputModel> =
+    const blogs: PaginationOutput<BlogOutputModel> =
       await this.blogsPostgresQueryRepository.getAll(pagination);
 
-    return users;
+    return blogs;
   }
 
   @Get(':id')
@@ -91,7 +96,7 @@ export class BlogsController {
     );
 
     const blogPosts: PaginationOutput<PostOutputModel> =
-      await this.blogsPostgresQueryRepository.getAllBlogPosts(
+      await this.postsPostgresQueryRepository.getAllBlogPosts(
         pagination,
         blogId,
         userId,
@@ -103,24 +108,24 @@ export class BlogsController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async create(@Body() createModel: BlogCreateModel) {
-    // const { name, description, websiteUrl } = createModel;
-    //
-    // const result: Result<string> = await this.commandBus.execute<
-    //   CreateBlogCommand,
-    //   Result<string>
-    // >(new CreateBlogCommand(name, description, websiteUrl));
-    //
-    // const createdId: string = result.data;
-    //
-    // const createdBlog: BlogOutputModel | null =
-    //   await this.blogsQueryRepository.findById(createdId);
-    //
-    // if (!createdBlog) {
-    //   // error if just created blog not found
-    //   throw new InternalServerErrorException();
-    // }
-    //
-    // return createdBlog;
+    const { name, description, websiteUrl } = createModel;
+
+    const result: Result<number> = await this.commandBus.execute<
+      CreateBlogCommand,
+      Result<number>
+    >(new CreateBlogCommand(name, description, websiteUrl));
+
+    const createdId: number = result.data;
+
+    const createdBlog: BlogOutputModel | null =
+      await this.blogsPostgresQueryRepository.findById(createdId);
+
+    if (!createdBlog) {
+      // error if just created blog not found
+      throw new InternalServerErrorException();
+    }
+
+    return createdBlog;
   }
 
   @Post(':blogId/posts')
@@ -183,5 +188,44 @@ export class BlogsController {
     // if (result.status === ResultStatus.NotFound) {
     //   throw new NotFoundException(result.errorMessage!);
     // }
+  }
+}
+
+@Controller('sa/blogs')
+@UseGuards(BasicAuthGuard)
+export class BlogsSAController {
+  constructor(
+    private readonly blogsPostgresQueryRepository: BlogsPostgresQueryRepository,
+    private readonly commandBus: CommandBus,
+  ) {}
+
+  @Get()
+  async getAll(@Query() query: any) {
+    const pagination: PaginationWithSearchNameTerm =
+      new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
+
+    const blogs = await this.blogsPostgresQueryRepository.getAll(pagination);
+
+    return blogs;
+  }
+
+  @Post()
+  async create(@Body() createModel: BlogCreateModel) {
+    const { name, description, websiteUrl } = createModel;
+
+    const result: Result<number> = await this.commandBus.execute(
+      new CreateBlogCommand(name, description, websiteUrl),
+    );
+
+    const createdId: number = result.data;
+
+    const createdBlog: BlogOutputModel | null =
+      await this.blogsPostgresQueryRepository.findById(createdId);
+
+    if (!createdBlog) {
+      throw new InternalServerErrorException();
+    }
+
+    return createdBlog;
   }
 }
