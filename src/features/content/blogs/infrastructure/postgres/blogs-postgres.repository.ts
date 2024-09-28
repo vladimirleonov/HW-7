@@ -11,6 +11,19 @@ export class BlogsPostgresRepository {
   //   return blog.save();
   // }
 
+  async findById(id: number): Promise<any> {
+    //return this.blogModel.findById(id);
+
+    const query: string = `
+      SELECT * FROM blogs
+      WHERE id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    return result.length > 0 ? BlogOutputModelMapper(result[0]) : null;
+  }
+
   async create(
     name: string,
     description: string,
@@ -24,8 +37,6 @@ export class BlogsPostgresRepository {
       RETURNING id;
     `;
 
-    console.log('query', query);
-
     const result = await this.dataSource.query(query, [
       name,
       description,
@@ -38,13 +49,37 @@ export class BlogsPostgresRepository {
     return createdId;
   }
 
-  // async findById(id: string): Promise<BlogDocument | null> {
-  //   return this.blogModel.findById(id);
-  // }
-  //
-  // async delete(id: string): Promise<boolean> {
-  //   const result = await this.blogModel.deleteOne({ _id: id });
-  //
-  //   return result.deletedCount === 1;
-  // }
+  async update(
+    id: number,
+    name: string,
+    description: string,
+    websiteUrl: string,
+  ) {
+    const query: string = `
+      UPDATE blogs
+      SET name = $1, description = $2, website_url = $3
+      WHERE id = $4
+    `;
+
+    await this.dataSource.query(query, [name, description, websiteUrl, id]);
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const query: string = `
+      DELETE FROM blogs
+      WHERE id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    const deletedCount = result[1];
+
+    return deletedCount > 0;
+
+    // const deletedCount: string = result[0]
+
+    // const result = await this.blogModel.deleteOne({ _id: id });
+    //
+    // return result.deletedCount === 1;
+  }
 }

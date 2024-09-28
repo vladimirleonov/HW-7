@@ -1,13 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
 import { BlogsPostgresRepository } from '../../../blogs/infrastructure/postgres/blogs-postgres.repository';
+import { Result } from '../../../../../base/types/object-result';
 
 export class CreatePostCommand {
   constructor(
     public readonly title: string,
     public readonly shortDescription: string,
     public readonly content: string,
-    public readonly blogId: string,
+    public readonly blogId: number,
   ) {}
 }
 
@@ -19,14 +20,21 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
   ) {}
 
   async execute(command: CreatePostCommand) {
-    // const blog: BlogDocument | null = await this.blogsRepository.findById(
-    //   command.blogId,
-    // );
-    //
-    // if (!blog) {
-    //   return Result.notFound(`Blog with id ${command.blogId} not found`);
-    // }
-    //
+    const { title, shortDescription, content, blogId } = command;
+
+    const blog = await this.blogsPostgresRepository.findById(command.blogId);
+
+    if (!blog) {
+      return Result.notFound(`Blog with id ${command.blogId} not found`);
+    }
+
+    const createdId: number = await this.postsPostgresRepository.create(
+      title,
+      shortDescription,
+      content,
+      blogId,
+    );
+
     // const post: PostDocument = new this.postModel({
     //   title: command.title,
     //   shortDescription: command.shortDescription,
@@ -38,9 +46,9 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     //   dislikesCount: 0,
     //   createdAt: new Date(),
     // }) as PostDocument;
-    //
-    // await this.postsRepository.save(post);
-    //
-    // return Result.success(post.id);
+
+    // await this.postsPostgresRepository.save(post);
+
+    return Result.success(createdId);
   }
 }
