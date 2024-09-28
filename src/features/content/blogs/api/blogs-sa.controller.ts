@@ -15,7 +15,11 @@ import {
 import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
 import { BlogsPostgresQueryRepository } from '../infrastructure/postgres/blogs-postgres.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
-import { PaginationWithSearchNameTerm } from '../../../../base/models/pagination.base.model';
+import {
+  Pagination,
+  PaginationOutput,
+  PaginationWithSearchNameTerm,
+} from '../../../../base/models/pagination.base.model';
 import { BlogCreateModel } from './models/input/create-blog.input.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase';
@@ -31,6 +35,10 @@ import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase'
 import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
+import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
+import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
+import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
+import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -103,6 +111,36 @@ export class BlogsSAController {
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();
     }
+  }
+
+  @Get(':blogId/posts')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getAllBlogPosts(
+    @Query() query: any,
+    @OptionalUserId() userId: number,
+    @Param('blogId', new ParseIntPipe()) blogId: number,
+  ) {
+    console.log('OK!!!');
+    // TODO: ask if is it ok?
+    const blog: BlogOutputModel | null =
+      await this.blogsPostgresQueryRepository.findById(blogId);
+
+    if (!blog) {
+      throw new NotFoundException(`Blog with id ${blogId} not found`);
+    }
+
+    const pagination: Pagination = new Pagination(
+      query,
+      POSTS_SORTING_PROPERTIES,
+    );
+
+    const blogPosts: PaginationOutput<PostOutputModel> =
+      await this.postsPostgresQueryRepository.getAllBlogPosts(
+        pagination,
+        blogId,
+      );
+
+    return blogPosts;
   }
 
   @Post(':blogId/posts')
