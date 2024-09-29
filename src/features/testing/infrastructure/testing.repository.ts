@@ -11,6 +11,8 @@ export class TestingRepository {
       'password_recovery',
       'device',
       'users',
+      'blogs',
+      'posts',
     ];
 
     for (const table of tables) {

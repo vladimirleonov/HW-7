@@ -12,7 +12,7 @@ export class BlogOutputModel {
 export const BlogOutputModelMapper = (blog): BlogOutputModel => {
   const outputModel: BlogOutputModel = new BlogOutputModel();
 
-  outputModel.id = blog.id;
+  outputModel.id = blog.id.toString();
   outputModel.name = blog.name;
   outputModel.description = blog.description;
   outputModel.createdAt = blog.created_at;

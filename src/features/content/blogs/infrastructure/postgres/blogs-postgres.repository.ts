@@ -54,14 +54,21 @@ export class BlogsPostgresRepository {
     name: string,
     description: string,
     websiteUrl: string,
-  ) {
+  ): Promise<boolean> {
     const query: string = `
       UPDATE blogs
       SET name = $1, description = $2, website_url = $3
       WHERE id = $4
     `;
 
-    await this.dataSource.query(query, [name, description, websiteUrl, id]);
+    const result = await this.dataSource.query(query, [
+      name,
+      description,
+      websiteUrl,
+      id,
+    ]);
+
+    return result[1] === 1;
   }
 
   async delete(id: number): Promise<boolean> {

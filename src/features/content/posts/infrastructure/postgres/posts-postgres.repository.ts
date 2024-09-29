@@ -10,6 +10,30 @@ export class PostsPostgresRepository {
   //   return post.save();
   // }
 
+  async findById(id: number): Promise<any> {
+    const query = `
+      SELECT * FROM posts
+      WHERE id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    return result.length > 0 ? result[0] : null;
+
+    // return this.postModel.findById(new Types.ObjectId(id));
+  }
+
+  async findByPostIdAndBlogId(postId: number, blogId: number) {
+    const query = `
+      SELECT * FROM posts
+      WHERE id = $1 AND blog_id = $2
+    `;
+
+    const result = await this.dataSource.query(query, [postId, blogId]);
+
+    return result.length > 0 ? result[0] : null;
+  }
+
   async create(
     title: string,
     shortDescription: string,
@@ -35,12 +59,42 @@ export class PostsPostgresRepository {
     return createdId;
   }
 
-  // async findById(id: string): Promise<PostDocument | null> {
-  //   return this.postModel.findById(new Types.ObjectId(id));
-  // }
-  //
-  // async delete(id: string): Promise<boolean> {
-  //   const result = await this.postModel.deleteOne({ _id: id });
-  //   return result.deletedCount === 1;
-  // }
+  async update(
+    title: string,
+    shortDescription: string,
+    content: string,
+    blogId: number,
+    postId: number,
+  ): Promise<boolean> {
+    const query: string = `
+      UPDATE posts
+      SET title=$1, short_description=$2, content=$3
+      WHERE id=$4 AND blog_id=$5
+    `;
+
+    const result = await this.dataSource.query(query, [
+      title,
+      shortDescription,
+      content,
+      postId,
+      blogId,
+    ]);
+
+    return result[1] === 1;
+  }
+
+  async delete(blogId: number, postId: number): Promise<boolean> {
+    const query: string = `
+      DELETE FROM posts
+      WHERE id=$1 AND blog_id=$2
+    `;
+
+    const result = await this.dataSource.query(query, [postId, blogId]);
+    console.log(result);
+
+    return result[1] === 1;
+
+    // const result = await this.postModel.deleteOne({ _id: id });
+    // return result.deletedCount === 1;
+  }
 }

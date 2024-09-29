@@ -40,11 +40,11 @@ export const PostOutputModelMapper = (post): PostOutputModel => {
   console.log(typeof post.created_at);
 
   const outputModel: PostOutputModel = new PostOutputModel();
-  outputModel.id = post.id;
+  outputModel.id = post.id.toString();
   outputModel.title = post.title;
   outputModel.shortDescription = post.short_description;
   outputModel.content = post.content;
-  outputModel.blogId = post.blog_id;
+  outputModel.blogId = post.blog_id.toString();
   outputModel.blogName = post.blog_name;
   outputModel.createdAt = post.created_at;
   outputModel.extendedLikesInfo = {

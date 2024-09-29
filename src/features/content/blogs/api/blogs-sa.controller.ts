@@ -36,9 +36,11 @@ import { PostForBlogCreateModel } from './models/input/create-post-for-blog.inpu
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
-import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
+import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
+import { UpdateBlogPostCommand } from '../application/use-cases/update-blog-post.usecase';
+import { DeleteBlogPostCommand } from '../application/use-cases/delete-blog-post.usecase';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -97,7 +99,9 @@ export class BlogsSAController {
       Result<any>
     >(new UpdateBlogCommand(id, name, description, websiteUrl));
 
-    console.log(result);
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException(result.errorMessage);
+    }
   }
 
   @Delete(':id')
@@ -117,10 +121,8 @@ export class BlogsSAController {
   @UseGuards(OptionalJwtAuthGuard)
   async getAllBlogPosts(
     @Query() query: any,
-    @OptionalUserId() userId: number,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
-    console.log('OK!!!');
     // TODO: ask if is it ok?
     const blog: BlogOutputModel | null =
       await this.blogsPostgresQueryRepository.findById(blogId);
@@ -149,7 +151,6 @@ export class BlogsSAController {
     @Param('blogId', new ParseIntPipe()) blogId: number,
     @Body() createModel: PostForBlogCreateModel,
   ) {
-    console.log('in createPostForBlog');
     const { title, shortDescription, content } = createModel;
 
     const result: Result<number> = await this.commandBus.execute<
@@ -170,5 +171,48 @@ export class BlogsSAController {
     }
 
     return post;
+  }
+
+  @Put(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateBlogPost(
+    @Param('blogId', new ParseIntPipe()) blogId: number,
+    @Param('postId', new ParseIntPipe()) postId: number,
+    @Body() blogPostUpdateModel: BlogPostUpdateModel,
+  ) {
+    const { title, shortDescription, content } = blogPostUpdateModel;
+
+    const result = await this.commandBus.execute<
+      UpdateBlogPostCommand,
+      Result<any>
+    >(
+      new UpdateBlogPostCommand(
+        title,
+        shortDescription,
+        content,
+        blogId,
+        postId,
+      ),
+    );
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException(result.errorMessage);
+    }
+  }
+
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlogPost(
+    @Param('blogId', new ParseIntPipe()) blogId: number,
+    @Param('postId', new ParseIntPipe()) postId: number,
+  ) {
+    const result = await this.commandBus.execute<
+      DeleteBlogPostCommand,
+      Result<any>
+    >(new DeleteBlogPostCommand(blogId, postId));
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException(result.errorMessage);
+    }
   }
 }

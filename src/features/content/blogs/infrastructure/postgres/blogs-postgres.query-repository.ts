@@ -41,6 +41,24 @@ export class BlogsPostgresQueryRepository {
     return this._getResult(finalWhereClause, pagination, params);
   }
 
+  async findById(id: number) {
+    const query: string = `
+      SELECT * FROM blogs
+      WHERE id = $1
+    `;
+
+    const result: string = await this.dataSource.query(query, [id]);
+
+    return result.length > 0 ? BlogOutputModelMapper(result[0]) : null;
+
+    // const blog: BlogDocument | null = await this.blogModel.findById(id);
+    //
+    // if (blog === null) {
+    //   return null;
+    // }
+    // return BlogOutputModelMapper(blog);
+  }
+
   // getAllBlogPosts(
   //   pagination: Pagination,
   //   blogId?: number,
@@ -91,7 +109,7 @@ export class BlogsPostgresQueryRepository {
     // console.log('countResult', countResult);
     const totalCount: number = Number(countResult[0].count);
 
-    const mappedBlogs = result.map(BlogOutputModelMapper);
+    const mappedBlogs: any[] = result.map(BlogOutputModelMapper);
 
     return new PaginationOutput<BlogOutputModel>(
       mappedBlogs,
@@ -117,23 +135,5 @@ export class BlogsPostgresQueryRepository {
     //   pagination.pageSize,
     //   totalCount,
     // );
-  }
-
-  async findById(id: number) {
-    const query: string = `
-      SELECT * FROM blogs
-      WHERE id = $1
-    `;
-
-    const result: string = await this.dataSource.query(query, [id]);
-
-    return result.length > 0 ? BlogOutputModelMapper(result[0]) : null;
-
-    // const blog: BlogDocument | null = await this.blogModel.findById(id);
-    //
-    // if (blog === null) {
-    //   return null;
-    // }
-    // return BlogOutputModelMapper(blog);
   }
 }

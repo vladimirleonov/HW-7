@@ -17,12 +17,16 @@ import { BlogsPostgresQueryRepository } from './blogs/infrastructure/postgres/bl
 import { PostsPostgresRepository } from './posts/infrastructure/postgres/posts-postgres.repository';
 import { PostsPostgresQueryRepository } from './posts/infrastructure/postgres/posts-postgres.query-repository';
 import { BlogsSAController } from './blogs/api/blogs-sa.controller';
+import { UpdateBlogPostUseCase } from './blogs/application/use-cases/update-blog-post.usecase';
+import { DeleteBlogPostUseCase } from './blogs/application/use-cases/delete-blog-post.usecase';
 
 const blogsProviders: Provider[] = [
   // use cases
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
+  UpdateBlogPostUseCase,
+  DeleteBlogPostUseCase,
 
   // repositories
   BlogsPostgresRepository,

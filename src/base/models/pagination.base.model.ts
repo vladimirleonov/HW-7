@@ -1,4 +1,5 @@
 import { ParsedQs } from 'qs';
+import { toSnakeCase } from '../../core/utils/camel-case-to-snake-case';
 
 export class PaginationOutput<D> {
   public readonly pagesCount: number;
@@ -69,13 +70,13 @@ export class Pagination {
         const param = querySortBy[i];
 
         if (sortProperties.includes(param.toString())) {
-          result = param.toString();
+          result = toSnakeCase(param.toString());
           break;
         }
       }
     } else {
       if (sortProperties.includes(querySortBy.toString())) {
-        result = querySortBy.toString();
+        result = toSnakeCase(querySortBy.toString());
       }
     }
 
