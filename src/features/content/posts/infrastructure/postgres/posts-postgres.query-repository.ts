@@ -16,8 +16,6 @@ export class PostsPostgresQueryRepository {
 
   getAllPosts(pagination: Pagination, userId?: string): any {
     return this.__getResult('', pagination, userId);
-
-    //return this.__getResult({}, pagination, userId);
   }
 
   // getAllBlogPosts(
@@ -46,14 +44,6 @@ export class PostsPostgresQueryRepository {
     blogId?: number,
     userId?: number,
   ): any {
-    // const filterByBlogId: FilterQuery<Post> = blogId
-    //   ? { blogId: new mongoose.Types.ObjectId(blogId) }
-    //   : {};
-
-    // const filter: FilterQuery<Post> = {
-    //   ...filterByBlogId,
-    // };
-
     const whereClause: string = blogId ? `WHERE blog_id=$1` : '';
     const params = [blogId];
 
@@ -67,14 +57,6 @@ export class PostsPostgresQueryRepository {
     userId?: string,
     params: any = [],
   ): Promise<PaginationOutput<PostOutputModel>> {
-    // const posts = await this.postModel
-    //   .find(filter)
-    //   .sort({
-    //     [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
-    //   })
-    //   .skip(pagination.getSkipItemsCount())
-    //   .limit(pagination.pageSize);
-
     const query = `
       SELECT p.*, b.name as blog_name
       FROM posts p
@@ -86,10 +68,7 @@ export class PostsPostgresQueryRepository {
       LIMIT ${pagination.pageSize}
     `;
 
-    console.log('query', query);
-    console.log('params', params);
     const result = await this.dataSource.query(query, params);
-    console.log('result', result);
 
     const countQuery = `
       SELECT count(*) as count 
@@ -97,7 +76,7 @@ export class PostsPostgresQueryRepository {
     `;
 
     const countResult = await this.dataSource.query(countQuery);
-    console.log(countResult);
+
     const totalCount: number = Number(countResult[0].count);
 
     const mappedPosts = result.map(PostOutputModelMapper);
@@ -108,19 +87,6 @@ export class PostsPostgresQueryRepository {
       pagination.pageSize,
       totalCount,
     );
-
-    // const totalCount: number = await this.postModel.countDocuments(filter);
-
-    // const mappedPosts = await Promise.all(
-    //   posts.map((post) => PostOutputModelMapper(post, userId, this.userModel)),
-    // );
-
-    // return new PaginationOutput<PostOutputModel>(
-    //   mappedPosts,
-    //   pagination.pageNumber,
-    //   pagination.pageSize,
-    //   totalCount,
-    // );
   }
 
   async findById(id: number, userId?: number): Promise<PostOutputModel | null> {
@@ -135,12 +101,5 @@ export class PostsPostgresQueryRepository {
     const result = await this.dataSource.query(query, [id]);
 
     return result.length > 0 ? PostOutputModelMapper(result[0]) : null;
-
-    // const post: PostDocument | null = await this.postModel.findById(id); // automatically converts string to ObjectId
-    //
-    // if (post === null) {
-    //   return null;
-    // }
-    // return PostOutputModelMapper(post, userId, this.userModel);
   }
 }

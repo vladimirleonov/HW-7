@@ -6,10 +6,6 @@ import { DataSource } from 'typeorm';
 export class PostsPostgresRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {} //@InjectModel(Post.name) private postModel: Model<Post>
 
-  // async save(post: PostDocument): Promise<PostDocument> {
-  //   return post.save();
-  // }
-
   async findById(id: number): Promise<any> {
     const query = `
       SELECT * FROM posts
@@ -19,8 +15,6 @@ export class PostsPostgresRepository {
     const result = await this.dataSource.query(query, [id]);
 
     return result.length > 0 ? result[0] : null;
-
-    // return this.postModel.findById(new Types.ObjectId(id));
   }
 
   async findByPostIdAndBlogId(postId: number, blogId: number) {
@@ -90,11 +84,7 @@ export class PostsPostgresRepository {
     `;
 
     const result = await this.dataSource.query(query, [postId, blogId]);
-    console.log(result);
 
     return result[1] === 1;
-
-    // const result = await this.postModel.deleteOne({ _id: id });
-    // return result.deletedCount === 1;
   }
 }

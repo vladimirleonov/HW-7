@@ -61,7 +61,7 @@ export class BlogsSAController {
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
     const blogs = await this.blogsPostgresQueryRepository.getAll(pagination);
-    console.log(blogs);
+
     return blogs;
   }
 
@@ -74,7 +74,6 @@ export class BlogsSAController {
     );
 
     const createdId: number = result.data;
-    console.log('createdId', createdId);
 
     const createdBlog: BlogOutputModel | null =
       await this.blogsPostgresQueryRepository.findById(createdId);

@@ -33,12 +33,6 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
       websiteUrl,
     );
 
-    // blog.name = command.name;
-    // blog.description = command.description;
-    // blog.websiteUrl = command.websiteUrl;
-
-    // await this.blogsPostgresRepository.save(blog);
-
     return Result.success();
   }
 }

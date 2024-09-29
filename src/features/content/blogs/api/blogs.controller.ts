@@ -1,14 +1,10 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
-  HttpCode,
-  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
-  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -20,8 +16,6 @@ import {
 import { BlogOutputModel } from './models/output/blog.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
 import { BlogCreateModel } from './models/input/create-blog.input.model';
-import { BlogUpdateModel } from './models/input/update-blog.input.model';
-import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
 import { CommandBus } from '@nestjs/cqrs';
 import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
 import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
@@ -81,7 +75,6 @@ export class BlogsController {
     @OptionalUserId() userId: number,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
-    console.log('OK!!!');
     // TODO: ask if is it ok?
     const blog: BlogOutputModel | null =
       await this.blogsPostgresQueryRepository.findById(blogId);
@@ -128,65 +121,65 @@ export class BlogsController {
     return createdBlog;
   }
 
-  @Post(':blogId/posts')
-  @UseGuards(BasicAuthGuard)
-  async createPostForBlog(
-    @Param('blogId', new ParseIntPipe()) blogId: number,
-    @Body() createModel: PostForBlogCreateModel,
-  ) {
-    // const { title, shortDescription, content } = createModel;
-    //
-    // const result: Result<string | null> = await this.commandBus.execute<
-    //   CreatePostCommand,
-    //   Result<string | null>
-    // >(new CreatePostCommand(title, shortDescription, content, blogId));
-    //
-    // if (result.status === ResultStatus.NotFound) {
-    //   throw new NotFoundException(result.errorMessage!);
-    // }
-    //
-    // const createdId: string = result.data!;
-    //
-    // const post: PostOutputModel | null =
-    //   await this.postQueryRepository.findById(createdId);
-    //
-    // if (!post) {
-    //   throw new InternalServerErrorException();
-    // }
-    //
-    // return post;
-  }
+  // @Post(':blogId/posts')
+  // @UseGuards(BasicAuthGuard)
+  // async createPostForBlog(
+  //   @Param('blogId', new ParseIntPipe()) blogId: number,
+  //   @Body() createModel: PostForBlogCreateModel,
+  // ) {
+  //   const { title, shortDescription, content } = createModel;
+  //
+  //   const result: Result<string | null> = await this.commandBus.execute<
+  //     CreatePostCommand,
+  //     Result<string | null>
+  //   >(new CreatePostCommand(title, shortDescription, content, blogId));
+  //
+  //   if (result.status === ResultStatus.NotFound) {
+  //     throw new NotFoundException(result.errorMessage!);
+  //   }
+  //
+  //   const createdId: string = result.data!;
+  //
+  //   const post: PostOutputModel | null =
+  //     await this.postQueryRepository.findById(createdId);
+  //
+  //   if (!post) {
+  //     throw new InternalServerErrorException();
+  //   }
+  //
+  //   return post;
+  // }
 
-  @Put(':id')
-  @UseGuards(BasicAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async update(
-    @Param('id', new ParseIntPipe()) id: number,
-    @Body() updateModel: BlogUpdateModel,
-  ) {
-    // const { name, description, websiteUrl } = updateModel;
-    //
-    // const result: Result = await this.commandBus.execute<
-    //   UpdateBlogCommand,
-    //   Result
-    // >(new UpdateBlogCommand(id, name, description, websiteUrl));
-    //
-    // if (result.status === ResultStatus.NotFound) {
-    //   throw new NotFoundException(result.errorMessage!);
-    // }
-  }
+  // @Put(':id')
+  // @UseGuards(BasicAuthGuard)
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async update(
+  //   @Param('id', new ParseIntPipe()) id: number,
+  //   @Body() updateModel: BlogUpdateModel,
+  // ) {
+  //   const { name, description, websiteUrl } = updateModel;
+  //
+  //   const result: Result = await this.commandBus.execute<
+  //     UpdateBlogCommand,
+  //     Result
+  //   >(new UpdateBlogCommand(id, name, description, websiteUrl));
+  //
+  //   if (result.status === ResultStatus.NotFound) {
+  //     throw new NotFoundException(result.errorMessage!);
+  //   }
+  // }
 
-  @Delete(':id')
-  @UseGuards(BasicAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id', new ParseIntPipe()) id: number) {
-    // const result: Result = await this.commandBus.execute<
-    //   DeleteBlogCommand,
-    //   Result
-    // >(new DeleteBlogCommand(id));
-    //
-    // if (result.status === ResultStatus.NotFound) {
-    //   throw new NotFoundException(result.errorMessage!);
-    // }
-  }
+  // @Delete(':id')
+  // @UseGuards(BasicAuthGuard)
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async delete(@Param('id', new ParseIntPipe()) id: number) {
+  //   const result: Result = await this.commandBus.execute<
+  //     DeleteBlogCommand,
+  //     Result
+  //   >(new DeleteBlogCommand(id));
+  //
+  //   if (result.status === ResultStatus.NotFound) {
+  //     throw new NotFoundException(result.errorMessage!);
+  //   }
+  // }
 }

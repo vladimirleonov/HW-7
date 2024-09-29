@@ -35,20 +35,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       blogId,
     );
 
-    // const post: PostDocument = new this.postModel({
-    //   title: command.title,
-    //   shortDescription: command.shortDescription,
-    //   content: command.content,
-    //   blogId: new mongoose.Types.ObjectId(command.blogId),
-    //   blogName: blog.name,
-    //   likes: [],
-    //   likesCount: 0,
-    //   dislikesCount: 0,
-    //   createdAt: new Date(),
-    // }) as PostDocument;
-
-    // await this.postsPostgresRepository.save(post);
-
     return Result.success(createdId);
   }
 }

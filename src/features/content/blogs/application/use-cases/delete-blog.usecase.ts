@@ -23,14 +23,5 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
         `Blog with id ${command.id} could not be found or deleted`,
       );
     }
-
-    // const isDeleted: boolean = await this.blogsRepository.delete(command.id);
-    // if (isDeleted) {
-    //   return Result.success();
-    // } else {
-    //   return Result.notFound(
-    //     `Blog with id ${command.id} could not be found or deleted`,
-    //   );
-    // }
   }
 }

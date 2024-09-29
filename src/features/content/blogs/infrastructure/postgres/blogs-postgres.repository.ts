@@ -7,13 +7,7 @@ import { BlogOutputModelMapper } from '../../api/models/output/blog.output.model
 export class BlogsPostgresRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  // async save(blog: BlogDocument): Promise<BlogDocument> {
-  //   return blog.save();
-  // }
-
   async findById(id: number): Promise<any> {
-    //return this.blogModel.findById(id);
-
     const query: string = `
       SELECT * FROM blogs
       WHERE id = $1
@@ -82,11 +76,5 @@ export class BlogsPostgresRepository {
     const deletedCount = result[1];
 
     return deletedCount > 0;
-
-    // const deletedCount: string = result[0]
-
-    // const result = await this.blogModel.deleteOne({ _id: id });
-    //
-    // return result.deletedCount === 1;
   }
 }

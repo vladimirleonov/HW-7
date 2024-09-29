@@ -18,16 +18,6 @@ export class BlogsPostgresQueryRepository {
   async getAll(
     pagination: PaginationWithSearchNameTerm,
   ): Promise<PaginationOutput<BlogOutputModel>> {
-    // const searchNameTermFilter: FilterQuery<Blog> = pagination.searchNameTerm
-    //   ? { name: { $regex: pagination.searchNameTerm, $options: 'i' } }
-    //   : {};
-
-    // const orFilters: FilterQuery<Blog>[] = [searchNameTermFilter].filter(
-    //   (filter: FilterQuery<Blog>) => Object.keys(filter).length > 0,
-    // );
-
-    // const filter = orFilters.length > 0 ? { $or: orFilters } : {};
-
     let whereClause: string = '';
     const params: string[] = [];
 
@@ -50,37 +40,8 @@ export class BlogsPostgresQueryRepository {
     const result: string = await this.dataSource.query(query, [id]);
 
     return result.length > 0 ? BlogOutputModelMapper(result[0]) : null;
-
-    // const blog: BlogDocument | null = await this.blogModel.findById(id);
-    //
-    // if (blog === null) {
-    //   return null;
-    // }
-    // return BlogOutputModelMapper(blog);
   }
 
-  // getAllBlogPosts(
-  //   pagination: Pagination,
-  //   blogId?: number,
-  //   userId?: number,
-  // ): any {
-  //   // const filterByBlogId: FilterQuery<Post> = blogId
-  //   //   ? { blogId: new mongoose.Types.ObjectId(blogId) }
-  //   //   : {};
-  //   //
-  //   // const filter: FilterQuery<Post> = {
-  //   //   ...filterByBlogId,
-  //   // };
-  //
-  //   const whereClause: string | null = blogId ? `WHERE blog_id=$1` : null;
-  //   const params = [blogId];
-  //
-  //   return this._getResult(whereClause, pagination, params);
-  //
-  //   // return this.__getResult(filter, pagination, userId);
-  // }
-
-  // // TODO: change type any
   async _getResult(
     filter: any,
     pagination: Pagination,
@@ -94,10 +55,7 @@ export class BlogsPostgresQueryRepository {
       LIMIT ${pagination.pageSize}
     `;
 
-    console.log('query', query);
-
     const result = await this.dataSource.query(query, params);
-    //console.log('result', result);
 
     // count docs
     const countQuery: string = `
@@ -106,7 +64,7 @@ export class BlogsPostgresQueryRepository {
     `;
 
     const countResult = await this.dataSource.query(countQuery, params);
-    // console.log('countResult', countResult);
+
     const totalCount: number = Number(countResult[0].count);
 
     const mappedBlogs: any[] = result.map(BlogOutputModelMapper);
@@ -117,23 +75,5 @@ export class BlogsPostgresQueryRepository {
       pagination.pageSize,
       totalCount,
     );
-
-    // const blogs: BlogDocument[] = await this.blogModel
-    //   .find(filter)
-    //   .sort({
-    //     [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
-    //   })
-    //   .skip(pagination.getSkipItemsCount())
-    //   .limit(pagination.pageSize);
-    //
-    // const totalCount: number = await this.blogModel.countDocuments(filter);
-    // const mappedBlogs: BlogOutputModel[] = blogs.map(BlogOutputModelMapper);
-    //
-    // return new PaginationOutput<BlogOutputModel>(
-    //   mappedBlogs,
-    //   pagination.pageNumber,
-    //   pagination.pageSize,
-    //   totalCount,
-    // );
   }
 }
