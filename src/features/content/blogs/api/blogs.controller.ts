@@ -17,7 +17,7 @@ import { BlogOutputModel } from './models/output/blog.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
 import { BlogCreateModel } from './models/input/create-blog.input.model';
 import { CommandBus } from '@nestjs/cqrs';
-import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
+import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { BlogsPostgresQueryRepository } from '../infrastructure/postgres/blogs-postgres.query-repository';

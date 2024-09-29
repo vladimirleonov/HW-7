@@ -69,7 +69,7 @@ export class CustomExceptionFilter implements ExceptionFilter {
       { infer: true },
     );
 
-    console.log('exception filter custom error');
+    console.log('Custom error');
 
     if (status === HttpStatus.BAD_REQUEST) {
       const errorsResponse = {

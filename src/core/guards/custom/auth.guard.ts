@@ -9,15 +9,15 @@
 // import { Result, ResultStatus } from '../../base/types/object-result';
 // import { AuthService } from '../../features/auth/application/auth.service';
 //
-// // interface ExtendedJwtPayload extends JwtPayload {
-// //   userId: string;
-// // }
-// //
-// // export interface RequestWithUser extends Request {
-// //   user: {
-// //     userId: string;
-// //   };
-// // }
+// interface ExtendedJwtPayload extends JwtPayload {
+//   userId: string;
+// }
+//
+// export interface RequestWithUser extends Request {
+//   user: {
+//     userId: string;
+//   };
+// }
 //
 // @Injectable()
 // export class AuthGuard implements CanActivate {

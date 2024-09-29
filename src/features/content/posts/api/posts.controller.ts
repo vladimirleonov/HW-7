@@ -10,7 +10,7 @@ import { PostOutputModel } from './models/output/post.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
 import { CommandBus } from '@nestjs/cqrs';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
-import { OptionalUserId } from '../../../../core/decorators/param/current-user-optional-user-id.param.decorator';
+import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { PostsPostgresQueryRepository } from '../infrastructure/postgres/posts-postgres.query-repository';
 import {
   Pagination,

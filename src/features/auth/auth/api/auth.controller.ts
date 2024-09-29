@@ -20,9 +20,9 @@ import { AuthMeOutputModel } from './models/output/auth-me.output';
 import { UsersPostgresQueryRepository } from '../../../users/infrastructure/postgresql/users-postgres.query-repository';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
-import { CurrentUserId } from '../../../../core/decorators/param/current-user-id.param.decorator';
-import { CurrentDeviceId } from '../../../../core/decorators/param/current-device-id.param.decorator';
-import { CurrentDeviceIat } from '../../../../core/decorators/param/current-device-iat.param.decorator';
+import { CurrentUserId } from '../../../../core/decorators/param-decorators/current-user-id.param.decorator';
+import { CurrentDeviceId } from '../../../../core/decorators/param-decorators/current-device-id.param.decorator';
+import { CurrentDeviceIat } from '../../../../core/decorators/param-decorators/current-device-iat.param.decorator';
 import {
   BadRequestException,
   UnauthorizedException,
@@ -39,11 +39,11 @@ import { LogoutCommand } from '../application/use-cases/logout';
 import { RegistrationEmailResendingCommand } from '../application/use-cases/registration-email-resending.usecase';
 import { ConfirmRegistrationCommand } from '../application/use-cases/confirm-registration.usecase';
 import { RefreshTokenAuthGuard } from '../../../../core/guards/passport/refresh-token-auth.guard';
-import { CurrentUserIdFromDevice } from '../../../../core/decorators/param/current-user-id-from-device.param.decorator';
+import { CurrentUserIdFromDevice } from '../../../../core/decorators/param-decorators/current-user-id-from-device.param.decorator';
 import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usecase';
-import { Cookie } from '../../../../core/decorators/param/cookie.param.decorator';
+import { Cookie } from '../../../../core/decorators/param-decorators/cookie.param.decorator';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
-import { UserAgent } from '../../../../core/decorators/param/user-agent.param.decorator';
+import { UserAgent } from '../../../../core/decorators/param-decorators/user-agent.param.decorator';
 import { LoginModel } from './models/input/login.input.model';
 
 @UseGuards(ThrottlerGuard)
