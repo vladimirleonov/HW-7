@@ -5,8 +5,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 @Injectable()
 export class UsersPostgresRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
-  // async save(user: UserDocument): Promise<> {}
-  //
+
   async findById(id: string) {
     const query: string = `
       SELECT 
@@ -78,7 +77,6 @@ export class UsersPostgresRepository {
   }
 
   async findUserByRecoveryCode(recoveryCode: string): Promise<any> {
-    console.log('recoveryCode', recoveryCode);
     const query: string = `
       SELECT 
         u.id, 

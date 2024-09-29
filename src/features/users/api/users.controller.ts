@@ -44,13 +44,13 @@ export class UsersController {
   @Get()
   // TODO: change type any
   async getAll(@Query() query: any) {
+    console.log(query);
+
     const pagination: PaginationWithSearchLoginAndEmailTerm =
       new PaginationWithSearchLoginAndEmailTerm(
         query,
         USERS_SORTING_PROPERTIES,
       );
-
-    console.log(pagination);
 
     const users: PaginationOutput<any> =
       await this.usersPostgresqlQueryRepository.getAll(pagination);

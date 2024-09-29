@@ -36,7 +36,6 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     ]);
 
     if (foundUserByLogin) {
-      // return Result.badRequest('User already exists');
       return Result.badRequest([
         {
           message: 'User already exists',
@@ -46,7 +45,6 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     }
 
     if (foundUserByEmail) {
-      // return Result.badRequest('User already exists');
       return Result.badRequest([
         {
           message: 'User already exists',
