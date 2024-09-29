@@ -23,7 +23,6 @@ export class PasswordRecoveryUseCase
     const { email } = command;
 
     const existingUser = await this.usersPostgresRepository.findByEmail(email);
-    // console.log('existingUser', existingUser);
     if (!existingUser) {
       return Result.notFound(`User with email ${email} does not exist`);
     }
@@ -34,18 +33,11 @@ export class PasswordRecoveryUseCase
       minutes: 30,
     });
 
-    // console.log('expirationDate', expirationDate);
-
     await this.usersPostgresRepository.updatePasswordRecoveryData(
       recoveryCode,
       expirationDate,
       existingUser.id,
     );
-
-    // existingUser.passwordRecovery.recoveryCode = recoveryCode;
-    // existingUser.passwordRecovery.expirationDate = expirationDate;
-
-    //await this.usersPostgresRepository.save(existingUser);
 
     this.nodemailerService.sendEmail(
       email,

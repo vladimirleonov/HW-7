@@ -25,11 +25,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   ) {}
 
   async execute(command: LoginCommand) {
-    // console.log(
-    //   this.jwtService.verify(command.refreshToken, {
-    //     secret: 'secret',
-    //   }),
-    // );
     if (command.refreshToken) {
       try {
         this.jwtService.verify(command.refreshToken);
@@ -45,8 +40,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     const user: any = await this.usersPostgresRepository.findById(
       command.userId,
     );
-
-    // console.log('login user', user);
 
     if (!user) {
       return Result.unauthorized('User not found');
@@ -102,17 +95,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
         ip,
         unixToISOString(exp),
       );
-
-      // const newDevice = new this.DeviceModel({
-      //   userId: command.userId,
-      //   deviceId: decodedRefreshToken.deviceId,
-      //   iat: unixToISOString(iat),
-      //   deviceName: deviceName,
-      //   ip: ip,
-      //   exp: unixToISOString(exp),
-      // });
-
-      // await this.devicesPostgresRepository.save(newDevice);
 
       return Result.success({
         accessToken,

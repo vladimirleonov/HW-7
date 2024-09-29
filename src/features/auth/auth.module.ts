@@ -40,7 +40,6 @@ const authProviders: Provider[] = [
   AuthService,
 
   // repository
-  // ApiAccessLogsRepository,
 
   // strategies
   LocalStrategy,
@@ -56,7 +55,6 @@ const securityProviders: Provider[] = [
   TerminateUserDeviceUseCase,
 
   // service
-  // SecurityService,
 
   // repositories
   DevicesPostgresRepository,
@@ -64,15 +62,7 @@ const securityProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [
-    CqrsModule,
-    // MongooseModule.forFeature([
-    //   { name: User.name, schema: UserSchema },
-    //   { name: Device.name, schema: DeviceSchema },
-    //   { name: ApiAccessLog.name, schema: ApiAccessLogSchema },
-    // ]),
-    UsersModule,
-  ],
+  imports: [CqrsModule, UsersModule],
   controllers: [AuthController, SecurityController],
   providers: [
     ...authProviders,

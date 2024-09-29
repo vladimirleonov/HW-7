@@ -32,8 +32,6 @@ export class SecurityController {
     @CurrentDeviceId() deviceId: string,
     @CurrentUserIdFromDevice() userId: number,
   ) {
-    // console.log('userId', userId);
-    // console.log('deviceId', deviceId);
     const userDevices =
       await this.devicesPostgresQueryRepository.findAllForOutputByUserId(
         userId,
@@ -52,8 +50,6 @@ export class SecurityController {
       new TerminateAllOtherUserDevicesCommand(deviceId, userId),
     );
 
-    // const result: Result =
-    //   await this.securityService.terminateAllOtherDeviceSessions(dto);
     if (result.status === ResultStatus.Success) {
       return;
     }

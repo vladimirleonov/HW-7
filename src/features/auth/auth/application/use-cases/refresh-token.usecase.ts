@@ -65,10 +65,6 @@ export class RefreshTokenUseCase implements ICommandHandler {
 
       await this.devicesPostgresRepository.updateIat(deviceId, issuedAt);
 
-      //device.iat = issuedAt;
-
-      //await this.devicesRepository.save(device);
-
       return Result.success({
         accessToken,
         refreshToken,

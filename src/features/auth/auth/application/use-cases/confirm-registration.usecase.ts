@@ -21,7 +21,6 @@ export class ConfirmRegistrationUseCase
       await this.usersPostgresRepository.findUserByConfirmationCode(code);
 
     if (!existingUser) {
-      // return Result.badRequest('Invalid confirmation code');
       return Result.badRequest([
         {
           message: 'Invalid confirmation code',
@@ -31,7 +30,6 @@ export class ConfirmRegistrationUseCase
     }
 
     if (existingUser.emailConfirmationExpirationDat < new Date()) {
-      // return Result.badRequest('Confirmation code has expired');
       return Result.badRequest([
         {
           message: 'Confirmation code has expired',
@@ -40,13 +38,7 @@ export class ConfirmRegistrationUseCase
       ]);
     }
 
-    console.log(
-      'existingUser.emailConfirmationIsEmailConfirmed',
-      existingUser.emailConfirmationIsEmailConfirmed,
-    );
-
     if (existingUser.emailConfirmationIsEmailConfirmed) {
-      // return Result.badRequest('User account already confirmed');
       return Result.badRequest([
         {
           message: 'Email already confirmed',
@@ -58,10 +50,6 @@ export class ConfirmRegistrationUseCase
     const userId: number = existingUser.id;
 
     await this.usersPostgresRepository.updateIsConfirmed(true, userId);
-
-    // existingUser.emailConfirmation.isConfirmed = true;
-
-    // await this.usersPostgresRepository.save(existingUser);
 
     return Result.success();
   }

@@ -35,10 +35,7 @@ export class RegistrationUseCase
       this.usersPostgresRepository.findByEmail(email),
     ]);
 
-    // const userByLogin = await this.usersPostgresRepository.findByLogin(login);
-
     if (userByLogin) {
-      // return Result.badRequest('User with such credentials already exists');
       return Result.badRequest([
         {
           message: 'User with such credentials already exists',
@@ -47,10 +44,7 @@ export class RegistrationUseCase
       ]);
     }
 
-    // const userByEmail = await this.usersPostgresRepository.findByEmail(email);
-
     if (userByEmail) {
-      // return Result.badRequest('User with such credentials already exists');
       return Result.badRequest([
         {
           message: 'User with such credentials already exists',
@@ -64,27 +58,6 @@ export class RegistrationUseCase
       password,
       saltRounds,
     );
-
-    // TODO: correct user with nested schema
-    // const newUser: UserDocument = new this.UserModel({
-    //   login: login,
-    //   password: passwordHash,
-    //   email: email,
-    //   createdAt: new Date(),
-    //   emailConfirmation: {
-    //     confirmationCode: randomUUID(),
-    //     expirationDate: add(new Date(), {
-    //       hours: 1,
-    //       minutes: 30,
-    //     }),
-    //     isConfirmed: false,
-    //   },
-    //   // TODO: can set default value in schema not to write '' here
-    //   passwordRecovery: {
-    //     recoveryCode: '',
-    //     expirationDate: '',
-    //   },
-    // });
 
     const createdUser: any = await this.usersPostgresRepository.create(
       login,
@@ -103,8 +76,6 @@ export class RegistrationUseCase
         expirationDate: new Date(),
       },
     );
-
-    // await this.userRepository.save(newUser);
 
     this.nodemailerService.sendEmail(
       createdUser.email,

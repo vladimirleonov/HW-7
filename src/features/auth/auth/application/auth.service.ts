@@ -13,7 +13,7 @@ export class AuthService {
   async validateUserByLoginOrEmailAndPassword(
     loginOrEmail: string,
     password: string,
-  ): Promise<Result<string>> {
+  ): Promise<Result<number>> {
     const user =
       await this.usersPostgresRepository.findByLoginOrEmailField(loginOrEmail);
 

@@ -34,7 +34,6 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler {
 
     // hw-9 error in test -> comment this code
     if (existingUser.emailConfirmationIsEmailConfirmed) {
-      // return Result.badRequest('Email already confirmed');
       return Result.badRequest([
         {
           message: 'Email already confirmed',
@@ -56,11 +55,6 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler {
       expirationDate,
       userId,
     );
-
-    // existingUser.emailConfirmation.confirmationCode = confirmationCode;
-    // existingUser.emailConfirmation.expirationDate = expirationDate;
-
-    // await this.usersPostgresRepository.save(existingUser);
 
     this.nodemailerService.sendEmail(
       email,

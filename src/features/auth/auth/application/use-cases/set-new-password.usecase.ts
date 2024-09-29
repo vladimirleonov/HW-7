@@ -23,15 +23,10 @@ export class SetNewPasswordUseCase
   async execute(command: SetNewPasswordCommand): Promise<Result> {
     const { newPassword, recoveryCode } = command;
 
-    //console.log(newPassword, recoveryCode);
-
     const user =
       await this.usersPostgresRepository.findUserByRecoveryCode(recoveryCode);
 
-    //console.log('rec', user);
-
     if (!user) {
-      // return Result.badRequest('Incorrect recovery code');
       return Result.badRequest([
         {
           message: 'Incorrect recovery code',
@@ -42,9 +37,6 @@ export class SetNewPasswordUseCase
 
     const currentDate: Date = new Date();
     const expirationDate: Date = user.passwordRecoveryExpirationDate;
-
-    // console.log('currentDate', currentDate);
-    // console.log('expirationDate', expirationDate);
 
     if (expirationDate < currentDate) {
       // return Result.badRequest('Recovery code has expired');
@@ -62,20 +54,14 @@ export class SetNewPasswordUseCase
       saltRounds,
     );
 
-    // user.password = passwordHash;
-    // user.passwordRecovery.recoveryCode = ''; // set '' after successful update
-    // user.passwordRecovery.expirationDate = new Date(); // set current date after successful update
-
     const userId: number = user.id;
 
-    // console.log('pass-to');
     await this.usersPostgresRepository.updateUserPasswordHashRecoveryCodeAndExpirationDate(
       passwordHash,
       randomUUID(),
       new Date(),
       userId,
     );
-    // await this.usersPostgresRepository.save(user);
 
     return Result.success();
   }
