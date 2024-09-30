@@ -29,6 +29,7 @@ import { CommentCreateModel } from '../../comments/api/models/input/create-comme
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.usecase';
 import { CommentsPostgresQueryRepository } from '../../comments/infrastructure/postgres/comments.query-repository';
+import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -71,35 +72,35 @@ export class PostsController {
     return post;
   }
 
-  // @Get(':postId/comments')
-  // @UseGuards(OptionalJwtAuthGuard)
-  // async getPostComments(
-  //   @Param('postId', new ParseIntPipe()) postId: number,
-  //   @Query() query: any,
-  //   @OptionalUserId() userId: number,
-  // ) {
-  //   const pagination: Pagination = new Pagination(
-  //     query,
-  //     COMMENT_SORTING_PROPERTIES,
-  //   );
-  //
-  //   // TODO: CreateDecorator to check corrent postId
-  //   const post: PostOutputModel | null =
-  //     await this.postsQueryRepository.findById(postId);
-  //
-  //   if (!post) {
-  //     throw new NotFoundException();
-  //   }
-  //
-  //   const comments: PaginationOutput<PostOutputModel> =
-  //     await this.commentsQueryRepository.getAllPostComments(
-  //       pagination,
-  //       postId,
-  //       userId,
-  //     );
-  //
-  //   return comments;
-  // }
+  @Get(':postId/comments')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getPostComments(
+    @Param('postId', new ParseIntPipe()) postId: number,
+    @Query() query: any,
+    @OptionalUserId() userId: number,
+  ) {
+    const pagination: Pagination = new Pagination(
+      query,
+      COMMENT_SORTING_PROPERTIES,
+    );
+
+    // TODO: CreateDecorator to check corrent postId
+    const post: PostOutputModel | null =
+      await this.postsPostgresQueryRepository.findById(postId);
+
+    if (!post) {
+      throw new NotFoundException();
+    }
+
+    const comments: PaginationOutput<PostOutputModel> =
+      await this.commentsPostgresQueryRepository.getAllPostComments(
+        pagination,
+        postId,
+        userId,
+      );
+
+    return comments;
+  }
 
   @Post(':postId/comments')
   @UseGuards(JwtAuthGuard)

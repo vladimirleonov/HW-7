@@ -28,11 +28,14 @@
 // import { UpdateCommentLikeStatusCommand } from '../application/use-cases/update-comment-like-status.usecase';
 // import { DeleteCommentCommand } from '../application/use-cases/delete-comment.usecase';
 //
-// export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<Comment> = [
-//   'likesCount',
-//   'dislikesCount',
-//   'createdAt',
-// ];
+import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
+import { CommentOutputModel } from './models/output/comment.output.model';
+
+export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<CommentOutputModel> =
+  [
+    // 'likesCount', 'dislikesCount',
+    'createdAt',
+  ];
 //
 // @Controller('comments')
 // export class CommentsController {
