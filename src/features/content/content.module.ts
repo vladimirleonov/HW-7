@@ -19,6 +19,9 @@ import { PostsPostgresQueryRepository } from './posts/infrastructure/postgres/po
 import { BlogsSAController } from './blogs/api/blogs-sa.controller';
 import { UpdateBlogPostUseCase } from './blogs/application/use-cases/update-blog-post.usecase';
 import { DeleteBlogPostUseCase } from './blogs/application/use-cases/delete-blog-post.usecase';
+import { CreateCommentUseCase } from './comments/application/use-cases/create-comment.usecase';
+import { CommentsPostgresRepository } from './comments/infrastructure/postgres/comments.repository';
+import { CommentsPostgresQueryRepository } from './comments/infrastructure/postgres/comments.query-repository';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -48,17 +51,17 @@ const postsProviders: Provider[] = [
   PostsPostgresQueryRepository,
 ];
 
-// const commentsProviders: Provider[] = [
-//   // use cases
-//   CreateCommentUseCase,
-//   DeleteCommentUseCase,
-//   UpdateCommentUseCase,
-//   UpdateCommentLikeStatusUseCase,
-//
-//   // repositories
-//   CommentsRepository,
-//   CommentsQueryRepository,
-// ];
+const commentsProviders: Provider[] = [
+  // use cases
+  CreateCommentUseCase,
+  // DeleteCommentUseCase,
+  // UpdateCommentUseCase,
+  // UpdateCommentLikeStatusUseCase,
+
+  // repositories
+  CommentsPostgresRepository,
+  CommentsPostgresQueryRepository,
+];
 
 @Module({
   imports: [CqrsModule, AuthModule, UsersModule],
@@ -68,11 +71,7 @@ const postsProviders: Provider[] = [
     BlogsSAController,
     //CommentsController
   ],
-  providers: [
-    ...blogsProviders,
-    ...postsProviders,
-    // ...commentsProviders
-  ],
+  providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
   exports: [BlogsPostgresRepository], // Expose ContentService for other modules to use
 })
 export class ContentModule {}

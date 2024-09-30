@@ -6,7 +6,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 export class UsersPostgresRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  async findById(id: string) {
+  async findById(id: number) {
     const query: string = `
       SELECT 
         u.id, 

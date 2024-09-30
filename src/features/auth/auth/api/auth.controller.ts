@@ -135,7 +135,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Req() req: RequestWithCookies,
-    @CurrentUserId() userId: string,
+    @CurrentUserId() userId: number,
     @Cookie('refreshToken') refreshToken: string,
     @Ip() ip: string,
     @UserAgent() deviceName: string,

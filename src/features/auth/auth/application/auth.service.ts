@@ -24,7 +24,7 @@ export class AuthService {
     return Result.success(user.id);
   }
 
-  async validateUserById(id: string): Promise<Result> {
+  async validateUserById(id: number): Promise<Result> {
     const user = await this.usersPostgresRepository.findById(id);
 
     if (!user) {

@@ -9,7 +9,7 @@ import { JwtPayload } from 'jsonwebtoken';
 
 export class LoginCommand {
   constructor(
-    public readonly userId: string,
+    public readonly userId: number,
     public readonly ip: string,
     public readonly deviceName: string,
     public readonly refreshToken: string,

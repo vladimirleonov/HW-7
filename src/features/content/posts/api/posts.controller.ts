@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -16,7 +18,17 @@ import {
   Pagination,
   PaginationOutput,
 } from '../../../../base/models/pagination.base.model';
-import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '../../../../core/exception-filters/http-exception-filter';
+import { JwtAuthGuard } from '../../../../core/guards/passport/jwt-auth.guard';
+import { CurrentUserId } from '../../../../core/decorators/param-decorators/current-user-id.param.decorator';
+import { CommentCreateModel } from '../../comments/api/models/input/create-comment.input.model';
+import { Result, ResultStatus } from '../../../../base/types/object-result';
+import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.usecase';
+import { CommentsPostgresQueryRepository } from '../../comments/infrastructure/postgres/comments.query-repository';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -26,7 +38,7 @@ export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly postsPostgresQueryRepository: PostsPostgresQueryRepository,
-    // private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
   ) {}
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
@@ -89,37 +101,39 @@ export class PostsController {
   //   return comments;
   // }
 
-  // @Post(':postId/comments')
-  // @UseGuards(JwtAuthGuard)
-  // async createPostComment(
-  //   @Param('postId', new ParseIntPipe()) postId: number,
-  //   @Body() commentCreateModel: CommentCreateModel,
-  //   @CurrentUserId() userId: number,
-  // ) {
-  //   const { content } = commentCreateModel;
-  //
-  //   const result: Result<string | null> = await this.commandBus.execute(
-  //     new CreateCommentCommand(postId, content, userId),
-  //   );
-  //
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException(result.errorMessage!);
-  //   }
-  //
-  //   if (result.status === ResultStatus.Unauthorized) {
-  //     throw new UnauthorizedException();
-  //   }
-  //
-  //   const comment: CommentOutputModel | null =
-  //     await this.commentsQueryRepository.findById(result.data!, userId);
-  //
-  //   if (!comment) {
-  //     //error if just created comment not found
-  //     throw new InternalServerErrorException();
-  //   }
-  //
-  //   return comment;
-  // }
+  @Post(':postId/comments')
+  @UseGuards(JwtAuthGuard)
+  async createPostComment(
+    @Param('postId', new ParseIntPipe()) postId: number,
+    @Body() commentCreateModel: CommentCreateModel,
+    @CurrentUserId() userId: number,
+  ) {
+    const { content } = commentCreateModel;
+
+    const result: Result<string | null> = await this.commandBus.execute(
+      new CreateCommentCommand(postId, content, userId),
+    );
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException(result.errorMessage!);
+    }
+
+    if (result.status === ResultStatus.Unauthorized) {
+      throw new UnauthorizedException();
+    }
+
+    const comment = await this.commentsPostgresQueryRepository.findById(
+      result.data!,
+      // userId,
+    );
+
+    if (!comment) {
+      //error if just created comment not found
+      throw new InternalServerErrorException();
+    }
+
+    return comment;
+  }
 
   // @Post()
   // @UseGuards(BasicAuthGuard)
