@@ -22,6 +22,7 @@ import { DeleteBlogPostUseCase } from './blogs/application/use-cases/delete-blog
 import { CreateCommentUseCase } from './comments/application/use-cases/create-comment.usecase';
 import { CommentsPostgresRepository } from './comments/infrastructure/postgres/comments.repository';
 import { CommentsPostgresQueryRepository } from './comments/infrastructure/postgres/comments.query-repository';
+import { PostLikesPostgresRepository } from './posts/infrastructure/postgres/post-likes-postgres.repository';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -49,6 +50,7 @@ const postsProviders: Provider[] = [
   // repositories
   PostsPostgresRepository,
   PostsPostgresQueryRepository,
+  PostLikesPostgresRepository,
 ];
 
 const commentsProviders: Provider[] = [

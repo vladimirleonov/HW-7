@@ -1,10 +1,10 @@
 import {
   Body,
   Controller,
-  Get,
+  Get, HttpCode, HttpStatus,
   Param,
   ParseIntPipe,
-  Post,
+  Post, Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -30,6 +30,8 @@ import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.usecase';
 import { CommentsPostgresQueryRepository } from '../../comments/infrastructure/postgres/comments.query-repository';
 import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
+import { PostUpdateLikeStatusModel } from './models/input/update-post-like-status.model';
+import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -183,26 +185,28 @@ export class PostsController {
   //   }
   // }
 
-  // @Put(':postId/like-status')
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async updatePostLikeStatus(
-  //   @Param('postId', new ParseIntPipe()) postId: number,
-  //   @CurrentUserId() userId: number,
-  //   @Body() postUpdateLikeStatusModel: PostUpdateLikeStatusModel,
-  // ) {
-  //   const { likeStatus } = postUpdateLikeStatusModel;
-  //
-  //   const result: Result = await this.commandBus.execute(
-  //     new UpdatePostLikeStatusCommand(likeStatus, postId, userId),
-  //   );
-  //
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException();
-  //   }
-  //
-  //   return;
-  // }
+  @Put(':postId/like-status')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePostLikeStatus(
+    @Param('postId', new ParseIntPipe()) postId: number,
+    @CurrentUserId() userId: number,
+    @Body() postUpdateLikeStatusModel: PostUpdateLikeStatusModel,
+  ) {
+    const { likeStatus } = postUpdateLikeStatusModel;
+
+    const result: Result = await this.commandBus.execute(
+      new UpdatePostLikeStatusCommand(likeStatus, postId, userId),
+    );
+
+    console.log("result in controller", result);
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException();
+    }
+
+    return;
+  }
 
   // @Delete(':id')
   // @UseGuards(BasicAuthGuard)
