@@ -1,9 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
-import { InjectModel } from '@nestjs/mongoose';
 import { PostsPostgresRepository } from '../../../posts/infrastructure/postgres/posts-postgres.repository';
 import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
-import { CommentsPostgresRepository } from '../../infrastructure/postgres/comments.repository';
+import { CommentsPostgresRepository } from '../../infrastructure/postgres/comments-postgres.repository';
 
 export class CreateCommentCommand {
   constructor(

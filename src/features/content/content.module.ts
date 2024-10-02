@@ -20,9 +20,12 @@ import { BlogsSAController } from './blogs/api/blogs-sa.controller';
 import { UpdateBlogPostUseCase } from './blogs/application/use-cases/update-blog-post.usecase';
 import { DeleteBlogPostUseCase } from './blogs/application/use-cases/delete-blog-post.usecase';
 import { CreateCommentUseCase } from './comments/application/use-cases/create-comment.usecase';
-import { CommentsPostgresRepository } from './comments/infrastructure/postgres/comments.repository';
-import { CommentsPostgresQueryRepository } from './comments/infrastructure/postgres/comments.query-repository';
+import { CommentsPostgresRepository } from './comments/infrastructure/postgres/comments-postgres.repository';
+import { CommentsPostgresQueryRepository } from './comments/infrastructure/postgres/comments-postgres.query-repository';
 import { PostLikesPostgresRepository } from './posts/infrastructure/postgres/post-likes-postgres.repository';
+import { CommentsController } from './comments/api/comments.controller';
+import { UpdateCommentUseCase } from './comments/application/use-cases/update-comment.usecase';
+import { DeleteCommentUseCase } from './comments/application/use-cases/delete-comment.usecase';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -56,8 +59,8 @@ const postsProviders: Provider[] = [
 const commentsProviders: Provider[] = [
   // use cases
   CreateCommentUseCase,
-  // DeleteCommentUseCase,
-  // UpdateCommentUseCase,
+  DeleteCommentUseCase,
+  UpdateCommentUseCase,
   // UpdateCommentLikeStatusUseCase,
 
   // repositories
@@ -71,7 +74,7 @@ const commentsProviders: Provider[] = [
     BlogsController,
     PostsController,
     BlogsSAController,
-    //CommentsController
+    CommentsController,
   ],
   providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
   exports: [BlogsPostgresRepository], // Expose ContentService for other modules to use

@@ -5,8 +5,7 @@ import { LikeStatus } from '../../../../../base/types/like-status';
 
 @Injectable()
 export class PostLikesPostgresRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {
-  }
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async findById(postId: number, userId: number) {
     const query = `
@@ -40,7 +39,7 @@ export class PostLikesPostgresRepository {
   async update(postId: number, userId: number, likeStatus: LikeStatus) {
     const query: string = `
       UPDATE post_likes 
-      SET status = $1
+      SET status = $1, created_at = NOW()
       WHERE post_id = $2 AND author_id = $3
     `;
 

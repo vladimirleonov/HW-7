@@ -39,8 +39,14 @@ export class UnauthorizedException extends CustomError {
   }
 }
 
+export class ForbiddenException extends CustomError {
+  constructor(message: string = 'Forbidden') {
+    super(403, message);
+  }
+}
+
 export class TooManyRequestsException extends CustomError {
-  constructor(message: string) {
+  constructor(message: string = 'Too many requests') {
     super(429, message);
   }
 }

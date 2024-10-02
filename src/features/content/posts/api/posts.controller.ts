@@ -1,10 +1,13 @@
 import {
   Body,
   Controller,
-  Get, HttpCode, HttpStatus,
+  Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
-  Post, Put,
+  Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -28,7 +31,7 @@ import { CurrentUserId } from '../../../../core/decorators/param-decorators/curr
 import { CommentCreateModel } from '../../comments/api/models/input/create-comment.input.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.usecase';
-import { CommentsPostgresQueryRepository } from '../../comments/infrastructure/postgres/comments.query-repository';
+import { CommentsPostgresQueryRepository } from '../../comments/infrastructure/postgres/comments-postgres.query-repository';
 import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
 import { PostUpdateLikeStatusModel } from './models/input/update-post-like-status.model';
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
@@ -43,6 +46,7 @@ export class PostsController {
     private readonly postsPostgresQueryRepository: PostsPostgresQueryRepository,
     private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
   ) {}
+
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   // TODO: change type any
@@ -113,7 +117,7 @@ export class PostsController {
   ) {
     const { content } = commentCreateModel;
 
-    const result: Result<string | null> = await this.commandBus.execute(
+    const result = await this.commandBus.execute(
       new CreateCommentCommand(postId, content, userId),
     );
 
@@ -199,7 +203,7 @@ export class PostsController {
       new UpdatePostLikeStatusCommand(likeStatus, postId, userId),
     );
 
-    console.log("result in controller", result);
+    console.log('result in controller', result);
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();

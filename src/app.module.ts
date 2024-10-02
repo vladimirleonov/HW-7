@@ -27,7 +27,7 @@ import { ContentModule } from './features/content/content.module';
         host: 'localhost',
         port: 5432,
         username: 'postgres',
-        password: '1234',
+        password: 'root',
         database: 'blogger',
         // entities: [],
         //synchronize: true,

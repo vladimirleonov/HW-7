@@ -92,17 +92,24 @@ export class CommentsPostgresQueryRepository {
     // );
   }
 
-  async findById(id: string): Promise<any> {
-    const query: string = `
+  async findById(id: number, userId?: number): Promise<any> {
+    let query: string = `
       SELECT c.id, c.content, c.created_at, u.id as "userId", u.login FROM comments c
       LEFT JOIN users u
       ON c.commentator_id = u.id
       WHERE c.id = $1
     `;
+    const params = [id];
 
     console.log('findById query', query);
+    console.log('userId', userId);
 
-    const result = await this.dataSource.query(query, [id]);
+    if (userId !== undefined && userId !== null) {
+      query += ` AND u.id = $2 `;
+      params.push(userId!);
+    }
+
+    const result = await this.dataSource.query(query, params);
     // {
     //   id: 23,
     //   content: 'length_21-weqweqweqwq',
@@ -114,14 +121,26 @@ export class CommentsPostgresQueryRepository {
     console.log('findById result', result);
 
     return result.length > 0 ? CommentOutputModelMapper(result[0]) : null;
-
-    // const comment: CommentDocument | null =
-    //   await this.commentModel.findById(id); // automatically converts string to ObjectId
-    //
-    // if (comment === null) {
-    //   return null;
-    // }
-    //
-    // return CommentOutputModelMapper(comment, userId);
   }
+
+  // async findByIdWithOptionalUserId(id: number, userId?: number): Promise<any> {
+  //   let query: string = `
+  //     SELECT c.id, c.content, c.created_at, u.id as "userId", u.login FROM comments c
+  //     LEFT JOIN users u
+  //     ON c.commentator_id = u.id
+  //     WHERE c.id = $1
+  //   `;
+  //   const params = [id];
+  //
+  //   if (userId !== undefined || userId !== null) {
+  //     query += ` AND u.id = $2 `;
+  //     params.push(userId);
+  //   }
+  //
+  //   console.log('findById query', query);
+  //
+  //   const result = await this.dataSource.query(query, params);
+  //
+  //   return result.length > 0 ? CommentOutputModelMapper(result[0]) : null;
+  // }
 }
