@@ -27,6 +27,7 @@ import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { UpdateCommentCommand } from '../application/use-cases/update-comment.usecase';
 import { DeleteCommentCommand } from '../application/use-cases/delete-comment.usecase';
 import { CommentLikeStatusUpdateModel } from './models/input/update-comment-like-status';
+import { UpdateCommentLikeStatusCommand } from '../application/use-cases/update-comment-like-status.usecase';
 
 export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<CommentOutputModel> =
   [
@@ -58,6 +59,7 @@ export class CommentsController {
     return comment;
   }
 
+  // +
   @Put('/:commentId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(204)
@@ -83,9 +85,9 @@ export class CommentsController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateCommentLikeStatus(
-    @Param('commentId', new ParseIntPipe()) commentId: string,
+    @Param('commentId', new ParseIntPipe()) commentId: number,
     @Body() commentLikeStatusUpdateModel: CommentLikeStatusUpdateModel,
-    @CurrentUserId() userId: string,
+    @CurrentUserId() userId: number,
   ) {
     const { likeStatus } = commentLikeStatusUpdateModel;
 
@@ -98,6 +100,7 @@ export class CommentsController {
     }
   }
 
+  // +
   @Delete(':commentId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

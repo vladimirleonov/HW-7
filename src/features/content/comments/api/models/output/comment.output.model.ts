@@ -51,23 +51,25 @@ export class CommentOutputModel {
 // Mappers
 
 export const CommentOutputModelMapper = (comment): CommentOutputModel => {
-  const commentatorInfo: CommentatorInfo = new CommentatorInfo();
-  commentatorInfo.userId = comment.userId.toString();
-  commentatorInfo.userLogin = comment.login;
+  // const commentatorInfo: CommentatorInfo = new CommentatorInfo();
+  // commentatorInfo.userId = comment.userId.toString();
+  // commentatorInfo.userLogin = comment.login;
+  //
+  // const likesInfo: LikesInfo = new LikesInfo();
+  // likesInfo.likesCount = 0;
+  // likesInfo.dislikesCount = 0;
+  // likesInfo.myStatus = LikeStatus.None;
+  //
+  // const outputModel: CommentOutputModel = new CommentOutputModel(
+  //   commentatorInfo,
+  //   likesInfo,
+  // );
+  //
+  // outputModel.id = comment.id;
+  // outputModel.content = comment.content;
+  // outputModel.createdAt = comment.created_at;
 
-  const likesInfo: LikesInfo = new LikesInfo();
-  likesInfo.likesCount = 0;
-  likesInfo.dislikesCount = 0;
-  likesInfo.myStatus = LikeStatus.None;
-
-  const outputModel: CommentOutputModel = new CommentOutputModel(
-    commentatorInfo,
-    likesInfo,
-  );
-
-  outputModel.id = comment.id;
-  outputModel.content = comment.content;
-  outputModel.createdAt = comment.created_at;
+  const outputModel: CommentOutputModel = comment;
 
   return outputModel;
 };

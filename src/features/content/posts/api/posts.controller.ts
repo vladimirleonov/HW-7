@@ -50,7 +50,7 @@ export class PostsController {
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   // TODO: change type any
-  async getAll(@OptionalUserId() userId: string, @Query() query: any) {
+  async getAll(@OptionalUserId() userId: number, @Query() query: any) {
     const pagination: Pagination = new Pagination(
       query,
       POSTS_SORTING_PROPERTIES,

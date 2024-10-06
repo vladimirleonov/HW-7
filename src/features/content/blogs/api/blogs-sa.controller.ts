@@ -35,7 +35,6 @@ import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase'
 import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
-import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
@@ -117,7 +116,6 @@ export class BlogsSAController {
   }
 
   @Get(':blogId/posts')
-  @UseGuards(OptionalJwtAuthGuard)
   async getAllBlogPosts(
     @Query() query: any,
     @Param('blogId', new ParseIntPipe()) blogId: number,
@@ -145,7 +143,6 @@ export class BlogsSAController {
   }
 
   @Post(':blogId/posts')
-  @UseGuards(BasicAuthGuard)
   async createPostForBlog(
     @Param('blogId', new ParseIntPipe()) blogId: number,
     @Body() createModel: PostForBlogCreateModel,

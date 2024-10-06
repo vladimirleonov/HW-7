@@ -26,6 +26,8 @@ import { PostLikesPostgresRepository } from './posts/infrastructure/postgres/pos
 import { CommentsController } from './comments/api/comments.controller';
 import { UpdateCommentUseCase } from './comments/application/use-cases/update-comment.usecase';
 import { DeleteCommentUseCase } from './comments/application/use-cases/delete-comment.usecase';
+import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.usecase';
+import { CommentLikesPostgresRepository } from './comments/infrastructure/postgres/comment-likes-postgres.repository';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -61,11 +63,12 @@ const commentsProviders: Provider[] = [
   CreateCommentUseCase,
   DeleteCommentUseCase,
   UpdateCommentUseCase,
-  // UpdateCommentLikeStatusUseCase,
+  UpdateCommentLikeStatusUseCase,
 
   // repositories
   CommentsPostgresRepository,
   CommentsPostgresQueryRepository,
+  CommentLikesPostgresRepository,
 ];
 
 @Module({

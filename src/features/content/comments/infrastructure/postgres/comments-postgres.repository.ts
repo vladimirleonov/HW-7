@@ -41,11 +41,59 @@ export class CommentsPostgresRepository {
   async update(id: number, content: string): Promise<boolean> {
     const query: string = `
       UPDATE comments 
-      SET content = $1
+      SET content = $1, created_at = NOW()
       WHERE id = $2
     `;
 
     const result = await this.dataSource.query(query, [content, id]);
+
+    return result[1] === 1;
+  }
+
+  async increaseLikesCount(id: number) {
+    const query: string = `
+      UPDATE comments
+      SET likes_count = likes_count + 1
+      WHERE id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    return result[1] === 1;
+  }
+
+  async decreaseLikesCount(id: number) {
+    const query: string = `
+      UPDATE comments
+      SET likes_count = GREATEST(likes_count - 1, 0)
+      WHERE id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    return result[1] === 1;
+  }
+
+  async increaseDislikesCount(id: number) {
+    const query: string = `
+      UPDATE comments
+      SET dislikes_count = dislikes_count + 1
+      WHERE id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    return result[1] === 1;
+  }
+
+  async decreaseDislikesCount(id: number) {
+    const query: string = `
+      UPDATE comments
+      SET dislikes_count = GREATEST(dislikes_count - 1, 0)
+      WHERE id = $1
+    `;
+
+    const result = await this.dataSource.query(query, [id]);
 
     return result[1] === 1;
   }

@@ -15,8 +15,8 @@ export const BlogOutputModelMapper = (blog): BlogOutputModel => {
   outputModel.id = blog.id.toString();
   outputModel.name = blog.name;
   outputModel.description = blog.description;
-  outputModel.createdAt = blog.created_at;
   outputModel.websiteUrl = blog.website_url;
+  outputModel.createdAt = blog.created_at;
   outputModel.isMembership = blog.is_membership;
 
   return outputModel;

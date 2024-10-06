@@ -65,6 +65,6 @@ export class PostLikesPostgresRepository {
 
     const deletedRowsCount: number = result[1];
 
-    return deletedRowsCount > 0;
+    return deletedRowsCount === 1;
   }
 }

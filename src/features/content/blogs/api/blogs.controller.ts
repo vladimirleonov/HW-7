@@ -15,21 +15,14 @@ import {
 } from '../../../../base/models/pagination.base.model';
 import { BlogOutputModel } from './models/output/blog.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
-import { BlogCreateModel } from './models/input/create-blog.input.model';
 import { CommandBus } from '@nestjs/cqrs';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
-import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { BlogsPostgresQueryRepository } from '../infrastructure/postgres/blogs-postgres.query-repository';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '../../../../core/exception-filters/http-exception-filter';
+import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
-import { Result } from '../../../../base/types/object-result';
-import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -43,6 +36,7 @@ export class BlogsController {
     private readonly postsPostgresQueryRepository: PostsPostgresQueryRepository,
   ) {}
 
+  // +
   @Get()
   // TODO: change type any
   async getAll(@Query() query: any) {
@@ -55,19 +49,9 @@ export class BlogsController {
     return blogs;
   }
 
-  @Get(':id')
-  async getOne(@Param('id', new ParseIntPipe()) id: number) {
-    const blog: BlogOutputModel | null =
-      await this.blogsPostgresQueryRepository.findById(id);
-
-    if (!blog) {
-      throw new NotFoundException(`Blog with id ${id} not found`);
-    }
-
-    return blog;
-  }
-
+  // +
   // TODO: change any type
+  // userId +
   @Get(':blogId/posts')
   @UseGuards(OptionalJwtAuthGuard)
   async getAllBlogPosts(
@@ -98,28 +82,42 @@ export class BlogsController {
     return blogPosts;
   }
 
-  @Post()
-  @UseGuards(BasicAuthGuard)
-  async create(@Body() createModel: BlogCreateModel) {
-    const { name, description, websiteUrl } = createModel;
+  // +
+  @Get(':id')
+  async getOne(@Param('id', new ParseIntPipe()) id: number) {
+    const blog: BlogOutputModel | null =
+      await this.blogsPostgresQueryRepository.findById(id);
 
-    const result: Result<number> = await this.commandBus.execute<
-      CreateBlogCommand,
-      Result<number>
-    >(new CreateBlogCommand(name, description, websiteUrl));
-
-    const createdId: number = result.data;
-
-    const createdBlog: BlogOutputModel | null =
-      await this.blogsPostgresQueryRepository.findById(createdId);
-
-    if (!createdBlog) {
-      // error if just created blog not found
-      throw new InternalServerErrorException();
+    if (!blog) {
+      throw new NotFoundException(`Blog with id ${id} not found`);
     }
 
-    return createdBlog;
+    return blog;
   }
+
+  // comment
+  // @Post()
+  // @UseGuards(BasicAuthGuard)
+  // async create(@Body() createModel: BlogCreateModel) {
+  //   const { name, description, websiteUrl } = createModel;
+  //
+  //   const result: Result<number> = await this.commandBus.execute<
+  //     CreateBlogCommand,
+  //     Result<number>
+  //   >(new CreateBlogCommand(name, description, websiteUrl));
+  //
+  //   const createdId: number = result.data;
+  //
+  //   const createdBlog: BlogOutputModel | null =
+  //     await this.blogsPostgresQueryRepository.findById(createdId);
+  //
+  //   if (!createdBlog) {
+  //     // error if just created blog not found
+  //     throw new InternalServerErrorException();
+  //   }
+  //
+  //   return createdBlog;
+  // }
 
   // @Post(':blogId/posts')
   // @UseGuards(BasicAuthGuard)

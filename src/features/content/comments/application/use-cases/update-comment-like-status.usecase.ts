@@ -24,9 +24,7 @@ export class UpdateCommentLikeStatusUseCase
   async execute(command: UpdateCommentLikeStatusCommand) {
     const { commentId, likeStatus, userId } = command;
 
-    const comment = await this.commentsPostgresRepository.findById(
-      command.commentId,
-    );
+    const comment = await this.commentsPostgresRepository.findById(commentId);
 
     if (!comment) {
       return Result.notFound(
@@ -34,14 +32,12 @@ export class UpdateCommentLikeStatusUseCase
       );
     }
 
-    // get use like
+    // get user like
     const userLike = await this.commentLikesPostgresRepository.findById(
       commentId,
       userId,
     );
-    // const userLike: Like | undefined = comment.likes.find(
-    //   (like) => like.authorId.toString() === command.userId,
-    // );
+    console.log('userLike', userLike);
 
     // add like to comment likes
     if (!userLike) {
@@ -50,61 +46,80 @@ export class UpdateCommentLikeStatusUseCase
       if (command.likeStatus === LikeStatus.None) {
         return Result.success();
       }
-      // input.likeStatus = (LikeStatus.Like || LikeStatus.Dislike)
 
-      const likeToAdd = new this.likeModel({
-        createdAt: new Date(),
-        status: command.likeStatus,
-        authorId: command.userId,
-      });
+      await this.commentLikesPostgresRepository.create(
+        commentId,
+        userId,
+        likeStatus,
+      );
 
-      comment.likes.push(likeToAdd);
       // for input.likeStatus = LikeStatus.Like
-      if (command.likeStatus === LikeStatus.Like) comment.likesCount += 1;
-      // for input.likeStatus = LikeStatus.Dislike
-      if (command.likeStatus === LikeStatus.Dislike) comment.dislikesCount += 1;
+      if (command.likeStatus === LikeStatus.Like) {
+        await this.commentsPostgresRepository.increaseLikesCount(commentId);
+      }
 
-      await this.commentsRepository.save(comment);
+      // for input.likeStatus = LikeStatus.Dislike
+      if (command.likeStatus === LikeStatus.Dislike) {
+        await this.commentsPostgresRepository.increaseDislikesCount(commentId);
+      }
       return Result.success();
     }
+
     // Existing like with same status
     if (userLike.status === command.likeStatus) {
       console.log('nothing change');
       return Result.success();
     }
+
     // Existing like with status None
     if (command.likeStatus === LikeStatus.None) {
       console.log('None');
-      comment.likes = comment.likes.filter(
-        (like: Like) => like.authorId.toString() !== command.userId,
-      );
+
+      await this.commentLikesPostgresRepository.delete(commentId, userId);
+
       // was dislike
-      if (userLike.status === LikeStatus.Dislike) comment.dislikesCount -= 1;
+      if (userLike.status === LikeStatus.Dislike) {
+        await this.commentsPostgresRepository.decreaseDislikesCount(commentId);
+      }
+
       // was like
-      if (userLike.status === LikeStatus.Like) comment.likesCount -= 1;
+      if (userLike.status === LikeStatus.Like) {
+        await this.commentsPostgresRepository.decreaseLikesCount(commentId);
+      }
     }
+
     // Existing like with different status Like
     if (command.likeStatus === LikeStatus.Like) {
       console.log('Like');
-      // was dislike
-      if (userLike.status === LikeStatus.Dislike) comment.dislikesCount -= 1;
-      comment.likesCount += 1;
+      await this.commentLikesPostgresRepository.update(
+        commentId,
+        userId,
+        likeStatus,
+      );
 
-      userLike.status = command.likeStatus;
-      userLike.createdAt = new Date();
+      // was dislike
+      if (userLike.status === LikeStatus.Dislike) {
+        await this.commentsPostgresRepository.decreaseDislikesCount(commentId);
+      }
+
+      await this.commentsPostgresRepository.increaseLikesCount(commentId);
     }
     // Existing like with different status Dislike
-    if (command.likeStatus === LikeStatus.Dislike) {
+    if (likeStatus === LikeStatus.Dislike) {
       console.log('Dislike');
+      await this.commentLikesPostgresRepository.update(
+        commentId,
+        userId,
+        likeStatus,
+      );
+
       // was like
-      if (userLike.status === LikeStatus.Like) comment.likesCount -= 1;
-      comment.dislikesCount += 1;
+      if (userLike.status === LikeStatus.Like) {
+        await this.commentsPostgresRepository.decreaseLikesCount(commentId);
+      }
 
-      userLike.status = command.likeStatus;
-      userLike.createdAt = new Date();
+      await this.commentsPostgresRepository.increaseDislikesCount(commentId);
     }
-
-    // await this.commentsRepository.save(comment);
 
     return Result.success();
   }
