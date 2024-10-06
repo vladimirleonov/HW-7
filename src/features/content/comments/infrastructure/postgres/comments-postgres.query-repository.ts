@@ -113,7 +113,7 @@ export class CommentsPostgresQueryRepository {
       json_build_object(
         'likes_count', c.likes_count,
         'dislikes_count', c.dislikes_count,
-        'my_status', ${userLikeStatusClause ? userLikeStatusClause : 'None'}
+        'my_status', ${userLikeStatusClause ? userLikeStatusClause : null}
       ) as likes_info
       FROM comments c
       ${whereClause}
@@ -124,7 +124,7 @@ export class CommentsPostgresQueryRepository {
     const result = await this.dataSource.query(query, params);
     console.log('result', result);
 
-    return result;
+    return result.length > 0 ? CommentOutputModelMapper(result[0]) : null;
 
     // let query: string = `
     //   SELECT c.id, c.content, c.created_at, u.id as "userId", u.login FROM comments c
