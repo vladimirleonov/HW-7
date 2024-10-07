@@ -20,6 +20,7 @@ import { NotFoundException } from '../../../../core/exception-filters/http-excep
 import { ParseUUIDPipe } from '../../../../core/pipes/parse-uuid.pipe';
 
 @Controller('security/devices')
+@UseGuards(RefreshTokenAuthGuard)
 export class SecurityController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -27,7 +28,6 @@ export class SecurityController {
   ) {}
 
   @Get()
-  @UseGuards(RefreshTokenAuthGuard)
   async getUserDevices(
     @CurrentDeviceId() deviceId: string,
     @CurrentUserIdFromDevice() userId: number,
@@ -40,7 +40,6 @@ export class SecurityController {
   }
 
   @Delete()
-  @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async terminateAllOtherUserDevices(
     @CurrentDeviceId() deviceId: string,
@@ -56,7 +55,6 @@ export class SecurityController {
   }
 
   @Delete(':deviceId')
-  @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async terminateUserDevices(
     @Param('deviceId', new ParseUUIDPipe()) deviceId: string,

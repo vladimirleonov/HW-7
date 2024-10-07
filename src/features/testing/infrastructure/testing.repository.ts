@@ -7,12 +7,15 @@ export class TestingRepository {
 
   async deleteAllData() {
     const tables: string[] = [
-      'email_confirmation',
-      'password_recovery',
-      'device',
-      'users',
-      'blogs',
+      'comment_likes',
+      'comments',
+      'post_likes',
       'posts',
+      'blogs',
+      'users',
+      'device',
+      'password_recovery',
+      'email_confirmation',
     ];
 
     for (const table of tables) {

@@ -42,6 +42,7 @@ export class CommentsController {
     private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
   ) {}
 
+  // +
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   async getOne(
@@ -81,6 +82,7 @@ export class CommentsController {
     }
   }
 
+  // +
   @Put('/:commentId/like-status')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)

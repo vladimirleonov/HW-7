@@ -17,19 +17,19 @@ export class CommentsPostgresQueryRepository {
   getAllPostComments(
     pagination: Pagination,
     postId: number,
-    userId: number,
+    userId?: number,
   ): any {
     const params = [postId];
-    const whereClause = `WHERE post_id = $1`;
+    const whereClause = `WHERE c.post_id = $1`;
 
-    return this.__getResult(whereClause, pagination, params);
+    return this.__getResult(whereClause, pagination, params, userId);
   }
 
   private async __getResult(
     filter: any,
     pagination: Pagination,
     params: any[],
-    //userId: string,
+    userId?: number,
   ): Promise<PaginationOutput<CommentOutputModel>> {
     // const query: string = `
     //   SELECT c.id, c.content, c.created_at, u.id as "userId", u.login FROM comments c
@@ -41,37 +41,74 @@ export class CommentsPostgresQueryRepository {
     //   LIMIT ${pagination.pageSize}
     // `;
 
+    // const params: any[] = [id];
+    //const whereClause = 'WHERE c.id = $1';
+
+    let userLikeStatusClause = '';
+
+    console.log('userId', userId);
+    if (userId) {
+      userLikeStatusClause += `(
+        SELECT cl.status
+        FROM comment_likes cl
+        WHERE cl.comment_id = c.id AND cl.author_id = $${params.length + 1}
+      )`;
+      params.push(userId);
+    }
+
+    // const query: string = `
+    //   SELECT c.id, c.content, c.created_at,
+    //   (
+    //     SELECT json_build_object(
+    //       'user_id', u.id,
+    //       'user_login', u.login
+    //     ) FROM users u
+    //     WHERE u.id = c.commentator_id
+    //   ) as commentator_info,
+    //   json_build_object(
+    //     'likes_count', c.likes_count,
+    //     'dislikes_count', c.dislikes_count,
+    //     'my_status', ${userLikeStatusClause ? userLikeStatusClause : null}
+    //   ) as likes_info
+    //   FROM comments c
+    //   ${whereClause}
+    // `;
+
     const query: string = `
-      SELECT c.id, c.content, c.created_at, 
+      SELECT c.id, c.content, c.created_at,
       (
         SELECT json_build_object(
-          'userId', u.id,
-          'userLogin', u.login  
-        )
-        FROM users u
-        WHERE u.id = c.commentator_id  
-      ) as "commentatorInfo",
+          'user_id', u.id,
+          'user_login', u.login
+        ) FROM users u
+        WHERE u.id = c.commentator_id
+      ) as "commentator_info",
       json_build_object (
-        'myStatus', 'None',
-        'likesCount', c.likes_count,
-        'dislikesCount', c.dislikes_count  
-      ) as "likesInfo"
+        'likes_count', c.likes_count,
+        'dislikes_count', c.dislikes_count,
+        'my_status', ${userLikeStatusClause ? userLikeStatusClause : 'null'}
+      ) as "likes_info"
       FROM comments c
-      ${filter ? filter : ''}
-      ORDER BY ${pagination.sortBy} ${pagination.sortDirection}
+      ${filter}
+      ORDER BY c.created_at DESC
       OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
       LIMIT ${pagination.pageSize}
     `;
 
+    console.log('query', query);
+
     const result = await this.dataSource.query(query, params);
 
     const countQuery = `
-      SELECT count(*)
-      FROM comments 
-      ${filter ? filter : ''}
+      SELECT count(*) as count
+      FROM comments c
+      ${filter}
     `;
 
-    const countResult = await this.dataSource.query(countQuery, params);
+    console.log('countQuery', countQuery);
+    console.log('params', params);
+
+    const countResult = await this.dataSource.query(countQuery, [params[0]]);
 
     const totalCount: number = Number(countResult[0].count);
 

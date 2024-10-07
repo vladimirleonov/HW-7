@@ -44,8 +44,8 @@ export class PostsPostgresQueryRepository {
     blogId: number,
     userId?: number,
   ): any {
-    // console.log('userId', userId);
-    // console.log('blogId', blogId);
+    console.log('userId', userId);
+    console.log('blogId', blogId);
     let whereClause: string = '';
     const params: string | number[] = [];
 
@@ -58,19 +58,28 @@ export class PostsPostgresQueryRepository {
 
   // TODO: change type any
   private async __getResult(
-    postsFilter: string,
+    filter: string,
     pagination: Pagination,
     params: any = [],
     userId?: number,
   ): Promise<any> {
     // : Promise<PaginationOutput<PostOutputModel>>
-    let whereClause = '';
+    // let whereClause = '';
+    // if (userId) {
+    //   whereClause += `AND pl.author_id=$${params.length + 1}`;
+    //   //console.log('params.length + 1', params.length + 1);
+    //   params.push(userId);
+    // }
+
+    let userLikeStatusClause = '';
     if (userId) {
-      whereClause += `AND pl.author_id=$${params.length + 1}`;
-      //console.log('params.length + 1', params.length + 1);
+      userLikeStatusClause += `(
+        SELECT status
+        FROM post_likes pl
+        WHERE pl.post_id = p.id AND pl.author_id=$${params.length + 1}
+       )`;
       params.push(userId);
     }
-    //console.log('params', params);
 
     const query = `
       SELECT p.id, p.title, p.short_description, p.content, p.blog_id, p.created_at,
@@ -82,17 +91,13 @@ export class PostsPostgresQueryRepository {
       json_build_object(
         'likes_count', p.likes_count,
         'dislikes_count', p.dislikes_count,
-        'my_status', (
-            SELECT status
-            FROM post_likes pl
-            WHERE pl.post_id = p.id ${whereClause}  
-        ),
+        'my_status', ${userLikeStatusClause ? userLikeStatusClause : null},
         'newest_likes', (
           SELECT json_agg(
             json_build_object(
-                'added_at', recent_likes.created_at,
-                'user_id', recent_likes.author_id,
-                'login', recent_likes.login
+              'added_at', recent_likes.created_at,
+              'user_id', recent_likes.author_id,
+              'login', recent_likes.login
             )  
           )   
           FROM (
@@ -106,24 +111,29 @@ export class PostsPostgresQueryRepository {
         )
       ) as "extended_likes_info"
       FROM posts p
-      ${postsFilter}
+      ${filter}
       ORDER BY ${pagination.sortBy} ${pagination.sortDirection}
       OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
       LIMIT ${pagination.pageSize}
     `;
 
-    // console.log(query);
+    console.log(query);
 
+    console.log('params', params);
     const result = await this.dataSource.query(query, params);
     // console.log('result', result);
 
     const countQuery = `
       SELECT count(*) as count
       FROM posts p
-      ${postsFilter}
+      ${filter}
     `;
 
-    const countResult = await this.dataSource.query(countQuery, [params[0]]);
+    // const countResult = await this.dataSource.query(countQuery);
+    const countResult = await this.dataSource.query(
+      countQuery,
+      filter ? [params[0]] : [],
+    );
 
     const totalCount: number = Number(countResult[0].count);
     // console.log('totalCount', totalCount);
@@ -139,37 +149,56 @@ export class PostsPostgresQueryRepository {
   }
 
   async findById(id: number, userId?: number): Promise<PostOutputModel | null> {
+    let userLikeStatusClause = '';
+    const params: number[] = [id];
+
+    if (userId) {
+      userLikeStatusClause += `(
+        SELECT status
+        FROM post_likes pl
+        WHERE pl.post_id = p.id AND pl.author_id=$${params.length + 1}
+       )`;
+      params.push(userId);
+    }
+
+    console.log('userId', userId);
+    console.log('params', params);
+
     const query = `
       SELECT p.id, p.title, p.short_description, p.content, p.blog_id, p.created_at,
       (
-        SELECT b.name FROM blogs b 
+        SELECT b.name 
+        FROM blogs b 
         WHERE b.id = p.blog_id 
       ) as "blog_name",
       json_build_object(
-        'likes_count', p.likes_count, 
+        'likes_count', p.likes_count,
         'dislikes_count', p.dislikes_count,
+        'my_status', ${userLikeStatusClause ? userLikeStatusClause : null},
         'newest_likes', (
           SELECT json_agg(
             json_build_object(
-              'added_at', pl.created_at,
-              'user_id', pl.author_id,
-              'login', u.login
-            )
-          ) FROM (
-            SELECT pl.created_at, pl.author_id
+              'added_at', recent_likes.created_at,
+              'user_id', recent_likes.author_id,
+              'login', recent_likes.login
+            )  
+          )   
+          FROM (
+            SELECT pl.created_at, pl.author_id, u.login
             FROM post_likes pl
-            WHERE pl.post_id = $1
+            JOIN users u ON pl.author_id = u.id
+            WHERE pl.post_id = p.id
             ORDER BY pl.created_at DESC
-            LIMIT 3 -- Выбираем три последних лайка для текущего поста
-          ) pl
-          LEFT JOIN users u ON pl.author_id = u.id
+            LIMIT 3   
+          ) as recent_likes
         )
-      ) AS "extended_likes_info"
+      ) as "extended_likes_info"
       FROM posts p
+      WHERE p.id = $1
       GROUP BY p.id, p.title, p.short_description, p.content, p.blog_id, p.likes_count, p.dislikes_count
     `;
 
-    const result = await this.dataSource.query(query, [id]);
+    const result = await this.dataSource.query(query, params);
 
     return result.length > 0 ? PostOutputModelMapper(result[0]) : null;
   }
