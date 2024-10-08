@@ -58,7 +58,7 @@ export const PostOutputModelMapper = (post): PostOutputModel => {
         // console.log('like', like);
         return {
           addedAt: like.added_at,
-          userId: like.user_id,
+          userId: like.user_id.toString(),
           login: like.login,
         };
       })

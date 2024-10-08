@@ -90,7 +90,7 @@ export class CommentsPostgresQueryRepository {
       ) as "likes_info"
       FROM comments c
       ${filter}
-      ORDER BY c.created_at DESC
+      ORDER BY c.${pagination.sortBy} ${pagination.sortDirection}
       OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
       LIMIT ${pagination.pageSize}
     `;

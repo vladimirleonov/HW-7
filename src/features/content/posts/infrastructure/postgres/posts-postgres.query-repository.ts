@@ -9,6 +9,7 @@ import {
 } from '../../api/models/output/post.output.model';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { LikeStatus } from '../../../../../base/types/like-status';
 
 @Injectable()
 export class PostsPostgresQueryRepository {
@@ -104,7 +105,7 @@ export class PostsPostgresQueryRepository {
             SELECT pl.created_at, pl.author_id, u.login
             FROM post_likes pl
             JOIN users u ON pl.author_id = u.id
-            WHERE pl.post_id = p.id
+            WHERE pl.post_id = p.id AND pl.status = 'Like'
             ORDER BY pl.created_at DESC
             LIMIT 3   
           ) as recent_likes
@@ -187,7 +188,7 @@ export class PostsPostgresQueryRepository {
             SELECT pl.created_at, pl.author_id, u.login
             FROM post_likes pl
             JOIN users u ON pl.author_id = u.id
-            WHERE pl.post_id = p.id
+            WHERE pl.post_id = p.id AND pl.status = 'Like'
             ORDER BY pl.created_at DESC
             LIMIT 3   
           ) as recent_likes
@@ -195,8 +196,8 @@ export class PostsPostgresQueryRepository {
       ) as "extended_likes_info"
       FROM posts p
       WHERE p.id = $1
-      GROUP BY p.id, p.title, p.short_description, p.content, p.blog_id, p.likes_count, p.dislikes_count
     `;
+    // GROUP BY p.id, p.title, p.short_description, p.content, p.blog_id, p.likes_count, p.dislikes_count
 
     const result = await this.dataSource.query(query, params);
 

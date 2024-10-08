@@ -24,8 +24,8 @@ export class CommentsPostgresRepository {
 
   async create(postId: number, content: string, userId: number) {
     const query = `
-      INSERT INTO comments (post_id, content, commentator_id)
-      VALUES ($1, $2, $3)
+      INSERT INTO comments (post_id, content, commentator_id, created_at)
+      VALUES ($1, $2, $3, NOW())
       RETURNING id;
     `;
 
@@ -41,7 +41,7 @@ export class CommentsPostgresRepository {
   async update(id: number, content: string): Promise<boolean> {
     const query: string = `
       UPDATE comments 
-      SET content = $1, created_at = NOW()
+      SET content = $1
       WHERE id = $2
     `;
 
