@@ -10,13 +10,17 @@ import {
   BlogOutputModel,
   BlogOutputModelMapper,
 } from '../../api/models/output/blog.output.model';
+import {
+  PaginationQuery,
+  PaginationWithSearchNameTermQuery,
+} from '../../../../../base/models/pagination-query.input.model';
 
 @Injectable()
 export class BlogsPostgresQueryRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async getAll(
-    pagination: PaginationWithSearchNameTerm,
+    pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery>,
   ): Promise<PaginationOutput<BlogOutputModel>> {
     let whereClause: string = '';
     const params: string[] = [];
@@ -44,7 +48,7 @@ export class BlogsPostgresQueryRepository {
 
   async _getResult(
     filter: any,
-    pagination: Pagination,
+    pagination: Pagination<PaginationQuery>,
     params: any,
   ): Promise<PaginationOutput<BlogOutputModel>> {
     const query: string = `

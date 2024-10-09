@@ -1,5 +1,9 @@
-import { ParsedQs } from 'qs';
 import { toSnakeCase } from '../../core/utils/camel-case-to-snake-case';
+import {
+  PaginationQuery,
+  PaginationWithSearchLoginAndEmailTermQuery,
+  PaginationWithSearchNameTermQuery,
+} from './pagination-query.input.model';
 
 export class PaginationOutput<D> {
   public readonly pagesCount: number;
@@ -17,13 +21,13 @@ export class PaginationOutput<D> {
   }
 }
 
-export class Pagination {
+export class Pagination<T extends PaginationQuery> {
   public readonly sortBy: string;
   public readonly sortDirection: SortDirectionType;
   public readonly pageNumber: number;
   public readonly pageSize: number;
 
-  constructor(query: ParsedQs, sortProperties: string[]) {
+  constructor(query: T, sortProperties: string[]) {
     this.sortBy = this.getSortBy(query, sortProperties);
     this.sortDirection = this.getSortDirection(query);
     this.pageNumber = Number(query.pageNumber ?? 1);
@@ -38,7 +42,7 @@ export class Pagination {
     return (this.pageNumber - 1) * this.pageSize;
   }
 
-  private getSortDirection(query: ParsedQs): SortDirectionType {
+  private getSortDirection(query: T): SortDirectionType {
     let sortDirection: SortDirectionType = 'desc';
 
     switch (query.sortDirection) {
@@ -54,8 +58,7 @@ export class Pagination {
     return sortDirection;
   }
 
-  private getSortBy(query: ParsedQs, sortProperties: string[]): string {
-    //let result = 'createdAt';
+  private getSortBy(query: T, sortProperties: string[]): string {
     let result = 'created_at';
 
     const querySortBy = query.sortBy;
@@ -84,11 +87,13 @@ export class Pagination {
   }
 }
 
-export class PaginationWithSearchLoginAndEmailTerm extends Pagination {
+export class PaginationWithSearchLoginAndEmailTerm<
+  T extends PaginationWithSearchLoginAndEmailTermQuery,
+> extends Pagination<T> {
   public readonly searchLoginTerm: string | null;
   public readonly searchEmailTerm: string | null;
 
-  constructor(query: ParsedQs, sortProperties: string[]) {
+  constructor(query: T, sortProperties: string[]) {
     super(query, sortProperties);
 
     this.searchLoginTerm = query.searchLoginTerm?.toString() || null;
@@ -96,10 +101,12 @@ export class PaginationWithSearchLoginAndEmailTerm extends Pagination {
   }
 }
 
-export class PaginationWithSearchNameTerm extends Pagination {
+export class PaginationWithSearchNameTerm<
+  T extends PaginationWithSearchNameTermQuery,
+> extends Pagination<T> {
   public readonly searchNameTerm: string | null;
 
-  constructor(query: ParsedQs, sortProperties: string[]) {
+  constructor(query: T, sortProperties: string[]) {
     super(query, sortProperties);
     this.searchNameTerm = query.searchNameTerm?.toString() || null;
   }

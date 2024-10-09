@@ -40,6 +40,10 @@ import { PostOutputModel } from '../../posts/api/models/output/post.output.model
 import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
 import { UpdateBlogPostCommand } from '../application/use-cases/update-blog-post.usecase';
 import { DeleteBlogPostCommand } from '../application/use-cases/delete-blog-post.usecase';
+import {
+  PaginationQuery,
+  PaginationWithSearchNameTermQuery,
+} from '../../../../base/models/pagination-query.input.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -56,7 +60,7 @@ export class BlogsSAController {
 
   @Get()
   async getAll(@Query() query: any) {
-    const pagination: PaginationWithSearchNameTerm =
+    const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
     const blogs = await this.blogsPostgresQueryRepository.getAll(pagination);
@@ -128,7 +132,7 @@ export class BlogsSAController {
       throw new NotFoundException(`Blog with id ${blogId} not found`);
     }
 
-    const pagination: Pagination = new Pagination(
+    const pagination: Pagination<PaginationQuery> = new Pagination(
       query,
       POSTS_SORTING_PROPERTIES,
     );

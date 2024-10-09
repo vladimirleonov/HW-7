@@ -21,7 +21,6 @@ export class NodemailerService {
 
     const transporter: Transporter<SMTPTransport.SentMessageInfo> =
       nodemailer.createTransport({
-        // TODO: how to add appSettings correctly
         host: apiSettings.EMAIL_HOST,
         port: parseInt(apiSettings.EMAIL_PORT, 10),
         secure: apiSettings.EMAIL_PORT === '465', // true for 465, false for other ports

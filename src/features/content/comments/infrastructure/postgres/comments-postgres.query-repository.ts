@@ -9,13 +9,14 @@ import {
   Pagination,
   PaginationOutput,
 } from '../../../../../base/models/pagination.base.model';
+import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
 
 @Injectable()
 export class CommentsPostgresQueryRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   getAllPostComments(
-    pagination: Pagination,
+    pagination: Pagination<PaginationQuery>,
     postId: number,
     userId?: number,
   ): any {
@@ -27,7 +28,7 @@ export class CommentsPostgresQueryRepository {
 
   private async __getResult(
     filter: any,
-    pagination: Pagination,
+    pagination: Pagination<PaginationQuery>,
     params: any[],
     userId?: number,
   ): Promise<PaginationOutput<CommentOutputModel>> {

@@ -35,6 +35,7 @@ import { CommentsPostgresQueryRepository } from '../../comments/infrastructure/p
 import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
 import { PostUpdateLikeStatusModel } from './models/input/update-post-like-status.model';
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
+import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -51,7 +52,7 @@ export class PostsController {
   @UseGuards(OptionalJwtAuthGuard)
   // TODO: change type any
   async getAll(@OptionalUserId() userId: number, @Query() query: any) {
-    const pagination: Pagination = new Pagination(
+    const pagination: Pagination<PaginationQuery> = new Pagination(
       query,
       POSTS_SORTING_PROPERTIES,
     );
@@ -82,10 +83,10 @@ export class PostsController {
   @UseGuards(OptionalJwtAuthGuard)
   async getPostComments(
     @Param('postId', new ParseIntPipe()) postId: number,
-    @Query() query: any,
+    @Query() query: PaginationQuery,
     @OptionalUserId() userId: number,
   ) {
-    const pagination: Pagination = new Pagination(
+    const pagination: Pagination<PaginationQuery> = new Pagination(
       query,
       COMMENT_SORTING_PROPERTIES,
     );

@@ -7,7 +7,6 @@ import {
 import { Injectable } from '@nestjs/common';
 import { ValidationArguments } from 'class-validator/types/validation/ValidationArguments';
 import { BlogsPostgresRepository } from '../../../features/content/blogs/infrastructure/postgres/blogs-postgres.repository';
-// import { BlogsPostgresRepository } from '../../../features/content/blogs/infrastructure/blogs.repository';
 
 @ValidatorConstraint({ name: 'BlogIsExist', async: true })
 @Injectable()
@@ -16,11 +15,11 @@ export class BlogIsExistConstraint implements ValidatorConstraintInterface {
     private readonly blogsPostgresRepository: BlogsPostgresRepository,
   ) {}
 
-  async validate(blogId: string) {
+  async validate(blogId: number) {
     console.log('check blog is exist!!!');
-    //const blog = await this.blogsPostgresRepository.findById(blogId); // Checking if blog exist
+    const blog = await this.blogsPostgresRepository.findById(blogId); // Checking if blog exist
 
-    //if (!blog) return false;
+    if (!blog) return false;
 
     return true;
   }

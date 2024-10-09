@@ -23,6 +23,10 @@ import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgre
 import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
+import {
+  PaginationQuery,
+  PaginationWithSearchNameTermQuery,
+} from '../../../../base/models/pagination-query.input.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -36,11 +40,10 @@ export class BlogsController {
     private readonly postsPostgresQueryRepository: PostsPostgresQueryRepository,
   ) {}
 
-  // +
   @Get()
   // TODO: change type any
-  async getAll(@Query() query: any) {
-    const pagination: PaginationWithSearchNameTerm =
+  async getAll(@Query() query: PaginationWithSearchNameTermQuery) {
+    const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
     const blogs: PaginationOutput<BlogOutputModel> =
@@ -49,7 +52,6 @@ export class BlogsController {
     return blogs;
   }
 
-  // +
   // TODO: change any type
   // userId +
   @Get(':blogId/posts')
@@ -67,7 +69,7 @@ export class BlogsController {
       throw new NotFoundException(`Blog with id ${blogId} not found`);
     }
 
-    const pagination: Pagination = new Pagination(
+    const pagination: Pagination<PaginationQuery> = new Pagination(
       query,
       POSTS_SORTING_PROPERTIES,
     );

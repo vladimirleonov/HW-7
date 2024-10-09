@@ -29,6 +29,7 @@ import {
 } from '../../../core/exception-filters/http-exception-filter';
 import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
+import { PaginationWithSearchLoginAndEmailTermQuery } from '../../../base/models/pagination-query.input.model';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -43,10 +44,10 @@ export class UsersController {
 
   @Get()
   // TODO: change type any
-  async getAll(@Query() query: any) {
+  async getAll(@Query() query: PaginationWithSearchLoginAndEmailTermQuery) {
     console.log(query);
 
-    const pagination: PaginationWithSearchLoginAndEmailTerm =
+    const pagination: PaginationWithSearchLoginAndEmailTerm<PaginationWithSearchLoginAndEmailTermQuery> =
       new PaginationWithSearchLoginAndEmailTerm(
         query,
         USERS_SORTING_PROPERTIES,

@@ -9,13 +9,13 @@ import {
 } from '../../api/models/output/post.output.model';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { LikeStatus } from '../../../../../base/types/like-status';
+import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
 
 @Injectable()
 export class PostsPostgresQueryRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {} // @InjectModel('User') private readonly userModel: UserModelType, // @InjectModel(Post.name) private postModel: Model<Post>,
 
-  getAllPosts(pagination: Pagination, userId?: number): any {
+  getAllPosts(pagination: Pagination<PaginationQuery>, userId?: number): any {
     return this.__getResult('', pagination, [], userId);
   }
 
@@ -41,7 +41,7 @@ export class PostsPostgresQueryRepository {
   // }
 
   getAllBlogPosts(
-    pagination: Pagination,
+    pagination: Pagination<PaginationQuery>,
     blogId: number,
     userId?: number,
   ): any {
@@ -60,7 +60,7 @@ export class PostsPostgresQueryRepository {
   // TODO: change type any
   private async __getResult(
     filter: string,
-    pagination: Pagination,
+    pagination: Pagination<PaginationQuery>,
     params: any = [],
     userId?: number,
   ): Promise<any> {
