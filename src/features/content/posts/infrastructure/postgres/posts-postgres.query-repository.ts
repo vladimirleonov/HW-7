@@ -19,27 +19,6 @@ export class PostsPostgresQueryRepository {
     return this.__getResult('', pagination, [], userId);
   }
 
-  // getAllBlogPosts(
-  //   pagination: Pagination,
-  //   blogId?: number,
-  //   userId?: number,
-  // ): any {
-  //   // const filterByBlogId: FilterQuery<Post> = blogId
-  //   //   ? { blogId: new mongoose.Types.ObjectId(blogId) }
-  //   //   : {};
-  //   //
-  //   // const filter: FilterQuery<Post> = {
-  //   //   ...filterByBlogId,
-  //   // };
-  //
-  //   const whereClause: string | null = blogId ? `WHERE blog_id=$1` : null;
-  //   const params = [blogId];
-  //
-  //   return this._getResult(whereClause, pagination, params);
-  //
-  //   // return this.__getResult(filter, pagination, userId);
-  // }
-
   getAllBlogPosts(
     pagination: Pagination<PaginationQuery>,
     blogId: number,
@@ -51,7 +30,6 @@ export class PostsPostgresQueryRepository {
     const params: string | number[] = [];
 
     whereClause += `WHERE p.blog_id=$${params.length + 1}`;
-    // console.log('params.length + 1', params.length + 1);
     params.push(blogId);
 
     return this.__getResult(whereClause, pagination, params, userId);

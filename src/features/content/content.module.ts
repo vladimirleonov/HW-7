@@ -17,8 +17,8 @@ import { BlogsPostgresQueryRepository } from './blogs/infrastructure/postgres/bl
 import { PostsPostgresRepository } from './posts/infrastructure/postgres/posts-postgres.repository';
 import { PostsPostgresQueryRepository } from './posts/infrastructure/postgres/posts-postgres.query-repository';
 import { BlogsSAController } from './blogs/api/blogs-sa.controller';
-import { UpdateBlogPostUseCase } from './blogs/application/use-cases/update-blog-post.usecase';
-import { DeleteBlogPostUseCase } from './blogs/application/use-cases/delete-blog-post.usecase';
+import { UpdateBlogPostUseCase } from './posts/application/use-cases/update-blog-post.usecase';
+import { DeleteBlogPostUseCase } from './posts/application/use-cases/delete-blog-post.usecase';
 import { CreateCommentUseCase } from './comments/application/use-cases/create-comment.usecase';
 import { CommentsPostgresRepository } from './comments/infrastructure/postgres/comments-postgres.repository';
 import { CommentsPostgresQueryRepository } from './comments/infrastructure/postgres/comments-postgres.query-repository';

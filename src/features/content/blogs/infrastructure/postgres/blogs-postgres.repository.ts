@@ -62,7 +62,9 @@ export class BlogsPostgresRepository {
       id,
     ]);
 
-    return result[1] === 1;
+    const updatedCount = result[1];
+
+    return updatedCount === 1;
   }
 
   async delete(id: number): Promise<boolean> {
@@ -75,6 +77,6 @@ export class BlogsPostgresRepository {
 
     const deletedCount = result[1];
 
-    return deletedCount > 0;
+    return deletedCount === 1;
   }
 }

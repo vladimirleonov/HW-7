@@ -30,9 +30,9 @@ export class BlogsPostgresQueryRepository {
       params.push(`%${pagination.searchNameTerm}%`);
     }
 
-    const finalWhereClause = whereClause ? `WHERE ${whereClause}` : '';
+    // const finalWhereClause = whereClause ? `WHERE ${whereClause}` : '';
 
-    return this._getResult(finalWhereClause, pagination, params);
+    return this._getResult(whereClause, pagination, params);
   }
 
   async findById(id: number) {

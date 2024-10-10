@@ -1,5 +1,5 @@
 import { CommandHandler } from '@nestjs/cqrs';
-import { PostsPostgresRepository } from '../../../posts/infrastructure/postgres/posts-postgres.repository';
+import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class DeleteBlogPostCommand {

@@ -54,7 +54,8 @@ export class BlogsController {
     @OptionalUserId() userId: number,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
-    // TODO: ask if is it ok?
+    // TODO: is it ok to get from blogsPostgresQueryRepository for check
+    // or check in getAllBlogPosts
     const blog: BlogOutputModel | null =
       await this.blogsPostgresQueryRepository.findById(blogId);
 

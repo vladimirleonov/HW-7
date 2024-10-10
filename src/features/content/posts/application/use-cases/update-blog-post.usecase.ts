@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsPostgresRepository } from '../../infrastructure/postgres/blogs-postgres.repository';
-import { PostsPostgresRepository } from '../../../posts/infrastructure/postgres/posts-postgres.repository';
+import { BlogsPostgresRepository } from '../../../blogs/infrastructure/postgres/blogs-postgres.repository';
+import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class UpdateBlogPostCommand {
@@ -18,7 +18,6 @@ export class UpdateBlogPostUseCase
   implements ICommandHandler<UpdateBlogPostCommand>
 {
   constructor(
-    private readonly blogsPostgresRepository: BlogsPostgresRepository,
     private readonly postsPostgresRepository: PostsPostgresRepository,
   ) {}
 

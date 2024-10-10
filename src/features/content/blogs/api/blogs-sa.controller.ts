@@ -32,14 +32,14 @@ import { SortingPropertiesType } from '../../../../base/types/sorting-properties
 import { BlogUpdateModel } from './models/input/update-blog.input.model';
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase';
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase';
-import { PostForBlogCreateModel } from './models/input/create-post-for-blog.input.model';
+import { PostForBlogCreateModel } from '../../posts/api/models/input/create-post-for-blog.input.model';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
 import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
-import { UpdateBlogPostCommand } from '../application/use-cases/update-blog-post.usecase';
-import { DeleteBlogPostCommand } from '../application/use-cases/delete-blog-post.usecase';
+import { UpdateBlogPostCommand } from '../../posts/application/use-cases/update-blog-post.usecase';
+import { DeleteBlogPostCommand } from '../../posts/application/use-cases/delete-blog-post.usecase';
 import {
   PaginationQuery,
   PaginationWithSearchNameTermQuery,
@@ -124,7 +124,8 @@ export class BlogsSAController {
     @Query() query: any,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
-    // TODO: ask if is it ok?
+    // TODO: ask if is it ok to check blog is exists in controller here
+    // or delete it and check in postsPostgresQueryRepository.getAllBlogPosts
     const blog: BlogOutputModel | null =
       await this.blogsPostgresQueryRepository.findById(blogId);
 
