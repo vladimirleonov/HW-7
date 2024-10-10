@@ -39,7 +39,6 @@ export class SetNewPasswordUseCase
     const expirationDate: Date = user.passwordRecoveryExpirationDate;
 
     if (expirationDate < currentDate) {
-      // return Result.badRequest('Recovery code has expired');
       return Result.badRequest([
         {
           message: 'Recovery code has expired',

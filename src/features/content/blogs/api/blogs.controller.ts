@@ -1,10 +1,8 @@
 import {
-  Body,
   Controller,
   Get,
   Param,
   ParseIntPipe,
-  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -23,10 +21,8 @@ import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgre
 import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
-import {
-  PaginationQuery,
-  PaginationWithSearchNameTermQuery,
-} from '../../../../base/models/pagination-query.input.model';
+import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
+import { BlogsPaginationQuery } from './models/input/blogs-pagination-query.input.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -41,9 +37,8 @@ export class BlogsController {
   ) {}
 
   @Get()
-  // TODO: change type any
-  async getAll(@Query() query: PaginationWithSearchNameTermQuery) {
-    const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
+  async getAll(@Query() query: BlogsPaginationQuery) {
+    const pagination: PaginationWithSearchNameTerm<BlogsPaginationQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
     const blogs: PaginationOutput<BlogOutputModel> =
@@ -52,8 +47,6 @@ export class BlogsController {
     return blogs;
   }
 
-  // TODO: change any type
-  // userId +
   @Get(':blogId/posts')
   @UseGuards(OptionalJwtAuthGuard)
   async getAllBlogPosts(
@@ -84,7 +77,6 @@ export class BlogsController {
     return blogPosts;
   }
 
-  // +
   @Get(':id')
   async getOne(@Param('id', new ParseIntPipe()) id: number) {
     const blog: BlogOutputModel | null =
@@ -96,90 +88,4 @@ export class BlogsController {
 
     return blog;
   }
-
-  // comment
-  // @Post()
-  // @UseGuards(BasicAuthGuard)
-  // async create(@Body() createModel: BlogCreateModel) {
-  //   const { name, description, websiteUrl } = createModel;
-  //
-  //   const result: Result<number> = await this.commandBus.execute<
-  //     CreateBlogCommand,
-  //     Result<number>
-  //   >(new CreateBlogCommand(name, description, websiteUrl));
-  //
-  //   const createdId: number = result.data;
-  //
-  //   const createdBlog: BlogOutputModel | null =
-  //     await this.blogsPostgresQueryRepository.findById(createdId);
-  //
-  //   if (!createdBlog) {
-  //     // error if just created blog not found
-  //     throw new InternalServerErrorException();
-  //   }
-  //
-  //   return createdBlog;
-  // }
-
-  // @Post(':blogId/posts')
-  // @UseGuards(BasicAuthGuard)
-  // async createPostForBlog(
-  //   @Param('blogId', new ParseIntPipe()) blogId: number,
-  //   @Body() createModel: PostForBlogCreateModel,
-  // ) {
-  //   const { title, shortDescription, content } = createModel;
-  //
-  //   const result: Result<string | null> = await this.commandBus.execute<
-  //     CreatePostCommand,
-  //     Result<string | null>
-  //   >(new CreatePostCommand(title, shortDescription, content, blogId));
-  //
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException(result.errorMessage!);
-  //   }
-  //
-  //   const createdId: string = result.data!;
-  //
-  //   const post: PostOutputModel | null =
-  //     await this.postQueryRepository.findById(createdId);
-  //
-  //   if (!post) {
-  //     throw new InternalServerErrorException();
-  //   }
-  //
-  //   return post;
-  // }
-
-  // @Put(':id')
-  // @UseGuards(BasicAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async update(
-  //   @Param('id', new ParseIntPipe()) id: number,
-  //   @Body() updateModel: BlogUpdateModel,
-  // ) {
-  //   const { name, description, websiteUrl } = updateModel;
-  //
-  //   const result: Result = await this.commandBus.execute<
-  //     UpdateBlogCommand,
-  //     Result
-  //   >(new UpdateBlogCommand(id, name, description, websiteUrl));
-  //
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException(result.errorMessage!);
-  //   }
-  // }
-
-  // @Delete(':id')
-  // @UseGuards(BasicAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async delete(@Param('id', new ParseIntPipe()) id: number) {
-  //   const result: Result = await this.commandBus.execute<
-  //     DeleteBlogCommand,
-  //     Result
-  //   >(new DeleteBlogCommand(id));
-  //
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException(result.errorMessage!);
-  //   }
-  // }
 }

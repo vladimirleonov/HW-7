@@ -28,7 +28,6 @@ export class CommentLikesPostgresRepository {
       userId,
       likeStatus,
     ]);
-    console.log('create comment like result', result);
 
     return result[0].id;
   }
@@ -45,8 +44,6 @@ export class CommentLikesPostgresRepository {
       commentId,
       userId,
     ]);
-
-    console.log('update comment like result', result);
 
     return result.length[1] === 1;
   }

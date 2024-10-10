@@ -6,10 +6,6 @@ import { DataSource } from 'typeorm';
 export class CommentsPostgresRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  // async save(comments: CommentDocument): Promise<CommentDocument> {
-  //   return comments.save();
-  // }
-
   async findById(id: number): Promise<any> {
     const query: string = `
       SELECT * FROM comments
@@ -19,7 +15,6 @@ export class CommentsPostgresRepository {
     const result = await this.dataSource.query(query, [id]);
 
     return result.length > 0 ? result[0] : null;
-    //return this.commentModel.findById(id);
   }
 
   async create(postId: number, content: string, userId: number) {
@@ -107,10 +102,5 @@ export class CommentsPostgresRepository {
     const result = await this.dataSource.query(query, [id]);
 
     return result.length > 0 ? result[0] : null;
-
-    // const deletedIndo = await this.commentModel.deleteOne({
-    //   _id: id,
-    // });
-    // return deletedIndo.deletedCount === 1;
   }
 }

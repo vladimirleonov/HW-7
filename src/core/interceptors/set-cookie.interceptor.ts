@@ -1,3 +1,4 @@
+/*
 import { NestInterceptor } from '@nestjs/common';
 import { ExecutionContext } from '@nestjs/common/interfaces/features/execution-context.interface';
 import { Observable, tap } from 'rxjs';
@@ -22,3 +23,4 @@ export class SetCookieInterceptor implements NestInterceptor {
     );
   }
 }
+*/

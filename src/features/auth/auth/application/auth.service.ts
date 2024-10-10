@@ -10,6 +10,7 @@ export class AuthService {
     private readonly cryptoService: CryptoService,
   ) {}
 
+  // local-strategy
   async validateUserByLoginOrEmailAndPassword(
     loginOrEmail: string,
     password: string,
@@ -24,6 +25,7 @@ export class AuthService {
     return Result.success(user.id);
   }
 
+  // jwt-strategy; refresh-token-strategy
   async validateUserById(id: number): Promise<Result> {
     const user = await this.usersPostgresRepository.findById(id);
 

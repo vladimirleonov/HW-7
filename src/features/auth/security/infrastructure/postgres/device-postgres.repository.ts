@@ -5,10 +5,6 @@ import { DataSource } from 'typeorm';
 export class DevicesPostgresRepository {
   constructor(private readonly dataSource: DataSource) {}
 
-  // async save(device: DeviceDocument): Promise<DeviceDocument> {
-  //   return device.save();
-  // }
-
   async deleteOneByDeviceIdAndIAt(
     deviceId: string,
     iat: string,
@@ -68,8 +64,6 @@ export class DevicesPostgresRepository {
       exp,
     ]);
 
-    // console.log('create device result', result);
-
     return result.length > 0 ? result[0] : null;
   }
 
@@ -98,22 +92,15 @@ export class DevicesPostgresRepository {
 
     const result = await this.dataSource.query(query, [deviceId, userId]);
 
-    const deletedRows: number = result[1];
+    const deletedRowsCount: number = result[1];
 
-    return deletedRows > 0;
+    return deletedRowsCount > 0;
   }
 
   async deleteOneByDeviceIdAndUserId(
     deviceId: string,
     userId: number,
   ): Promise<boolean> {
-    // const deletedInfo = await this.deviceModel.deleteOne({
-    //   deviceId: { $eq: deviceId },
-    //   userId: { $eq: userId },
-    // });
-    //
-    // return deletedInfo.deletedCount === 1;
-
     const query: string = `
       DELETE FROM device 
       WHERE device_id = $1 AND user_id = $2

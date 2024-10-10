@@ -166,13 +166,10 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async authMe(@CurrentUserId() userId: string) {
-    console.log('!!! Me');
     const user: AuthMeOutputModel | null =
       await this.usersPostgresqlQueryRepository.findAuthenticatedUserById(
         userId,
       );
-
-    console.log('user !', user);
 
     if (!user) {
       throw new UnauthorizedException();

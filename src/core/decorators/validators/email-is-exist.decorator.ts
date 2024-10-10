@@ -18,9 +18,8 @@ export class EmailIsExistConstraint implements ValidatorConstraintInterface {
   async validate(email: string) {
     const user = await this.usersPostgresRepository.findByField('email', email); // Checking if user with email already exists
 
-    if (!user) return true;
-
-    return false;
+    // the same as user ? false : true
+    return !user;
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

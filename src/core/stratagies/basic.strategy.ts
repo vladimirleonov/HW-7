@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
 import { ApiSettings } from '../../settings/env/api-settings';
 
+// custom strategy to check basic auth
 @Injectable()
 export class BasicStrategy extends PassportStrategy(Strategy) {
   constructor(

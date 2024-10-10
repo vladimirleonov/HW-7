@@ -1,9 +1,18 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, ExtractJwt } from 'passport-jwt'; // Исправлено на правильную стратегию
+import { Strategy, ExtractJwt } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
-import { Request } from 'express'; // Добавлен импорт Request
+import { Request } from 'express';
+
+// logic optional-jwt
+// -- with token
+// 1) token valid, not expired -> validate
+// 2) token token not valid -> 401 unauthorized
+// 3) request passed in OptionalJwtAuthGuard.handleRequest() -> return user
+// -- without token -> null or undefined
+// 1) no token -> pass validation
+// 2) request passed in OptionalJwtAuthGuard.handleRequest() -> user = null -> return { userId: null }
 
 @Injectable()
 export class OptionalJwtStrategy extends PassportStrategy(
@@ -15,7 +24,7 @@ export class OptionalJwtStrategy extends PassportStrategy(
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
+      ignoreExpiration: false, // 401 Unauthorized
       secretOrKey: configService.get('apiSettings', {
         infer: true,
       }).JWT_SECRET,

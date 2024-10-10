@@ -8,6 +8,9 @@ import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
 import { RequestWithDeviceAndCookies } from '../../base/types/request-with-device-and-cookie';
 
+// logic
+// 1) extract token from cookie -> validate
+// 2) if not token provided -> pass validate method -> error in decorators (not provided)
 @Injectable()
 export class RefreshTokenJwtStrategy extends PassportStrategy(
   Strategy,

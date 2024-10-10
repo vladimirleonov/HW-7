@@ -1,3 +1,4 @@
+/*
 import { Injectable, NestInterceptor } from '@nestjs/common';
 import { ExecutionContext } from '@nestjs/common/interfaces/features/execution-context.interface';
 import { Observable } from 'rxjs';
@@ -17,3 +18,4 @@ export class ClearCookieInterceptor implements NestInterceptor {
     return next.handle();
   }
 }
+*/

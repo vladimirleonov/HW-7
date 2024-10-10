@@ -33,8 +33,6 @@ export class CreateCommentUseCase
 
     const user = await this.usersPostgresRepository.findById(userId);
 
-    const userLogin: string = user!.login;
-
     if (!user) {
       return Result.unauthorized("User doesn't exist");
     }
@@ -46,23 +44,5 @@ export class CreateCommentUseCase
     );
 
     return Result.success(commentId);
-
-    // const newComment: CommentDocument = new this.commentModel({
-    //   postId: postId,
-    //   content: content,
-    //   commentatorInfo: {
-    //     userId: userId,
-    //     userLogin: userLogin,
-    //   },
-    //   likes: [],
-    //   likesCount: 0,
-    //   dislikesCount: 0,
-    //   createdAt: new Date(),
-    // });
-    //
-    // const createdComment: CommentDocument =
-    //   await this.commentsRepository.save(newComment);
-
-    // return Result.success(createdComment.id);
   }
 }

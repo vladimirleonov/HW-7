@@ -30,10 +30,7 @@ import { CommentLikeStatusUpdateModel } from './models/input/update-comment-like
 import { UpdateCommentLikeStatusCommand } from '../application/use-cases/update-comment-like-status.usecase';
 
 export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<CommentOutputModel> =
-  [
-    // 'likesCount', 'dislikesCount',
-    'createdAt',
-  ];
+  ['createdAt'];
 
 @Controller('comments')
 export class CommentsController {
@@ -42,14 +39,12 @@ export class CommentsController {
     private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
   ) {}
 
-  // +
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   async getOne(
     @Param('id', new ParseIntPipe()) id: number,
     @OptionalUserId() userId: number,
   ) {
-    console.log('userId', userId);
     const comment: CommentOutputModel | null =
       await this.commentsPostgresQueryRepository.findById(id, userId);
 
@@ -60,7 +55,6 @@ export class CommentsController {
     return comment;
   }
 
-  // +
   @Put('/:commentId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(204)
@@ -82,7 +76,6 @@ export class CommentsController {
     }
   }
 
-  // +
   @Put('/:commentId/like-status')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -102,7 +95,6 @@ export class CommentsController {
     }
   }
 
-  // +
   @Delete(':commentId')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
