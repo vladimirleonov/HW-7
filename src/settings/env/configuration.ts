@@ -3,6 +3,7 @@
 import { ValidateNested, validateSync } from 'class-validator';
 import { ApiSettings } from './api-settings';
 import { EnvironmentSettings } from './env-settings';
+import { DatabaseSettings } from './database-settings';
 
 export type EnvironmentVariable = { [key: string]: string };
 export type ConfigurationType = Configuration;
@@ -10,6 +11,8 @@ export type ConfigurationType = Configuration;
 export class Configuration {
   @ValidateNested()
   apiSettings: ApiSettings;
+  @ValidateNested()
+  databaseSettings: DatabaseSettings;
   @ValidateNested()
   environmentSettings: EnvironmentSettings;
 
@@ -22,6 +25,7 @@ export class Configuration {
   ): Configuration {
     return new this({
       apiSettings: new ApiSettings(environmentVariables),
+      databaseSettings: new DatabaseSettings(environmentVariables),
       environmentSettings: new EnvironmentSettings(environmentVariables),
     });
   }

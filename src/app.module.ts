@@ -9,6 +9,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';
 import { ContentModule } from './features/content/content.module';
+import { User } from './features/users/domain/user.entity';
+import { DatabaseSettings } from './settings/env/database-settings';
 
 @Module({
   imports: [
@@ -22,16 +24,33 @@ import { ContentModule } from './features/content/content.module';
       envFilePath: ['.env.development', '.env'],
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: () => ({
-        type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'postgres',
-        password: 'root',
-        database: 'blogger',
-        // entities: [],
-        //synchronize: true,
-      }),
+      useFactory: (configService: ConfigService<ConfigurationType, true>) => {
+        const databaseSettings: DatabaseSettings =
+          configService.get<DatabaseSettings>('databaseSettings');
+
+        return {
+          type: databaseSettings.DB_TYPE as 'postgres',
+          host: databaseSettings.DB_HOST,
+          port: databaseSettings.DB_PORT,
+          username: databaseSettings.DB_USERNAME,
+          password: databaseSettings.DB_PASSWORD,
+          database: databaseSettings.DB_DATABASE,
+          entities: [User],
+          synchronize: true,
+        };
+
+        // database: {
+        //   type: 'postgres',
+        //     host: 'localhost',
+        //     port: 5432,
+        //     username: 'postgres',
+        //     password: '1234',
+        //     database: 'blogger',
+        //     entities: [User],
+        //     synchronize: true,
+        // },
+      },
+      inject: [ConfigService],
     }),
     ThrottlerModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {

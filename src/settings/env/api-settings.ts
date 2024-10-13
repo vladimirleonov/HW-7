@@ -15,7 +15,7 @@ export class ApiSettings {
   @IsString()
   ADMIN_PASSWORD: string = this.envVariables.ADMIN_PASSWORD;
 
-  // Database
+  // Mongo settings
   @IsString()
   MONGO_CONNECTION_URI: string = this.envVariables.MONGO_CONNECTION_URI;
   @IsString()
@@ -23,13 +23,29 @@ export class ApiSettings {
   MONGO_CONNECTION_URI_FOR_TESTS: string =
     this.envVariables.MONGO_CONNECTION_URI_FOR_TESTS;
 
-  @IsString()
-  POSTGRESQL_CONNECTION_URI: string =
-    this.envVariables.POSTGRESQL_CONNECTION_URI;
-  @IsString()
-  @Optional()
-  POSTGRESQL_CONNECTION_URI_FOR_TESTS: string =
-    this.envVariables.POSTGRESQL_CONNECTION_URI_FOR_TESTS;
+  // Postgres settings
+  // @IsString()
+  // POSTGRESQL_CONNECTION_URI: string =
+  //   this.envVariables.POSTGRESQL_CONNECTION_URI;
+  // @IsString()
+  // @Optional()
+  // POSTGRESQL_CONNECTION_URI_FOR_TESTS: string =
+  //   this.envVariables.POSTGRESQL_CONNECTION_URI_FOR_TESTS;
+
+  // in DatabaseSettings
+
+  // @IsString()
+  // DB_TYPE: string = this.envVariables.DB_TYPE;
+  // @IsString()
+  // DB_HOST: string = this.envVariables.DB_HOST;
+  // @IsString()
+  // DB_PORT: string = this.envVariables.DB_PORT;
+  // @IsString()
+  // DB_USERNAME: string = this.envVariables.DB_USERNAME;
+  // @IsString()
+  // DB_PASSWORD: string = this.envVariables.DB_PASSWORD;
+  // @IsString()
+  // DB_DATABASE: string = this.envVariables.DB_DATABASE;
 
   // Email
   @IsString()

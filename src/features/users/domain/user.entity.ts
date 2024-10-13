@@ -1,3 +1,58 @@
+import { Check, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+// TODO: validation in entity should be the same as in api?
+// TODO: Check or length better use
+
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ length: 10 })
+  @Check(`length(login) >= 3`)
+  //@Check(`length(login) >= 3 AND length(login) <= 10`)
+  login: string;
+
+  @Column({ length: 20 })
+  @Check(`length(password) >= 6`)
+  password: string;
+
+  @Column()
+  email: string;
+
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+}
+
+// export const UserSchema = new EntitySchema({
+//   name: 'User', // название таблицы
+//   columns: {
+//     id: {
+//       type: Number,
+//       primary: true,
+//       generated: true,
+//     },
+//     login: {
+//       type: String,
+//       length: 10,
+//       nullable: false,
+//     },
+//     password: {
+//       type: String,
+//       length: 20,
+//       nullable: false,
+//     },
+//     email: {
+//       type: String,
+//       nullable: false,
+//     },
+//     createdAt: {
+//       type: 'timestamptz',
+//       default: () => 'CURRENT_TIMESTAMP',
+//     },
+//   },
+// });
+
 // import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 // import { HydratedDocument, Model } from 'mongoose';
 //
