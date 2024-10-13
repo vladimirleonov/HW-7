@@ -24,7 +24,6 @@ export const initSettings = async (
   }
 
   const testingAppModule = await testingModuleBuilder.compile();
-  // console.log(testingAppModule);
 
   const app: INestApplication = testingAppModule.createNestApplication();
 

@@ -30,7 +30,9 @@ export class CommentsPostgresRepository {
       userId,
     ]);
 
-    return result[0].id;
+    const createdId: number = result[0].id;
+
+    return createdId;
   }
 
   async update(id: number, content: string): Promise<boolean> {
@@ -42,7 +44,9 @@ export class CommentsPostgresRepository {
 
     const result = await this.dataSource.query(query, [content, id]);
 
-    return result[1] === 1;
+    const updatedRowsCount = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async increaseLikesCount(id: number) {
@@ -54,7 +58,9 @@ export class CommentsPostgresRepository {
 
     const result = await this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async decreaseLikesCount(id: number) {
@@ -66,7 +72,9 @@ export class CommentsPostgresRepository {
 
     const result = await this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async increaseDislikesCount(id: number) {
@@ -78,7 +86,9 @@ export class CommentsPostgresRepository {
 
     const result = await this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async decreaseDislikesCount(id: number) {
@@ -90,7 +100,9 @@ export class CommentsPostgresRepository {
 
     const result = await this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async delete(id: number): Promise<boolean> {
@@ -101,6 +113,8 @@ export class CommentsPostgresRepository {
 
     const result = await this.dataSource.query(query, [id]);
 
-    return result.length > 0 ? result[0] : null;
+    const deletedRowsCount = result[1];
+
+    return deletedRowsCount === 1;
   }
 }

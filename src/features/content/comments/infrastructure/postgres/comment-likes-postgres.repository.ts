@@ -29,7 +29,9 @@ export class CommentLikesPostgresRepository {
       likeStatus,
     ]);
 
-    return result[0].id;
+    const createdId: number = result[0].id;
+
+    return createdId;
   }
 
   async update(commentId: number, userId: number, likeStatus: LikeStatus) {
@@ -45,7 +47,9 @@ export class CommentLikesPostgresRepository {
       userId,
     ]);
 
-    return result.length[1] === 1;
+    const updatedRowsCount = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async delete(commentId: number, userId: number) {

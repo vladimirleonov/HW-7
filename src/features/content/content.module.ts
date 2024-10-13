@@ -3,8 +3,8 @@ import { CreateBlogUseCase } from './blogs/application/use-cases/create-blog.use
 import { UpdateBlogUseCase } from './blogs/application/use-cases/update-blog.usecase';
 import { DeleteBlogUseCase } from './blogs/application/use-cases/delete-blog.usecase';
 import { CreatePostUseCase } from './posts/application/use-cases/create-post.usecase';
-import { UpdatePostUseCase } from './posts/application/use-cases/update-post.usecase';
-import { DeletePostUseCase } from './posts/application/use-cases/delete-post.usecase';
+// import { UpdatePostUseCase } from './posts/application/use-cases/update-post.usecase';
+// import { DeletePostUseCase } from './posts/application/use-cases/delete-post.usecase';
 import { UpdatePostLikeStatusUseCase } from './posts/application/use-cases/update-post-like-status.usecase';
 import { BlogsController } from './blogs/api/blogs.controller';
 import { PostsController } from './posts/api/posts.controller';
@@ -48,8 +48,8 @@ const blogsProviders: Provider[] = [
 const postsProviders: Provider[] = [
   // use cases
   CreatePostUseCase,
-  UpdatePostUseCase,
-  DeletePostUseCase,
+  // UpdatePostUseCase,
+  // DeletePostUseCase,
   UpdatePostLikeStatusUseCase,
 
   // repositories

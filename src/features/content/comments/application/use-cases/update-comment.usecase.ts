@@ -36,7 +36,7 @@ export class UpdateCommentUseCase
       content,
     );
 
-    //TODO: should check !isUpdated???
+    // TODO: should check !isUpdated???
     if (!isUpdated) {
       // return Result.internalError
     }

@@ -24,8 +24,6 @@ export class PostsPostgresQueryRepository {
     blogId: number,
     userId?: number,
   ): any {
-    console.log('userId', userId);
-    console.log('blogId', blogId);
     let whereClause: string = '';
     const params: string | number[] = [];
 
@@ -42,15 +40,8 @@ export class PostsPostgresQueryRepository {
     params: any = [],
     userId?: number,
   ): Promise<any> {
-    // : Promise<PaginationOutput<PostOutputModel>>
-    // let whereClause = '';
-    // if (userId) {
-    //   whereClause += `AND pl.author_id=$${params.length + 1}`;
-    //   //console.log('params.length + 1', params.length + 1);
-    //   params.push(userId);
-    // }
-
     let userLikeStatusClause = '';
+
     if (userId) {
       userLikeStatusClause += `(
         SELECT status
@@ -96,11 +87,7 @@ export class PostsPostgresQueryRepository {
       LIMIT ${pagination.pageSize}
     `;
 
-    console.log(query);
-
-    console.log('params', params);
     const result = await this.dataSource.query(query, params);
-    // console.log('result', result);
 
     const countQuery = `
       SELECT count(*) as count
@@ -108,14 +95,12 @@ export class PostsPostgresQueryRepository {
       ${filter}
     `;
 
-    // const countResult = await this.dataSource.query(countQuery);
     const countResult = await this.dataSource.query(
       countQuery,
       filter ? [params[0]] : [],
     );
 
     const totalCount: number = Number(countResult[0].count);
-    // console.log('totalCount', totalCount);
 
     const mappedPosts = result.map(PostOutputModelMapper);
 
@@ -139,9 +124,6 @@ export class PostsPostgresQueryRepository {
        )`;
       params.push(userId);
     }
-
-    console.log('userId', userId);
-    console.log('params', params);
 
     const query = `
       SELECT p.id, p.title, p.short_description, p.content, p.blog_id, p.created_at,
@@ -175,7 +157,6 @@ export class PostsPostgresQueryRepository {
       FROM posts p
       WHERE p.id = $1
     `;
-    // GROUP BY p.id, p.title, p.short_description, p.content, p.blog_id, p.likes_count, p.dislikes_count
 
     const result = await this.dataSource.query(query, params);
 

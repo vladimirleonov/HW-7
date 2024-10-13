@@ -74,7 +74,9 @@ export class PostsPostgresRepository {
       blogId,
     ]);
 
-    return result[1] === 1;
+    const updatedRowsCount: number = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async increaseLikesCount(id: number) {
@@ -86,7 +88,9 @@ export class PostsPostgresRepository {
 
     const result = this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount: number = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async decreaseLikesCount(id: number) {
@@ -98,7 +102,9 @@ export class PostsPostgresRepository {
 
     const result = this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount: number = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async increaseDislikesCount(id: number) {
@@ -110,7 +116,9 @@ export class PostsPostgresRepository {
 
     const result = this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount: number = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async decreaseDislikesCount(id: number) {
@@ -122,7 +130,9 @@ export class PostsPostgresRepository {
 
     const result = this.dataSource.query(query, [id]);
 
-    return result[1] === 1;
+    const updatedRowsCount: number = result[1];
+
+    return updatedRowsCount === 1;
   }
 
   async delete(blogId: number, postId: number): Promise<boolean> {
@@ -133,6 +143,8 @@ export class PostsPostgresRepository {
 
     const result = await this.dataSource.query(query, [postId, blogId]);
 
-    return result[1] === 1;
+    const deletedRowsCount: number = result[1];
+
+    return deletedRowsCount === 1;
   }
 }

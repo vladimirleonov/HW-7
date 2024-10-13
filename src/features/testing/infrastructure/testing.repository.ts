@@ -22,6 +22,6 @@ export class TestingRepository {
       await this.dataSource.query(`DELETE FROM ${table}`);
     }
 
-    await this.dataSource.query(`SET session_replication_role = 'origin';`);
+    // await this.dataSource.query(`SET session_replication_role = 'origin';`);
   }
 }

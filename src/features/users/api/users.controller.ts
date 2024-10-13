@@ -44,11 +44,8 @@ export class UsersController {
   ) {}
 
   @Get()
-  // TODO: change type any
   async getAll(@Query() query: UsersPaginationQuery) {
-    console.log(query);
-
-    const pagination: PaginationWithSearchLoginAndEmailTerm<PaginationWithSearchLoginAndEmailTermQuery> =
+    const pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery> =
       new PaginationWithSearchLoginAndEmailTerm(
         query,
         USERS_SORTING_PROPERTIES,

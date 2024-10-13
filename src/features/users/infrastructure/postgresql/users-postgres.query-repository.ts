@@ -10,13 +10,14 @@ import {
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../../base/models/pagination.base.model';
 import { PaginationWithSearchLoginAndEmailTermQuery } from '../../../../base/models/pagination-query.input.model';
+import { UsersPaginationQuery } from '../../api/models/input/users-pagination-query.input.model';
 
 @Injectable()
 export class UsersPostgresQueryRepository {
   constructor(private readonly dataSource: DataSource) {}
 
   async getAll(
-    pagination: PaginationWithSearchLoginAndEmailTerm<PaginationWithSearchLoginAndEmailTermQuery>,
+    pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery>,
   ): Promise<PaginationOutput<any>> {
     let whereClause = '';
     const params: string[] = [];

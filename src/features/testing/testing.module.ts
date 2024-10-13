@@ -6,9 +6,7 @@ import { TestingRepository } from './infrastructure/testing.repository';
 @Module({})
 export class TestingModule {
   static register(): DynamicModule {
-    console.log('TestingModule is registered');
     if (process.env.ENV !== 'PRODUCTION') {
-      console.log('in if PRODUCTION!!!');
       return {
         module: TestingModule,
         imports: [],
@@ -16,8 +14,6 @@ export class TestingModule {
         providers: [TestingService, TestingRepository],
       };
     }
-
-    console.log('TestingModule is registered');
 
     return {
       module: TestingModule,

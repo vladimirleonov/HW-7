@@ -31,9 +31,9 @@ export class PostLikesPostgresRepository {
       likeStatus,
     ]);
 
-    console.log('create post_likes', result);
+    const createdId: number = result[0].id;
 
-    return result.length > 0 ? result[0] : null;
+    return createdId;
   }
 
   async update(postId: number, userId: number, likeStatus: LikeStatus) {
@@ -49,9 +49,9 @@ export class PostLikesPostgresRepository {
       userId,
     ]);
 
-    console.log('update post_likes result', result);
+    const updatedRowsCount: number = result[1];
 
-    return result[1] === 1;
+    return updatedRowsCount === 1;
   }
 
   async delete(postId: number, userId: number) {
@@ -61,7 +61,6 @@ export class PostLikesPostgresRepository {
     `;
 
     const result = await this.dataSource.query(query, [postId, userId]);
-    console.log('delete post_likes result', result);
 
     const deletedRowsCount: number = result[1];
 

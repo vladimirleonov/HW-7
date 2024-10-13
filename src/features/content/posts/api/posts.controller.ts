@@ -36,6 +36,7 @@ import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controll
 import { PostUpdateLikeStatusModel } from './models/input/update-post-like-status.model';
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
 import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
+import { PostsPaginationQuery } from './models/input/posts-pagination-query.input.model';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -50,8 +51,10 @@ export class PostsController {
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
-  // TODO: change type any
-  async getAll(@OptionalUserId() userId: number, @Query() query: any) {
+  async getAll(
+    @OptionalUserId() userId: number,
+    @Query() query: PostsPaginationQuery,
+  ) {
     const pagination: Pagination<PaginationQuery> = new Pagination(
       query,
       POSTS_SORTING_PROPERTIES,
@@ -91,7 +94,7 @@ export class PostsController {
       COMMENT_SORTING_PROPERTIES,
     );
 
-    // TODO: CreateDecorator to check corrent postId
+    // TODO: CreateDecorator to check current postId???
     const post: PostOutputModel | null =
       await this.postsPostgresQueryRepository.findById(postId);
 
@@ -143,53 +146,6 @@ export class PostsController {
     return comment;
   }
 
-  // @Post()
-  // @UseGuards(BasicAuthGuard)
-  // async create(@Body() createModel: PostCreateModel) {
-  //   const { title, shortDescription, content, blogId } = createModel;
-  //
-  //   const result: Result<string | null> = await this.commandBus.execute<
-  //     CreatePostCommand,
-  //     Result<string | null>
-  //   >(new CreatePostCommand(title, shortDescription, content, blogId));
-  //
-  //   // TODO: add check wasn't before
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException(result.errorMessage!);
-  //   }
-  //
-  //   const createdId: string = result.data!;
-  //
-  //   const post: PostOutputModel | null =
-  //     await this.postsQueryRepository.findById(createdId);
-  //
-  //   if (!post) {
-  //     // error if just created post not found
-  //     throw new InternalServerErrorException();
-  //   }
-  //
-  //   return post;
-  // }
-
-  // @Put(':id')
-  // @UseGuards(BasicAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async update(
-  //   @Param('id', new ParseIntPipe()) id: number,
-  //   @Body() updateModel: PostUpdateModel,
-  // ) {
-  //   const { title, shortDescription, content, blogId } = updateModel;
-  //
-  //   const result: Result = await this.commandBus.execute<
-  //     UpdatePostCommand,
-  //     Result
-  //   >(new UpdatePostCommand(id, title, shortDescription, content, blogId));
-  //
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException(result.errorMessage!);
-  //   }
-  // }
-
   @Put(':postId/like-status')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -204,26 +160,8 @@ export class PostsController {
       new UpdatePostLikeStatusCommand(likeStatus, postId, userId),
     );
 
-    console.log('result in controller', result);
-
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();
     }
-
-    return;
   }
-
-  // @Delete(':id')
-  // @UseGuards(BasicAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async delete(@Param('id', new ParseIntPipe()) id: number) {
-  //   const result: Result = await this.commandBus.execute<
-  //     DeletePostCommand,
-  //     Result
-  //   >(new DeletePostCommand(id));
-  //
-  //   if (result.status === ResultStatus.NotFound) {
-  //     throw new NotFoundException(result.errorMessage!);
-  //   }
-  // }
 }

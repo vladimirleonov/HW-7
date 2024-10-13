@@ -34,7 +34,6 @@ export class CommentsPostgresQueryRepository {
   ): Promise<PaginationOutput<CommentOutputModel>> {
     let userLikeStatusClause = '';
 
-    console.log('userId', userId);
     if (userId) {
       userLikeStatusClause += `(
         SELECT cl.status
@@ -56,10 +55,10 @@ export class CommentsPostgresQueryRepository {
       json_build_object (
         'likes_count', c.likes_count,
         'dislikes_count', c.dislikes_count,
-        'my_status', ${userLikeStatusClause ? userLikeStatusClause : 'null'}
+        'my_status', ${userLikeStatusClause ? userLikeStatusClause : null}
       ) as "likes_info"
       FROM comments c
-      ${filter}
+      ${filter ? filter : ''}
       ORDER BY c.${pagination.sortBy} ${pagination.sortDirection}
       OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
       LIMIT ${pagination.pageSize}
@@ -70,7 +69,7 @@ export class CommentsPostgresQueryRepository {
     const countQuery = `
       SELECT count(*) as count
       FROM comments c
-      ${filter}
+      ${filter ? filter : ''}
     `;
 
     const countResult = await this.dataSource.query(countQuery, [params[0]]);
@@ -92,7 +91,6 @@ export class CommentsPostgresQueryRepository {
     const whereClause = 'WHERE c.id = $1';
     let userLikeStatusClause = '';
 
-    console.log('userId', userId);
     if (userId) {
       userLikeStatusClause += `(
         SELECT cl.status
