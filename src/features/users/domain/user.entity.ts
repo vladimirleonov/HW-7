@@ -3,9 +3,7 @@ import {
   Column,
   Entity,
   OneToOne,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
-  JoinColumn,
 } from 'typeorm';
 import { EmailConfirmation } from './email-confirmation';
 import { PasswordRecovery } from './password-recovery';
