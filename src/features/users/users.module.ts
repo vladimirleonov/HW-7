@@ -8,6 +8,10 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { EmailIsExistConstraint } from '../../core/decorators/validators/email-is-exist.decorator';
 import { UsersPostgresRepository } from './infrastructure/postgresql/users-postgres.repository';
 import { UsersPostgresQueryRepository } from './infrastructure/postgresql/users-postgres.query-repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EmailConfirmation } from './domain/email-confirmation';
+import { User } from './domain/user.entity';
+import { PasswordRecovery } from './domain/password-recovery';
 
 const usersProviders: Provider[] = [
   // use cases
@@ -29,6 +33,7 @@ const usersProviders: Provider[] = [
   imports: [
     CqrsModule,
     // MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    TypeOrmModule.forFeature([User, EmailConfirmation, PasswordRecovery]),
   ],
   controllers: [UsersController],
   providers: [...usersProviders, CryptoService],

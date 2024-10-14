@@ -1,4 +1,14 @@
-import { Check, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Check,
+  Column,
+  Entity,
+  OneToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  JoinColumn,
+} from 'typeorm';
+import { EmailConfirmation } from './email-confirmation';
+import { PasswordRecovery } from './password-recovery';
 
 // TODO: validation in entity should be the same as in api?
 // TODO: Check or length better use
@@ -22,6 +32,12 @@ export class User {
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  @OneToOne(() => EmailConfirmation, (ec) => ec.user)
+  emailConfirmation: EmailConfirmation;
+
+  @OneToOne(() => PasswordRecovery, (pr) => pr.user)
+  passwordRecovery: PasswordRecovery;
 }
 
 // export const UserSchema = new EntitySchema({

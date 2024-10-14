@@ -42,7 +42,7 @@ export class UsersPostgresRepository {
         ec.is_confirmed AS "emailConfirmationIsEmailConfirmed",
         pr.recovery_code AS "passwordRecoveryRecoveryCode",
         pr.expiration_date AS "passwordRecoveryExpirationDate"
-      FROM users u
+      FROM user u
       LEFT JOIN email_confirmation ec ON u.id = ec.user_id
       LEFT JOIN password_recovery pr ON u.id = pr.user_id
       WHERE "${field}" = $1`;

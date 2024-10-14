@@ -11,6 +11,8 @@ import { TestingModule } from './features/testing/testing.module';
 import { ContentModule } from './features/content/content.module';
 import { User } from './features/users/domain/user.entity';
 import { DatabaseSettings } from './settings/env/database-settings';
+import { EmailConfirmation } from './features/users/domain/email-confirmation';
+import { PasswordRecovery } from './features/users/domain/password-recovery';
 
 @Module({
   imports: [
@@ -35,7 +37,7 @@ import { DatabaseSettings } from './settings/env/database-settings';
           username: databaseSettings.DB_USERNAME,
           password: databaseSettings.DB_PASSWORD,
           database: databaseSettings.DB_DATABASE,
-          entities: [User],
+          entities: [User, EmailConfirmation, PasswordRecovery],
           synchronize: true,
         };
 

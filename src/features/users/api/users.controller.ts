@@ -29,7 +29,6 @@ import {
 } from '../../../core/exception-filters/http-exception-filter';
 import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
-import { PaginationWithSearchLoginAndEmailTermQuery } from '../../../base/models/pagination-query.input.model';
 import { UsersPaginationQuery } from './models/input/users-pagination-query.input.model';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
