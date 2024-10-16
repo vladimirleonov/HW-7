@@ -59,7 +59,7 @@ export class Pagination<T extends PaginationQuery> {
   }
 
   private getSortBy(query: T, sortProperties: string[]): string {
-    let result = 'created_at';
+    let result = 'createdAt';
 
     const querySortBy = query.sortBy;
 

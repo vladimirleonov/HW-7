@@ -6,8 +6,9 @@ export class PasswordRecovery {
   @PrimaryColumn()
   userId: number;
 
-  @OneToOne(() => User, (u) => u.passwordRecovery)
-  @JoinColumn()
+  // makes userId as foreign key
+  @OneToOne(() => User, (u) => u.passwordRecovery, { onDelete: 'CASCADE' })
+  @JoinColumn() // adds foreign key (user + id (primary key) => userId)
   user: User;
 
   @Column({ type: 'uuid' })

@@ -3,7 +3,7 @@ import { Result } from '../../../../../base/types/object-result';
 import { randomUUID } from 'node:crypto';
 import { add } from 'date-fns';
 import { passwordRecoveryEmailTemplate } from '../../../../../core/email-templates/password-recovery-email-template';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { NodemailerService } from '../../../../../core/application/nodemailer.service';
 
 export class PasswordRecoveryCommand {
@@ -15,14 +15,14 @@ export class PasswordRecoveryUseCase
   implements ICommandHandler<PasswordRecoveryCommand>
 {
   constructor(
-    public readonly usersPostgresRepository: UsersPostgresRepository,
+    public readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly nodemailerService: NodemailerService,
   ) {}
 
   async execute(command: PasswordRecoveryCommand): Promise<Result> {
     const { email } = command;
 
-    const existingUser = await this.usersPostgresRepository.findByEmail(email);
+    const existingUser = await this.usersTypeormRepository.findByEmail(email);
     if (!existingUser) {
       return Result.notFound(`User with email ${email} does not exist`);
     }
@@ -33,7 +33,7 @@ export class PasswordRecoveryUseCase
       minutes: 30,
     });
 
-    await this.usersPostgresRepository.updatePasswordRecoveryData(
+    await this.usersTypeormRepository.updatePasswordRecoveryData(
       recoveryCode,
       expirationDate,
       existingUser.id,

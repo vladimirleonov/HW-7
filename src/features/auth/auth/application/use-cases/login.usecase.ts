@@ -3,7 +3,7 @@ import { Result } from '../../../../../base/types/object-result';
 import { randomUUID } from 'node:crypto';
 import { unixToISOString } from '../../../../../core/utils/convert-unix-to-iso';
 import { JwtService } from '@nestjs/jwt';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { DevicesPostgresRepository } from '../../../security/infrastructure/postgres/device-postgres.repository';
 import { JwtPayload } from 'jsonwebtoken';
 
@@ -19,7 +19,7 @@ export class LoginCommand {
 @CommandHandler(LoginCommand)
 export class LoginUseCase implements ICommandHandler<LoginCommand> {
   constructor(
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly devicesPostgresRepository: DevicesPostgresRepository,
     private readonly jwtService: JwtService,
   ) {}
@@ -37,7 +37,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       }
     }
 
-    const user: any = await this.usersPostgresRepository.findById(
+    const user: any = await this.usersTypeormRepository.findById(
       command.userId,
     );
 

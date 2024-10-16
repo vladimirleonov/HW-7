@@ -19,7 +19,7 @@ export const UserOutputModelMapper = (user): UserOutputModel => {
   outputModel.id = user.id.toString();
   outputModel.login = user.login;
   outputModel.email = user.email;
-  outputModel.createdAt = user.created_at.toISOString();
+  outputModel.createdAt = user.createdAt.toISOString();
 
   return outputModel;
 };

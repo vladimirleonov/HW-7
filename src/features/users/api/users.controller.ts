@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -19,7 +20,7 @@ import {
 } from '../../../base/models/pagination.base.model';
 import { UserCreateModel } from './models/input/create-user.input.model';
 import { CommandBus } from '@nestjs/cqrs';
-import { UsersPostgresQueryRepository } from '../infrastructure/postgresql/users-postgres.query-repository';
+import { UsersTypeormQueryRepository } from '../infrastructure/typeorm/users-typeorm.query-repository';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { CreateUserCommand } from '../application/use-cases/create-user.usecase';
 import {
@@ -39,7 +40,7 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersPostgresqlQueryRepository: UsersPostgresQueryRepository,
+    private readonly usersTypeormQueryRepository: UsersTypeormQueryRepository,
   ) {}
 
   @Get()
@@ -51,7 +52,7 @@ export class UsersController {
       );
 
     const users: PaginationOutput<any> =
-      await this.usersPostgresqlQueryRepository.getAll(pagination);
+      await this.usersTypeormQueryRepository.getAll(pagination);
 
     return users;
   }
@@ -60,19 +61,19 @@ export class UsersController {
   async create(@Body() createModel: UserCreateModel) {
     const { login, password, email } = createModel;
 
-    const result: Result<string | null> = await this.commandBus.execute<
+    const result: Result<number | null> = await this.commandBus.execute<
       CreateUserCommand,
-      Result<string | null>
+      Result<number | null>
     >(new CreateUserCommand(login, password, email));
 
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.extensions!);
     }
 
-    const createdUserId: string = result.data!;
+    const createdUserId: number = result.data!;
 
     const createdUser =
-      await this.usersPostgresqlQueryRepository.findById(createdUserId);
+      await this.usersTypeormQueryRepository.findById(createdUserId);
 
     if (!createdUser) {
       // error if just created blog not found
@@ -84,7 +85,7 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', new ParseIntPipe()) id: number) {
     const result: Result = await this.commandBus.execute<
       DeleteUserCommand,
       Result

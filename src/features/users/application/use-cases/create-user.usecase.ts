@@ -5,12 +5,8 @@ import { randomUUID } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../../../settings/env/configuration';
 import { CryptoService } from '../../../../core/application/crypto.service';
-import { UsersPostgresRepository } from '../../infrastructure/postgresql/users-postgres.repository';
-import { InjectRepository } from '@nestjs/typeorm';
+import { UsersTypeormRepository } from '../../infrastructure/typeorm/users-typeorm.repository';
 import { User } from '../../domain/user.entity';
-import { Repository } from 'typeorm';
-import { EmailConfirmation } from '../../domain/email-confirmation';
-import { PasswordRecovery } from '../../domain/password-recovery';
 
 export class CreateUserCommand {
   constructor(
@@ -23,13 +19,7 @@ export class CreateUserCommand {
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    @InjectRepository(EmailConfirmation)
-    private readonly emailConfirmation: EmailConfirmation,
-    @InjectRepository(PasswordRecovery)
-    private readonly passwordRecovery: PasswordRecovery,
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
     private cryptoService: CryptoService,
     private configService: ConfigService<ConfigurationType, true>,
   ) {}
@@ -42,9 +32,11 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     });
 
     const [foundUserByLogin, foundUserByEmail] = await Promise.all([
-      this.usersPostgresRepository.findByField('login', login),
-      this.usersPostgresRepository.findByField('email', email),
+      this.usersTypeormRepository.findByField('login', login),
+      this.usersTypeormRepository.findByField('email', email),
     ]);
+    console.log('foundUserByLogin', foundUserByLogin); //null
+    console.log('foundUserByEmail', foundUserByEmail); //null
 
     if (foundUserByLogin) {
       return Result.badRequest([
@@ -64,37 +56,14 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       ]);
     }
 
-    const generatedPasswordHash: string = await this.cryptoService.createHash(
+    const passwordHash: string = await this.cryptoService.createHash(
       password,
       apiSettings.HASH_ROUNDS,
     );
 
-    // const createdUser: any = await this.usersPostgresRepository.create(
-    //   login,
-    //   generatedPasswordHash,
-    //   email,
-    //   {
-    //     confirmationCode: randomUUID(),
-    //     expirationDate: new Date(),
-    //     isConfirmed: true,
-    //   },
-    //   {
-    //     recoveryCode: randomUUID(),
-    //     expirationDate: new Date(),
-    //   },
-    // );
-
-    // const user = this.usersRepository.create({
-    //   login,
-    //   password: generatedPasswordHash,
-    //   email,
-    //   createdAt: new Date(),
-    // });
-    // console.log(user);
-
-    const createdUser: any = await this.usersPostgresRepository.create(
+    const createdUser: User = await this.usersTypeormRepository.create(
       login,
-      generatedPasswordHash,
+      passwordHash,
       email,
       {
         confirmationCode: randomUUID(),
@@ -107,7 +76,8 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       },
     );
 
-    const userId: string = createdUser.id;
+    const userId: number = createdUser.id;
+    // console.log('userId', userId);
 
     return Result.success(userId);
   }

@@ -7,7 +7,7 @@ export class EmailConfirmation {
   userId: number;
 
   // makes userId as foreign key
-  @OneToOne(() => User, (u) => u.emailConfirmation)
+  @OneToOne(() => User, (u) => u.emailConfirmation, { onDelete: 'CASCADE' })
   @JoinColumn() // adds foreign key
   user: User;
 

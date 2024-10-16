@@ -17,6 +17,6 @@ export class UserCreateModel {
   @Trim()
   @MinLength(1, { message: 'Length not correct' })
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
-  @EmailIsExist()
+  // @EmailIsExist()
   email: string;
 }

@@ -3,7 +3,7 @@ import { DevicesPostgresRepository } from '../../../security/infrastructure/post
 import { Result } from '../../../../../base/types/object-result';
 import { JwtService } from '@nestjs/jwt';
 import { unixToISOString } from '../../../../../core/utils/convert-unix-to-iso';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 
 export class RefreshTokenCommand {
   constructor(
@@ -17,7 +17,7 @@ export class RefreshTokenCommand {
 export class RefreshTokenUseCase implements ICommandHandler {
   constructor(
     private readonly devicesPostgresRepository: DevicesPostgresRepository,
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly jwtService: JwtService,
   ) {}
 

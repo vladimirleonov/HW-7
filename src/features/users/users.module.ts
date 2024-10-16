@@ -6,8 +6,8 @@ import { CryptoService } from '../../core/application/crypto.service';
 import { CqrsModule } from '@nestjs/cqrs';
 // import { LoginIsExistConstraint } from '../../core/decorators/validators/login-is-exist.decorator';
 import { EmailIsExistConstraint } from '../../core/decorators/validators/email-is-exist.decorator';
-import { UsersPostgresRepository } from './infrastructure/postgresql/users-postgres.repository';
-import { UsersPostgresQueryRepository } from './infrastructure/postgresql/users-postgres.query-repository';
+import { UsersTypeormRepository } from './infrastructure/typeorm/users-typeorm.repository';
+import { UsersTypeormQueryRepository } from './infrastructure/typeorm/users-typeorm.query-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailConfirmation } from './domain/email-confirmation';
 import { User } from './domain/user.entity';
@@ -21,8 +21,10 @@ const usersProviders: Provider[] = [
   // repositories
   // UsersMongoRepository,
   // UsersMongoQueryRepository,
-  UsersPostgresRepository,
-  UsersPostgresQueryRepository,
+  // UsersPostgresRepository,
+  // UsersPostgresQueryRepository,
+  UsersTypeormRepository,
+  UsersTypeormQueryRepository,
 
   // validation constraints
   // LoginIsExistConstraint,
@@ -37,6 +39,6 @@ const usersProviders: Provider[] = [
   ],
   controllers: [UsersController],
   providers: [...usersProviders, CryptoService],
-  exports: [UsersPostgresRepository, UsersPostgresQueryRepository],
+  exports: [UsersTypeormRepository, UsersTypeormQueryRepository],
 })
 export class UsersModule {}

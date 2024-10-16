@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
 import { PostsPostgresRepository } from '../../../posts/infrastructure/postgres/posts-postgres.repository';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CommentsPostgresRepository } from '../../infrastructure/postgres/comments-postgres.repository';
 
 export class CreateCommentCommand {
@@ -18,7 +18,7 @@ export class CreateCommentUseCase
 {
   constructor(
     private readonly postsPostgresRepository: PostsPostgresRepository,
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly commentsPostgresRepository: CommentsPostgresRepository,
   ) {}
 
@@ -31,7 +31,7 @@ export class CreateCommentUseCase
       return Result.notFound(`Post with postId doesn't exist`);
     }
 
-    const user = await this.usersPostgresRepository.findById(userId);
+    const user = await this.usersTypeormRepository.findById(userId);
 
     if (!user) {
       return Result.unauthorized("User doesn't exist");

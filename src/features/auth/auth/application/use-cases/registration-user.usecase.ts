@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { add } from 'date-fns';
 import { registrationEmailTemplate } from '../../../../../core/email-templates/registration-email-template';
 import { CryptoService } from '../../../../../core/application/crypto.service';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { NodemailerService } from '../../../../../core/application/nodemailer.service';
 
 export class RegistrationUserCommand {
@@ -21,7 +21,7 @@ export class RegistrationUseCase
 {
   constructor(
     private readonly cryptoService: CryptoService,
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly nodemailerService: NodemailerService,
   ) {}
 
@@ -31,8 +31,8 @@ export class RegistrationUseCase
     const { login, password, email } = command;
 
     const [userByLogin, userByEmail] = await Promise.all([
-      this.usersPostgresRepository.findByLogin(login),
-      this.usersPostgresRepository.findByEmail(email),
+      this.usersTypeormRepository.findByLogin(login),
+      this.usersTypeormRepository.findByEmail(email),
     ]);
 
     if (userByLogin) {
@@ -59,7 +59,7 @@ export class RegistrationUseCase
       saltRounds,
     );
 
-    const createdUser: any = await this.usersPostgresRepository.create(
+    const createdUser: any = await this.usersTypeormRepository.create(
       login,
       passwordHash,
       email,

@@ -3,7 +3,7 @@ import { Result, ResultStatus } from '../../../../../base/types/object-result';
 import { randomUUID } from 'node:crypto';
 import { add } from 'date-fns';
 import { registrationEmailTemplate } from '../../../../../core/email-templates/registration-email-template';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { NodemailerService } from '../../../../../core/application/nodemailer.service';
 
 export class RegistrationEmailResendingCommand {
@@ -13,14 +13,14 @@ export class RegistrationEmailResendingCommand {
 @CommandHandler(RegistrationEmailResendingCommand)
 export class RegistrationEmailResendingUseCase implements ICommandHandler {
   constructor(
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly nodemailerService: NodemailerService,
   ) {}
 
   async execute(command: RegistrationEmailResendingCommand): Promise<any> {
     const { email } = command;
 
-    const existingUser = await this.usersPostgresRepository.findByEmail(email);
+    const existingUser = await this.usersTypeormRepository.findByEmail(email);
 
     if (!existingUser) {
       // return Result.badRequest('Invalid email provided');
@@ -50,7 +50,7 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler {
 
     const userId: number = existingUser.id;
 
-    await this.usersPostgresRepository.updateEmailConfirmationData(
+    await this.usersTypeormRepository.updateEmailConfirmationData(
       confirmationCode,
       expirationDate,
       userId,

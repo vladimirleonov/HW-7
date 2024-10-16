@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 
 export class ConfirmRegistrationCommand {
   constructor(public readonly code: string) {}
@@ -11,14 +11,14 @@ export class ConfirmRegistrationUseCase
   implements ICommandHandler<ConfirmRegistrationCommand>
 {
   constructor(
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
   ) {}
 
   async execute(command: ConfirmRegistrationCommand): Promise<any> {
     const { code } = command;
 
     const existingUser =
-      await this.usersPostgresRepository.findUserByConfirmationCode(code);
+      await this.usersTypeormRepository.findUserByConfirmationCode(code);
 
     if (!existingUser) {
       return Result.badRequest([
@@ -49,7 +49,7 @@ export class ConfirmRegistrationUseCase
 
     const userId: number = existingUser.id;
 
-    await this.usersPostgresRepository.updateIsConfirmed(true, userId);
+    await this.usersTypeormRepository.updateIsConfirmed(true, userId);
 
     return Result.success();
   }

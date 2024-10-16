@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
-import { UsersPostgresRepository } from '../../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CryptoService } from '../../../../../core/application/crypto.service';
 import { randomUUID } from 'node:crypto';
 
@@ -16,7 +16,7 @@ export class SetNewPasswordUseCase
   implements ICommandHandler<SetNewPasswordCommand>
 {
   constructor(
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersPostgresRepository: UsersTypeormRepository,
     private readonly cryptoService: CryptoService,
   ) {}
 

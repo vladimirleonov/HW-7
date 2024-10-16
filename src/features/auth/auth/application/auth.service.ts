@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Result } from '../../../../base/types/object-result';
-import { UsersPostgresRepository } from '../../../users/infrastructure/postgresql/users-postgres.repository';
+import { UsersTypeormRepository } from '../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CryptoService } from '../../../../core/application/crypto.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersPostgresRepository: UsersPostgresRepository,
+    private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly cryptoService: CryptoService,
   ) {}
 
@@ -16,7 +16,7 @@ export class AuthService {
     password: string,
   ): Promise<Result<number>> {
     const user =
-      await this.usersPostgresRepository.findByLoginOrEmailField(loginOrEmail);
+      await this.usersTypeormRepository.findByLoginOrEmailField(loginOrEmail);
 
     if (!user || !(await this.cryptoService.compare(password, user.password))) {
       return Result.unauthorized('Wrong login or password');
@@ -27,7 +27,7 @@ export class AuthService {
 
   // jwt-strategy; refresh-token-strategy
   async validateUserById(id: number): Promise<Result> {
-    const user = await this.usersPostgresRepository.findById(id);
+    const user = await this.usersTypeormRepository.findById(id);
 
     if (!user) {
       return Result.notFound('Wrong user id');
