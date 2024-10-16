@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { RefreshTokenAuthGuard } from '../../../../core/guards/passport/refresh-token-auth.guard';
 import { CurrentDeviceId } from '../../../../core/decorators/param-decorators/current-device-id.param.decorator';
-import { DevicesPostgresQueryRepository } from '../infrastructure/postgres/device-postgres.query-repository';
+import { DevicesTypeormQueryRepository } from '../infrastructure/typeorm/device-typeorm.query-repository';
 import { CurrentUserIdFromDevice } from '../../../../core/decorators/param-decorators/current-user-id-from-device.param.decorator';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CommandBus } from '@nestjs/cqrs';
@@ -24,7 +24,7 @@ import { ParseUUIDPipe } from '../../../../core/pipes/parse-uuid.pipe';
 export class SecurityController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly devicesPostgresQueryRepository: DevicesPostgresQueryRepository,
+    private readonly devicesTypeormQueryRepository: DevicesTypeormQueryRepository,
   ) {}
 
   @Get()
@@ -33,9 +33,7 @@ export class SecurityController {
     @CurrentUserIdFromDevice() userId: number,
   ) {
     const userDevices =
-      await this.devicesPostgresQueryRepository.findAllForOutputByUserId(
-        userId,
-      );
+      await this.devicesTypeormQueryRepository.findAllForOutputByUserId(userId);
     return userDevices;
   }
 

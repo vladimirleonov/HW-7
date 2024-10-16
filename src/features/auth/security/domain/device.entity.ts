@@ -3,8 +3,8 @@ import { User } from '../../../users/domain/user.entity';
 
 @Entity()
 export class Device {
-  @PrimaryColumn({ type: 'uuid' })
-  deviceId: number;
+  @PrimaryColumn({ type: 'uuid', default: () => 'uuid_generate_v4()' })
+  deviceId: string;
 
   @Column()
   userId: number;

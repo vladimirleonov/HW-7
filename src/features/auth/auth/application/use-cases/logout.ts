@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
-import { DevicesPostgresRepository } from '../../../security/infrastructure/postgres/device-postgres.repository';
+import { DevicesTypeormRepository } from '../../../security/infrastructure/typeorm/device-typeorm.repository';
 
 export class LogoutCommand {
   constructor(
@@ -12,14 +12,14 @@ export class LogoutCommand {
 @CommandHandler(LogoutCommand)
 export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
   constructor(
-    private readonly devicesPostgresRepository: DevicesPostgresRepository,
+    private readonly devicesTypeormRepository: DevicesTypeormRepository,
   ) {}
 
   async execute(command: LogoutCommand) {
     const { deviceId, iat } = command;
 
     const isDeleted: boolean =
-      await this.devicesPostgresRepository.deleteOneByDeviceIdAndIAt(
+      await this.devicesTypeormRepository.deleteOneByDeviceIdAndIAt(
         deviceId,
         iat,
       );

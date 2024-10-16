@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DevicesPostgresRepository } from '../../infrastructure/postgres/device-postgres.repository';
+import { DevicesTypeormRepository } from '../../infrastructure/typeorm/device-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class TerminateUserDeviceCommand {
@@ -14,14 +14,13 @@ export class TerminateUserDeviceUseCase
   implements ICommandHandler<TerminateUserDeviceCommand>
 {
   constructor(
-    private readonly devicesPostgresRepository: DevicesPostgresRepository,
+    private readonly devicesTypeormRepository: DevicesTypeormRepository,
   ) {}
 
   async execute(command: TerminateUserDeviceCommand) {
     const { deviceId, userId } = command;
 
-    const device =
-      await this.devicesPostgresRepository.findByDeviceId(deviceId);
+    const device = await this.devicesTypeormRepository.findByDeviceId(deviceId);
     if (!device) {
       return Result.notFound(`Device with id ${deviceId} does not exist`);
     }
@@ -32,7 +31,7 @@ export class TerminateUserDeviceUseCase
       );
     }
 
-    await this.devicesPostgresRepository.deleteOneByDeviceIdAndUserId(
+    await this.devicesTypeormRepository.deleteOneByDeviceIdAndUserId(
       deviceId,
       userId,
     );

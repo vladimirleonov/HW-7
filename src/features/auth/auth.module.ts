@@ -10,8 +10,8 @@ import { LogoutUseCase } from './auth/application/use-cases/logout';
 import { AuthService } from './auth/application/auth.service';
 import { TerminateAllOtherUserDevicesUseCase } from './security/application/use-cases/terminate-all-other-user-devices.usecase';
 import { TerminateUserDeviceUseCase } from './security/application/use-cases/terminate-user-device.usecase';
-import { DevicesPostgresRepository } from './security/infrastructure/postgres/device-postgres.repository';
-import { DevicesPostgresQueryRepository } from './security/infrastructure/postgres/device-postgres.query-repository';
+import { DevicesTypeormRepository } from './security/infrastructure/typeorm/device-typeorm.repository';
+import { DevicesTypeormQueryRepository } from './security/infrastructure/typeorm/device-typeorm.query-repository';
 import { SecurityController } from './security/api/security.controller';
 import { AuthController } from './auth/api/auth.controller';
 import { UsersModule } from '../users/users.module';
@@ -24,6 +24,11 @@ import { JwtStrategy } from '../../core/stratagies/jwt.strategy';
 import { BasicStrategy } from '../../core/stratagies/basic.strategy';
 import { RefreshTokenJwtStrategy } from '../../core/stratagies/refresh-token-jwt.strategy';
 import { OptionalJwtStrategy } from '../../core/stratagies/optional-jwt.strategy';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../users/domain/user.entity';
+import { EmailConfirmation } from '../users/domain/email-confirmation';
+import { PasswordRecovery } from '../users/domain/password-recovery';
+import { Device } from './security/domain/device.entity';
 
 const authProviders: Provider[] = [
   // use cases
@@ -57,12 +62,14 @@ const securityProviders: Provider[] = [
   // service
 
   // repositories
-  DevicesPostgresRepository,
-  DevicesPostgresQueryRepository,
+  // DevicesPostgresRepository,
+  // DevicesPostgresQueryRepository,
+  DevicesTypeormRepository,
+  DevicesTypeormQueryRepository,
 ];
 
 @Module({
-  imports: [CqrsModule, UsersModule],
+  imports: [CqrsModule, UsersModule, TypeOrmModule.forFeature([Device])],
   controllers: [AuthController, SecurityController],
   providers: [
     ...authProviders,

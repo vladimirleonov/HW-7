@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DevicesPostgresRepository } from '../../../security/infrastructure/postgres/device-postgres.repository';
+import { DevicesTypeormRepository } from '../../../security/infrastructure/typeorm/device-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 import { JwtService } from '@nestjs/jwt';
 import { unixToISOString } from '../../../../../core/utils/convert-unix-to-iso';
@@ -16,7 +16,7 @@ export class RefreshTokenCommand {
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenUseCase implements ICommandHandler {
   constructor(
-    private readonly devicesPostgresRepository: DevicesPostgresRepository,
+    private readonly devicesTypeormRepository: DevicesTypeormRepository,
     private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly jwtService: JwtService,
   ) {}
@@ -24,7 +24,7 @@ export class RefreshTokenUseCase implements ICommandHandler {
   async execute(command: RefreshTokenCommand) {
     const { deviceId, userId, iat: issuedAt } = command;
 
-    const device = await this.devicesPostgresRepository.findOneByDeviceIdAndIat(
+    const device = await this.devicesTypeormRepository.findOneByDeviceIdAndIat(
       deviceId,
       issuedAt,
     );
@@ -63,7 +63,7 @@ export class RefreshTokenUseCase implements ICommandHandler {
 
       const issuedAt: string = unixToISOString(iat);
 
-      await this.devicesPostgresRepository.updateIat(deviceId, issuedAt);
+      await this.devicesTypeormRepository.updateIat(deviceId, issuedAt);
 
       return Result.success({
         accessToken,

@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { unixToISOString } from '../../../../../core/utils/convert-unix-to-iso';
 import { JwtService } from '@nestjs/jwt';
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
-import { DevicesPostgresRepository } from '../../../security/infrastructure/postgres/device-postgres.repository';
+import { DevicesTypeormRepository } from '../../../security/infrastructure/typeorm/device-typeorm.repository';
 import { JwtPayload } from 'jsonwebtoken';
 
 export class LoginCommand {
@@ -20,7 +20,7 @@ export class LoginCommand {
 export class LoginUseCase implements ICommandHandler<LoginCommand> {
   constructor(
     private readonly usersTypeormRepository: UsersTypeormRepository,
-    private readonly devicesPostgresRepository: DevicesPostgresRepository,
+    private readonly devicesTypeormRepository: DevicesTypeormRepository,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -87,8 +87,8 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       const deviceName: string = command.deviceName;
       const ip: string = command.ip;
 
-      await this.devicesPostgresRepository.create(
-        Number(command.userId),
+      await this.devicesTypeormRepository.create(
+        command.userId,
         decodedRefreshToken.deviceId,
         unixToISOString(iat),
         deviceName,
