@@ -12,7 +12,7 @@ export class TestingRepository {
       'post_likes',
       'posts',
       'blogs',
-      'users',
+      `public."user"`,
       'device',
       'password_recovery',
       'email_confirmation',

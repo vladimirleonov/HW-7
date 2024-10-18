@@ -29,7 +29,7 @@ export class ConfirmRegistrationUseCase
       ]);
     }
 
-    if (existingUser.emailConfirmationExpirationDat < new Date()) {
+    if (existingUser.emailConfirmation.expirationDate < new Date()) {
       return Result.badRequest([
         {
           message: 'Confirmation code has expired',
@@ -38,7 +38,7 @@ export class ConfirmRegistrationUseCase
       ]);
     }
 
-    if (existingUser.emailConfirmationIsEmailConfirmed) {
+    if (existingUser.emailConfirmation.isConfirmed) {
       return Result.badRequest([
         {
           message: 'Email already confirmed',

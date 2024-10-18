@@ -13,6 +13,7 @@ import { User } from './features/users/domain/user.entity';
 import { DatabaseSettings } from './settings/env/database-settings';
 import { EmailConfirmation } from './features/users/domain/email-confirmation';
 import { PasswordRecovery } from './features/users/domain/password-recovery';
+import { Device } from './features/auth/security/domain/device.entity';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { PasswordRecovery } from './features/users/domain/password-recovery';
           username: databaseSettings.DB_USERNAME,
           password: databaseSettings.DB_PASSWORD,
           database: databaseSettings.DB_DATABASE,
-          entities: [User, EmailConfirmation, PasswordRecovery],
+          entities: [User, EmailConfirmation, PasswordRecovery, Device],
           synchronize: true,
         };
 

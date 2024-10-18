@@ -36,7 +36,7 @@ export class SetNewPasswordUseCase
     }
 
     const currentDate: Date = new Date();
-    const expirationDate: Date = user.passwordRecoveryExpirationDate;
+    const expirationDate: Date = user.passwordRecovery.expirationDate;
 
     if (expirationDate < currentDate) {
       return Result.badRequest([

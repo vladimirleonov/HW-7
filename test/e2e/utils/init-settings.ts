@@ -1,12 +1,11 @@
-import { getConnectionToken } from '@nestjs/mongoose';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { Connection } from 'mongoose';
 import { AppModule } from '../../../src/app.module';
 import { deleteAllData } from './delete-all-data';
 import { UsersTestManager } from '../features/users/users-test-manager';
 import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import { INestApplication } from '@nestjs/common';
 import { AuthTestManager } from '../features/auth/auth-test-manager';
+import { DataSource } from 'typeorm';
 
 export const initSettings = async (
   //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -24,22 +23,25 @@ export const initSettings = async (
   }
 
   const testingAppModule = await testingModuleBuilder.compile();
+  // console.log('testingAppModule', testingAppModule);
 
   const app: INestApplication = testingAppModule.createNestApplication();
+  // console.log('app', app);
 
   // Применяем все настройки приложения (pipes, guards, filters, ...)
   applyAppSettings(app);
 
   await app.init();
 
-  const databaseConnection = app.get<Connection>(getConnectionToken());
+  //const databaseConnection = app.get<Connection>(getConnectionToken());
+  const dataSource = app.get<DataSource>(DataSource);
   const httpServer = app.getHttpServer();
 
   // Init userManager, authManager
   const userTestManger: UsersTestManager = new UsersTestManager(app);
   const authTestManager: AuthTestManager = new AuthTestManager(app);
 
-  await deleteAllData(databaseConnection);
+  await deleteAllData(dataSource);
 
   //TODO:переписать через setState
 
@@ -54,7 +56,7 @@ export const initSettings = async (
   // Работа с состоянием
   expect.setState({
     app: app,
-    databaseConnection: databaseConnection,
+    dataSource: dataSource,
     httpServer: httpServer,
     userTestManger: userTestManger,
     authTestManager: authTestManager,

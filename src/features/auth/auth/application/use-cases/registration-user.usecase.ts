@@ -6,6 +6,7 @@ import { registrationEmailTemplate } from '../../../../../core/email-templates/r
 import { CryptoService } from '../../../../../core/application/crypto.service';
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { NodemailerService } from '../../../../../core/application/nodemailer.service';
+import { User } from '../../../../users/domain/user.entity';
 
 export class RegistrationUserCommand {
   constructor(
@@ -77,9 +78,19 @@ export class RegistrationUseCase
       },
     );
 
+    // TODO: ask how to improve below code
+    const createdUserWithRelations: User | null =
+      await this.usersTypeormRepository.findById(createdUser.id);
+
+    if (!createdUserWithRelations) {
+      return Result.internalError();
+    }
+
     this.nodemailerService.sendEmail(
       createdUser.email,
-      registrationEmailTemplate(createdUser.emailConfirmationConfirmationCode!),
+      registrationEmailTemplate(
+        createdUserWithRelations.emailConfirmation.confirmationCode,
+      ),
       'Registration Confirmation',
     );
 

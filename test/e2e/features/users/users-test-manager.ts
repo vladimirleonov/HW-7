@@ -19,7 +19,7 @@ export class UsersTestManager {
     statusCode: number = 201,
   ) {
     return request(this.app.getHttpServer())
-      .post('/api/users')
+      .post('/api/sa/users')
       .auth(adminUsername, adminPassword)
       .send(createModel)
       .expect(statusCode);
@@ -32,7 +32,7 @@ export class UsersTestManager {
     statusCode: number = 204,
   ) {
     return request(this.app.getHttpServer())
-      .delete(`/api/users/${userId}`)
+      .delete(`/api/sa/users/${userId}`)
       .auth(adminUsername, adminPassword)
       .send()
       .expect(statusCode);
@@ -48,7 +48,7 @@ export class UsersTestManager {
     pageSize: number = 10,
   ) {
     return request(this.app.getHttpServer())
-      .get('/api/users')
+      .get('/api/sa/users')
       .auth(adminUsername, adminPassword)
       .query({
         sortBy,

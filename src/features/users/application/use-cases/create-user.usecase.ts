@@ -35,8 +35,8 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
       this.usersTypeormRepository.findByField('login', login),
       this.usersTypeormRepository.findByField('email', email),
     ]);
-    console.log('foundUserByLogin', foundUserByLogin); //null
-    console.log('foundUserByEmail', foundUserByEmail); //null
+    // console.log('foundUserByLogin', foundUserByLogin); //null
+    // console.log('foundUserByEmail', foundUserByEmail); //null
 
     if (foundUserByLogin) {
       return Result.badRequest([

@@ -25,6 +25,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   ) {}
 
   async execute(command: LoginCommand) {
+    // console.log('command.refreshToken', command.refreshToken);
     if (command.refreshToken) {
       try {
         this.jwtService.verify(command.refreshToken);
@@ -40,12 +41,13 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     const user: any = await this.usersTypeormRepository.findById(
       command.userId,
     );
+    // console.log('get user login usecase', user);
 
     if (!user) {
       return Result.unauthorized('User not found');
     }
 
-    if (!user.emailConfirmationIsEmailConfirmed) {
+    if (!user.emailConfirmation.isConfirmed) {
       return Result.unauthorized('Email is not confirmed');
     }
 

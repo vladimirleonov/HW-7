@@ -33,7 +33,7 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler {
     }
 
     // hw-9 error in test -> comment this code
-    if (existingUser.emailConfirmationIsEmailConfirmed) {
+    if (existingUser.emailConfirmation.isConfirmed) {
       return Result.badRequest([
         {
           message: 'Email already confirmed',

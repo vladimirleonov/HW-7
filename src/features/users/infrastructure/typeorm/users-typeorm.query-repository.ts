@@ -50,12 +50,14 @@ export class UsersTypeormQueryRepository {
     // const result = await this.dataSource.query(query, [id]);
 
     // return result.length > 0 ? UserOutputModelMapper(result[0]) : null;
-    return await this.usersRepository.findOneBy({ id });
+    const result: User | null = await this.usersRepository.findOneBy({ id });
+
+    return result ? UserOutputModelMapper(result) : null;
   }
 
   // TODO: not sure about name
   async findAuthenticatedUserById(id: string): Promise<any> {
-    const query: string = `SELECT * FROM users WHERE id=$1`;
+    const query: string = `SELECT * FROM public."user" WHERE id=$1`;
 
     const result = await this.dataSource.query(query, [id]);
 
@@ -71,7 +73,7 @@ export class UsersTypeormQueryRepository {
     const query: string = `
       SELECT * FROM public."user"
       ${filter ? filter : ''}
-      ORDER BY ${pagination.sortBy} ${pagination.sortDirection}
+      ORDER BY "${pagination.sortBy}" ${pagination.sortDirection}
       OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
       LIMIT ${pagination.pageSize}
     `;

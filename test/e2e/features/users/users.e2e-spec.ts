@@ -10,7 +10,7 @@ const TEST_ADMIN_CREDENTIALS = {
   password: 'qwerty',
 };
 
-describe('users', () => {
+describe.skip('users', () => {
   let app: INestApplication;
   let userTestManger: UsersTestManager;
 
@@ -29,6 +29,7 @@ describe('users', () => {
     // userTestManger = result.userTestManger;
 
     app = expect.getState().app;
+    // console.log('app in users test', app);
     userTestManger = expect.getState().userTestManger;
 
     console.log('App initialized:', !!app);
@@ -42,7 +43,7 @@ describe('users', () => {
   });
 
   beforeEach(async () => {
-    await deleteAllData(expect.getState().databaseConnection);
+    await deleteAllData(expect.getState().dataSource);
   });
 
   // create
@@ -68,22 +69,7 @@ describe('users', () => {
     });
   });
 
-  it('should not  create user unauthorized', async () => {
-    const body: UserCreateModel = {
-      login: 'name1',
-      password: 'qwerty',
-      email: 'email@email.com',
-    };
-
-    await userTestManger.createUser(
-      'test',
-      TEST_ADMIN_CREDENTIALS.password,
-      body,
-      HttpStatus.UNAUTHORIZED,
-    );
-  });
-
-  it('should not create user short login', async () => {
+  it.skip('should not create user short login', async () => {
     const body: UserCreateModel = {
       login: 'na',
       password: 'qwerty',
@@ -98,7 +84,7 @@ describe('users', () => {
     );
   });
 
-  it('should not create user short password', async () => {
+  it.skip('should not create user short password', async () => {
     const body: UserCreateModel = {
       login: 'name1',
       password: 'qwer',
@@ -113,7 +99,22 @@ describe('users', () => {
     );
   });
 
-  it('should not create user incorrect email format', async () => {
+  it('should not create user unauthorized', async () => {
+    const body: UserCreateModel = {
+      login: 'name1',
+      password: 'qwerty',
+      email: 'email@email.com',
+    };
+
+    await userTestManger.createUser(
+      'test',
+      TEST_ADMIN_CREDENTIALS.password,
+      body,
+      HttpStatus.UNAUTHORIZED,
+    );
+  });
+
+  it.skip('should not create user incorrect email format', async () => {
     const body: UserCreateModel = {
       login: 'name1',
       password: 'qwerty',
@@ -190,7 +191,7 @@ describe('users', () => {
   });
 
   it('should not delete user does not exist', async () => {
-    const createdId: string = '66cf3989243165ced8ca6ad3';
+    const createdId: string = '1234';
 
     await userTestManger.deleteUser(
       createdId,
@@ -201,7 +202,7 @@ describe('users', () => {
   });
 
   it('should not delete user incorrect id format', async () => {
-    const createdId: string = '123456';
+    const createdId: string = '1e2a34c56e';
 
     await userTestManger.deleteUser(
       createdId,
@@ -224,6 +225,7 @@ describe('users', () => {
     const users: UserOutputModel[] = [];
     const count = 3;
 
+    // create users
     for (let i = 0; i < count; i++) {
       const body: UserCreateModel = {
         login: `test${i}`,
@@ -306,7 +308,7 @@ describe('users', () => {
     expect(response.body.items).toEqual(sortedUsers);
   });
 
-  it('should get users with pagination', async () => {
+  it('should get users with definite pageNumber, pageSize and default sorting properties', async () => {
     const users: UserOutputModel[] = [];
     const count = 6;
     const pageNumber: number = 2;

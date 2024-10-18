@@ -31,9 +31,9 @@ export class User {
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @OneToOne(() => EmailConfirmation, (ec) => ec.user)
+  @OneToOne(() => EmailConfirmation, (ec) => ec.user, { onDelete: 'CASCADE' })
   emailConfirmation: EmailConfirmation;
 
-  @OneToOne(() => PasswordRecovery, (pr) => pr.user)
+  @OneToOne(() => PasswordRecovery, (pr) => pr.user, { onDelete: 'CASCADE' })
   passwordRecovery: PasswordRecovery;
 }
