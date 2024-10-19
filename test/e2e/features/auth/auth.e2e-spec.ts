@@ -11,14 +11,11 @@ import * as registrationEmailTemplates from '../../../../src/core/email-template
 import * as recoveryEmailTemplates from '../../../../src/core/email-templates/password-recovery-email-template';
 import { ConfirmRegistrationModel } from '../../../../src/features/auth/auth/api/models/input/confirm-registration.model';
 import { RegistrationEmailResendingModel } from '../../../../src/features/auth/auth/api/models/input/registration-email-resending.model';
-import { PasswordRecoveryCommand } from '../../../../src/features/auth/auth/application/use-cases/password-recovery.usecase';
 import { PasswordRecoveryModel } from '../../../../src/features/auth/auth/api/models/input/password-recovery.model';
-import { passwordRecoveryEmailTemplate } from '../../../../src/core/email-templates/password-recovery-email-template';
 import { NewPasswordModel } from '../../../../src/features/auth/auth/api/models/input/new-password.model';
-import { Response } from 'express';
 import { LoginModel } from '../../../../src/features/auth/auth/api/models/input/login.input.model';
 
-describe('auth', () => {
+describe.skip('auth', () => {
   let app: INestApplication;
   let authTestManager: AuthTestManager;
   let nodemailerServiceMock: NodemailerServiceMock;
@@ -57,7 +54,7 @@ describe('auth', () => {
   });
 
   // registration
-  it.skip('should register user', async () => {
+  it('should register user', async () => {
     const body: RegistrationModel = {
       login: 'name1',
       password: 'qwerty',
@@ -67,7 +64,7 @@ describe('auth', () => {
     await authTestManager.registration(body, HttpStatus.NO_CONTENT);
   });
 
-  it.skip('should not register user short login', async () => {
+  it('should not register user short login', async () => {
     const body: RegistrationModel = {
       login: 'na',
       password: 'qwerty',
@@ -77,7 +74,7 @@ describe('auth', () => {
     await authTestManager.registration(body, HttpStatus.BAD_REQUEST);
   });
 
-  it.skip('should not register user short password', async () => {
+  it('should not register user short password', async () => {
     const body: RegistrationModel = {
       login: 'name1',
       password: 'qwer',
@@ -87,7 +84,7 @@ describe('auth', () => {
     await authTestManager.registration(body, HttpStatus.BAD_REQUEST);
   });
 
-  it.skip('should not register user incorrect email format', async () => {
+  it('should not register user incorrect email format', async () => {
     const body: RegistrationModel = {
       login: 'name1',
       password: 'qwerty',
@@ -97,7 +94,7 @@ describe('auth', () => {
     await authTestManager.registration(body, HttpStatus.BAD_REQUEST);
   });
 
-  it.skip('should not register user with same login', async () => {
+  it('should not register user with same login', async () => {
     const body1: RegistrationModel = {
       login: 'name1',
       password: 'qwerty1',
@@ -115,7 +112,7 @@ describe('auth', () => {
     await authTestManager.registration(body2, HttpStatus.BAD_REQUEST);
   });
 
-  it.skip('should not register user with same email', async () => {
+  it('should not register user with same email', async () => {
     const body1: RegistrationModel = {
       login: 'name1',
       password: 'qwerty1',
@@ -133,7 +130,7 @@ describe('auth', () => {
   });
 
   // registration-confirmation
-  it.skip('successfully confirm registration', async () => {
+  it('successfully confirm registration', async () => {
     ////////////////////////
     // registration
     ////////////////////////
@@ -176,7 +173,7 @@ describe('auth', () => {
     await authTestManager.confirmRegistration(confirmRegistrationBody);
   });
 
-  it.skip('invalid confirmation code', async () => {
+  it('invalid confirmation code', async () => {
     const confirmRegistrationBody: ConfirmRegistrationModel = {
       code: '12a5cb891sc',
     };
@@ -185,7 +182,7 @@ describe('auth', () => {
   });
 
   // registration-email-resending
-  it.skip('successfully resend email confirmation', async () => {
+  it('successfully resend email confirmation', async () => {
     /////////////////
     // register user
     /////////////////
@@ -221,7 +218,7 @@ describe('auth', () => {
     );
   });
 
-  it.skip('incorrect email', async () => {
+  it('incorrect email', async () => {
     const registrationEmailResendingBody: RegistrationEmailResendingModel = {
       email: 'test1234@gmail.com',
     };
@@ -232,7 +229,7 @@ describe('auth', () => {
     );
   });
 
-  it.skip('user already confirmed', async () => {
+  it('user already confirmed', async () => {
     /////////////////
     // register user
     /////////////////
@@ -289,7 +286,7 @@ describe('auth', () => {
   });
 
   // password-recovery
-  it.skip('successfully send password recovery email', async () => {
+  it('successfully send password recovery email', async () => {
     ////////////////
     // registration
     ////////////////
@@ -312,7 +309,7 @@ describe('auth', () => {
     await authTestManager.passwordRecovery(psswordRecoveryBody);
   });
 
-  it.skip('send password recovery on invalid email', async () => {
+  it('send password recovery on invalid email', async () => {
     const psswordRecoveryBody: PasswordRecoveryModel = {
       email: 'email@email.com',
     };
@@ -321,7 +318,7 @@ describe('auth', () => {
     await authTestManager.passwordRecovery(psswordRecoveryBody, 204);
   });
 
-  it.skip('incorrect email format', async () => {
+  it('incorrect email format', async () => {
     const psswordRecoveryBody: PasswordRecoveryModel = {
       email: 'email^^^email.com',
     };
@@ -331,7 +328,7 @@ describe('auth', () => {
   });
 
   // new-password
-  it.skip('successfully set new password with valid recovery code', async () => {
+  it('successfully set new password with valid recovery code', async () => {
     ////////////////
     // registration
     ////////////////
@@ -385,7 +382,7 @@ describe('auth', () => {
     await authTestManager.newPassword(newPasswordBody);
   });
 
-  it.skip('incorrect new password length', async () => {
+  it('incorrect new password length', async () => {
     ////////////////
     // registration
     ////////////////
@@ -441,7 +438,7 @@ describe('auth', () => {
     expect(response.body.errorsMessages[0].field).toBe('newPassword');
   });
 
-  it.skip('incorrect recovery code', async () => {
+  it('incorrect recovery code', async () => {
     ////////////////
     // registration
     ////////////////
@@ -489,7 +486,7 @@ describe('auth', () => {
   });
 
   // login
-  it.skip('should successfully login user', async () => {
+  it('should successfully login user', async () => {
     ////////////////////////
     // registration
     ////////////////////////
@@ -551,7 +548,7 @@ describe('auth', () => {
     expect(cookie.some((c) => c.startsWith('refreshToken'))).toBe(true);
   });
 
-  it.skip('should not login user incorrect login', async () => {
+  it('should not login user incorrect login', async () => {
     ////////////////////////
     // registration
     ////////////////////////
@@ -605,7 +602,7 @@ describe('auth', () => {
     await authTestManager.login(loginBody, 401);
   });
 
-  it.skip('should not login user incorrect password', async () => {
+  it('should not login user incorrect password', async () => {
     ////////////////////////
     // registration
     ////////////////////////
@@ -659,7 +656,7 @@ describe('auth', () => {
     await authTestManager.login(loginBody, 401);
   });
 
-  it.skip('should not login user second time - valid refresh token in cookie', async () => {
+  it('should not login user second time - valid refresh token in cookie', async () => {
     ////////////////////////
     // registration
     ////////////////////////
@@ -776,5 +773,331 @@ describe('auth', () => {
     };
 
     await authTestManager.login(loginBody, 401);
+  });
+
+  // refresh-token
+  it('should successfully refresh token', async () => {
+    ////////////////////////
+    // registration
+    ////////////////////////
+    const body: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty',
+      email: 'email@email.com',
+    };
+
+    // spyOn on calling registrationEmailTemplate
+    const spyRegistrationEmailTemplate = jest.spyOn(
+      registrationEmailTemplates,
+      'registrationEmailTemplate',
+    );
+    // spyOn on calling nodemailerServiceMock.sendEmail
+    const spySendEmail = jest.spyOn(nodemailerServiceMock, 'sendEmail');
+
+    await authTestManager.registration(body, HttpStatus.NO_CONTENT);
+
+    // expect(spyRegistrationEmailTemplate).toHaveBeenCalled();
+    expect(nodemailerServiceMock.sendEmail).toHaveBeenCalledWith(
+      body.email,
+      expect.any(String),
+      'Registration Confirmation',
+    );
+    expect(spySendEmail).toHaveBeenCalled();
+
+    const confirmationCode: string =
+      spyRegistrationEmailTemplate.mock.calls[0][0];
+    // console.log(confirmationCode);
+
+    ////////////////////////
+    // confirm registration
+    ////////////////////////
+
+    const confirmRegistrationBody: ConfirmRegistrationModel = {
+      code: confirmationCode,
+    };
+
+    await authTestManager.confirmRegistration(confirmRegistrationBody);
+
+    /////////////////////
+    // login user
+    /////////////////////
+
+    const loginBody: LoginModel = {
+      loginOrEmail: 'email@email.com',
+      password: 'qwerty',
+    };
+
+    const loginResult1 = await authTestManager.login(loginBody);
+    expect(loginResult1.body).toHaveProperty('accessToken');
+
+    const cookie1 = Array.isArray(loginResult1.headers['set-cookie'])
+      ? loginResult1.headers['set-cookie']
+      : [loginResult1.headers['set-cookie']];
+    // console.log('cookie', cookie);
+    // console.log(typeof cookie);
+    expect(cookie1.some((c) => c.startsWith('refreshToken'))).toBe(true);
+
+    /////////////////////
+    // refresh token pair
+    /////////////////////
+
+    const refreshToken1 = cookie1
+      .find((c) => c.startsWith('refreshToken'))
+      ?.split(';')[0]
+      ?.split('=')[1];
+
+    const refreshTokenResult =
+      await authTestManager.refreshToken(refreshToken1);
+    expect(refreshTokenResult.body).toHaveProperty('accessToken');
+
+    const cookie2 = Array.isArray(refreshTokenResult.headers['set-cookie'])
+      ? refreshTokenResult.headers['set-cookie']
+      : [refreshTokenResult.headers['set-cookie']];
+
+    expect(cookie2.some((c) => c.startsWith('refreshToken'))).toBe(true);
+
+    //////////////////////////////////////////////////////////
+    // login with new valid refresh token (401 because valid)
+    //////////////////////////////////////////////////////////
+
+    const refreshToken2 = cookie2
+      .find((c) => c.startsWith('refreshToken'))
+      ?.split(';')[0]
+      ?.split('=')[1];
+
+    await authTestManager.loginWithRefreshToken(loginBody, 401, refreshToken2);
+  });
+
+  it('should not refresh token - invalid refresh token passed in cookie', async () => {
+    ////////////////////////
+    // registration
+    ////////////////////////
+    const body: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty',
+      email: 'email@email.com',
+    };
+
+    // spyOn on calling registrationEmailTemplate
+    const spyRegistrationEmailTemplate = jest.spyOn(
+      registrationEmailTemplates,
+      'registrationEmailTemplate',
+    );
+    // spyOn on calling nodemailerServiceMock.sendEmail
+    const spySendEmail = jest.spyOn(nodemailerServiceMock, 'sendEmail');
+
+    await authTestManager.registration(body, HttpStatus.NO_CONTENT);
+
+    // expect(spyRegistrationEmailTemplate).toHaveBeenCalled();
+    expect(nodemailerServiceMock.sendEmail).toHaveBeenCalledWith(
+      body.email,
+      expect.any(String),
+      'Registration Confirmation',
+    );
+    expect(spySendEmail).toHaveBeenCalled();
+
+    const confirmationCode: string =
+      spyRegistrationEmailTemplate.mock.calls[0][0];
+    // console.log(confirmationCode);
+
+    ////////////////////////
+    // confirm registration
+    ////////////////////////
+
+    const confirmRegistrationBody: ConfirmRegistrationModel = {
+      code: confirmationCode,
+    };
+
+    await authTestManager.confirmRegistration(confirmRegistrationBody);
+
+    /////////////////////
+    // login user
+    /////////////////////
+
+    const loginBody: LoginModel = {
+      loginOrEmail: 'email@email.com',
+      password: 'qwerty',
+    };
+
+    const loginResult1 = await authTestManager.login(loginBody);
+    expect(loginResult1.body).toHaveProperty('accessToken');
+
+    const cookie1 = Array.isArray(loginResult1.headers['set-cookie'])
+      ? loginResult1.headers['set-cookie']
+      : [loginResult1.headers['set-cookie']];
+    // console.log('cookie', cookie);
+    // console.log(typeof cookie);
+    expect(cookie1.some((c) => c.startsWith('refreshToken'))).toBe(true);
+
+    /////////////////////
+    // refresh token pair
+    /////////////////////
+
+    const refreshToken1 =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImRldmljZUlkIjoiOGI3M2NhMzUtMjA0OS00NjRkLTllYzQtNzVkNzQ0NDRlZDJlIiwiaWF0IjoxNzI5MTExNjk3LCJleHAiOjE3MjkxODM2OTd9.xKP4xfvhDe8GWJI6Hi6W181ASkOWzguhz5F00pe_8el';
+
+    await authTestManager.refreshToken(refreshToken1, 401);
+  });
+
+  // logout
+  it('should successfully logout user', async () => {
+    ////////////////////////
+    // registration
+    ////////////////////////
+    const body: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty',
+      email: 'email@email.com',
+    };
+
+    // spyOn on calling registrationEmailTemplate
+    const spyRegistrationEmailTemplate = jest.spyOn(
+      registrationEmailTemplates,
+      'registrationEmailTemplate',
+    );
+    // spyOn on calling nodemailerServiceMock.sendEmail
+    const spySendEmail = jest.spyOn(nodemailerServiceMock, 'sendEmail');
+
+    await authTestManager.registration(body, HttpStatus.NO_CONTENT);
+
+    // expect(spyRegistrationEmailTemplate).toHaveBeenCalled();
+    expect(nodemailerServiceMock.sendEmail).toHaveBeenCalledWith(
+      body.email,
+      expect.any(String),
+      'Registration Confirmation',
+    );
+    expect(spySendEmail).toHaveBeenCalled();
+
+    const confirmationCode: string =
+      spyRegistrationEmailTemplate.mock.calls[0][0];
+    // console.log(confirmationCode);
+
+    ////////////////////////
+    // confirm registration
+    ////////////////////////
+
+    const confirmRegistrationBody: ConfirmRegistrationModel = {
+      code: confirmationCode,
+    };
+
+    await authTestManager.confirmRegistration(confirmRegistrationBody);
+
+    /////////////////////
+    // login user
+    /////////////////////
+
+    const loginBody: LoginModel = {
+      loginOrEmail: 'email@email.com',
+      password: 'qwerty',
+    };
+
+    const loginResult = await authTestManager.login(loginBody);
+    expect(loginResult.body).toHaveProperty('accessToken');
+
+    const cookie = Array.isArray(loginResult.headers['set-cookie'])
+      ? loginResult.headers['set-cookie']
+      : [loginResult.headers['set-cookie']];
+    // console.log('cookie', cookie);
+    // console.log(typeof cookie);
+    expect(cookie.some((c) => c.startsWith('refreshToken'))).toBe(true);
+
+    //////////
+    // logout
+    //////////
+
+    const refreshToken = cookie
+      .find((c) => c.startsWith('refreshToken'))
+      ?.split(';')[0]
+      ?.split('=')[1];
+
+    await authTestManager.logout(refreshToken);
+  });
+
+  it('should not logout user - invalid refresh token passed in cookie', async () => {
+    const refreshToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImRldmljZUlkIjoiOGI3M2NhMzUtMjA0OS00NjRkLTllYzQtNzVkNzQ0NDRlZDJlIiwiaWF0IjoxNzI5MTExNjk3LCJleHAiOjE3MjkxODM2OTd9.xKP4xfvhDe8GWJI6Hi6W181ASkOWzguhz5F00pe_8el';
+
+    await authTestManager.logout(refreshToken, 401);
+  });
+
+  // me
+  it('should successfully get me', async () => {
+    ////////////////////////
+    // registration
+    ////////////////////////
+    const registrationBody: RegistrationModel = {
+      login: 'name1',
+      password: 'qwerty',
+      email: 'email@email.com',
+    };
+
+    // spyOn on calling registrationEmailTemplate
+    const spyRegistrationEmailTemplate = jest.spyOn(
+      registrationEmailTemplates,
+      'registrationEmailTemplate',
+    );
+    // spyOn on calling nodemailerServiceMock.sendEmail
+    const spySendEmail = jest.spyOn(nodemailerServiceMock, 'sendEmail');
+
+    await authTestManager.registration(registrationBody, HttpStatus.NO_CONTENT);
+
+    // expect(spyRegistrationEmailTemplate).toHaveBeenCalled();
+    expect(nodemailerServiceMock.sendEmail).toHaveBeenCalledWith(
+      registrationBody.email,
+      expect.any(String),
+      'Registration Confirmation',
+    );
+    expect(spySendEmail).toHaveBeenCalled();
+
+    const confirmationCode: string =
+      spyRegistrationEmailTemplate.mock.calls[0][0];
+    // console.log(confirmationCode);
+
+    ////////////////////////
+    // confirm registration
+    ////////////////////////
+
+    const confirmRegistrationBody: ConfirmRegistrationModel = {
+      code: confirmationCode,
+    };
+
+    await authTestManager.confirmRegistration(confirmRegistrationBody);
+
+    /////////////////////
+    // login user
+    /////////////////////
+
+    const loginBody: LoginModel = {
+      loginOrEmail: 'email@email.com',
+      password: 'qwerty',
+    };
+
+    const loginResult = await authTestManager.login(loginBody);
+    expect(loginResult.body).toHaveProperty('accessToken');
+
+    const cookie = Array.isArray(loginResult.headers['set-cookie'])
+      ? loginResult.headers['set-cookie']
+      : [loginResult.headers['set-cookie']];
+    // console.log('cookie', cookie);
+    // console.log(typeof cookie);
+    expect(cookie.some((c) => c.startsWith('refreshToken'))).toBe(true);
+
+    //////////
+    // get me
+    //////////
+
+    const accessToken = loginResult.body.accessToken;
+
+    const meResult = await authTestManager.me(accessToken);
+    expect(meResult.body.login).toBe(registrationBody.login);
+    expect(meResult.body.email).toBe(registrationBody.email);
+    expect(meResult.body.userId).toEqual(expect.any(String));
+  });
+
+  it('should not me user - invalid access token passed in Authorization header ', async () => {
+    const accessToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjgsImlhdCI6MTcyOTExMTY5NywiZXhwIjoxNzI5MTQ3Njk3fQ.G40Pd5wMKL6jdVOx_eXzPc2RUqegLcAYez3QNFMWy08';
+
+    await authTestManager.me(accessToken, 401);
   });
 });

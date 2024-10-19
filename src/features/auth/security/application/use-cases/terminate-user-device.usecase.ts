@@ -25,7 +25,7 @@ export class TerminateUserDeviceUseCase
       return Result.notFound(`Device with id ${deviceId} does not exist`);
     }
 
-    if (device.user_id !== userId) {
+    if (device.userId !== userId) {
       return Result.forbidden(
         `You do not have permission to delete this device`,
       );

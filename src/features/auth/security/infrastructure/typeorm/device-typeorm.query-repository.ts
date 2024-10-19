@@ -16,20 +16,11 @@ export class DevicesTypeormQueryRepository {
   ) {}
 
   async findAllForOutputByUserId(userId: number): Promise<any> {
-    // const query: string = `
-    //   SELECT * from device
-    //   WHERE user_id=$1
-    // `;
-    //
-    // const result = await this.dataSource.query(query, [userId]);
-    //
-    // return result.length > 0 ? result.map(DeviceOutputModelMapper) : [];
-
-    // Device | null
-    const result: Device | null = await this.deviceRepository.findOneBy({
-      userId,
+    // Device[] | []
+    const result: Device[] = await this.deviceRepository.find({
+      where: { userId },
     });
 
-    return result ? DeviceOutputModelMapper(result) : null;
+    return result.map(DeviceOutputModelMapper);
   }
 }

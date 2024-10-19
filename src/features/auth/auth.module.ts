@@ -25,9 +25,6 @@ import { BasicStrategy } from '../../core/stratagies/basic.strategy';
 import { RefreshTokenJwtStrategy } from '../../core/stratagies/refresh-token-jwt.strategy';
 import { OptionalJwtStrategy } from '../../core/stratagies/optional-jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../users/domain/user.entity';
-import { EmailConfirmation } from '../users/domain/email-confirmation';
-import { PasswordRecovery } from '../users/domain/password-recovery';
 import { Device } from './security/domain/device.entity';
 
 const authProviders: Provider[] = [

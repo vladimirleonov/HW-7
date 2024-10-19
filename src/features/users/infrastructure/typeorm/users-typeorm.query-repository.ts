@@ -45,11 +45,6 @@ export class UsersTypeormQueryRepository {
   }
 
   async findById(id: number): Promise<any> {
-    // const query: string = `SELECT * FROM users WHERE id=$1`;
-
-    // const result = await this.dataSource.query(query, [id]);
-
-    // return result.length > 0 ? UserOutputModelMapper(result[0]) : null;
     const result: User | null = await this.usersRepository.findOneBy({ id });
 
     return result ? UserOutputModelMapper(result) : null;

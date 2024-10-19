@@ -46,7 +46,7 @@ import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { UserAgent } from '../../../../core/decorators/param-decorators/user-agent.param.decorator';
 import { LoginModel } from './models/input/login.input.model';
 
-// @UseGuards(ThrottlerGuard)
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -162,21 +162,6 @@ export class AuthController {
   }
 
   @SkipThrottle()
-  @Get('me')
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  async authMe(@CurrentUserId() userId: string) {
-    const user: AuthMeOutputModel | null =
-      await this.usersTypeormQueryRepository.findAuthenticatedUserById(userId);
-
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    return user;
-  }
-
-  @SkipThrottle()
   @Post('refresh-token')
   @UseGuards(RefreshTokenAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -202,7 +187,7 @@ export class AuthController {
     });
 
     res.status(HttpStatus.OK).send({
-      accessToken: result.data?.accessToken!,
+      accessToken: result.data.accessToken!,
     });
   }
 
@@ -230,5 +215,20 @@ export class AuthController {
     });
 
     res.status(HttpStatus.NO_CONTENT).send();
+  }
+
+  @SkipThrottle()
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async authMe(@CurrentUserId() userId: string) {
+    const user: AuthMeOutputModel | null =
+      await this.usersTypeormQueryRepository.findAuthenticatedUserById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return user;
   }
 }

@@ -66,28 +66,6 @@ export class UsersTypeormRepository {
   }
 
   async findByLoginOrEmailField(loginOrEmail: string): Promise<any> {
-    // const query: string = `
-    //     SELECT
-    //     u.id,
-    //     u.login,
-    //     u.email,
-    //     u.password,
-    //     u.created_at AS "createdAt",
-    //     ec.confirmation_code AS "emailConfirmationConfirmationCode",
-    //     ec.expiration_date AS "emailConfirmationExpirationDate",
-    //     ec.is_confirmed AS "emailConfirmationIsEmailConfirmed",
-    //     pr.recovery_code AS "passwordRecoveryRecoveryCode",
-    //     pr.expiration_date AS "passwordRecoveryExpirationDate"
-    //   FROM users u
-    //   LEFT JOIN email_confirmation ec ON u.id = ec.user_id
-    //   LEFT JOIN password_recovery pr ON u.id = pr.user_id
-    //   WHERE login=$1 OR email=$1
-    //   `;
-    //
-    // const result = await this.dataSource.query(query, [loginOrEmail]);
-    //
-    // return result.length > 0 ? result[0] : null;
-
     // User | null
     return this.usersRepository.findOne({
       where: [{ login: loginOrEmail }, { email: loginOrEmail }],

@@ -82,4 +82,25 @@ export class AuthTestManager {
 
     return requestBuilder;
   }
+
+  async refreshToken(refreshToken: string, statusCode: number = 200) {
+    return request(this.app.getHttpServer())
+      .post('/api/auth/refresh-token')
+      .set('Cookie', `refreshToken=${refreshToken}`)
+      .expect(statusCode);
+  }
+
+  async logout(refreshToken: string, statusCode: number = 204) {
+    return request(this.app.getHttpServer())
+      .post('/api/auth/logout')
+      .set('Cookie', `refreshToken=${refreshToken}`)
+      .expect(statusCode);
+  }
+
+  async me(accessToken: string, statusCode: number = 200) {
+    return request(this.app.getHttpServer())
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(statusCode);
+  }
 }
