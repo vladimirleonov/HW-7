@@ -12,6 +12,8 @@ import {
 } from '../core/exception-filters/http-exception-filter';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from './env/configuration';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { EnvironmentSettings } from './env/env-settings';
 
 const APP_PREFIX = '/api';
 
@@ -28,6 +30,8 @@ export const applyAppSettings = (app: INestApplication) => {
 
   setAppPrefix(app);
 
+  setSwagger(app);
+
   setAppPipes(app);
 
   setAppExceptionsFilters(app);
@@ -35,6 +39,29 @@ export const applyAppSettings = (app: INestApplication) => {
 
 const setAppPrefix = (app: INestApplication) => {
   app.setGlobalPrefix(APP_PREFIX);
+};
+
+const setSwagger = (app: INestApplication) => {
+  const configService: ConfigService<ConfigurationType, true> = app.get(
+    ConfigService<ConfigurationType, true>,
+  );
+
+  if (
+    !configService.get<EnvironmentSettings>('environmentSettings').isProduction
+  ) {
+    const swaggerPath = APP_PREFIX + '/swagger-doc';
+
+    const config = new DocumentBuilder()
+      .setTitle('BLOGGER API')
+      .addBearerAuth()
+      .setVersion('1.0')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup(swaggerPath, app, document, {
+      customSiteTitle: 'Blogger Swagger',
+    });
+  }
 };
 
 const setAppPipes = (app: INestApplication) => {
