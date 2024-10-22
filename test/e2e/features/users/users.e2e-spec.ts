@@ -10,7 +10,7 @@ const TEST_ADMIN_CREDENTIALS = {
   password: 'qwerty',
 };
 
-describe.skip('users', () => {
+describe('users', () => {
   let app: INestApplication;
   let userTestManger: UsersTestManager;
 
@@ -69,7 +69,7 @@ describe.skip('users', () => {
     });
   });
 
-  it.skip('should not create user short login', async () => {
+  it('should not create user short login', async () => {
     const body: UserCreateModel = {
       login: 'na',
       password: 'qwerty',
@@ -84,7 +84,7 @@ describe.skip('users', () => {
     );
   });
 
-  it.skip('should not create user short password', async () => {
+  it('should not create user short password', async () => {
     const body: UserCreateModel = {
       login: 'name1',
       password: 'qwer',
@@ -114,7 +114,7 @@ describe.skip('users', () => {
     );
   });
 
-  it.skip('should not create user incorrect email format', async () => {
+  it('should not create user incorrect email format', async () => {
     const body: UserCreateModel = {
       login: 'name1',
       password: 'qwerty',
@@ -297,6 +297,8 @@ describe.skip('users', () => {
         a.createdAt.localeCompare(b.createdAt),
     );
 
+    console.log('sortedUsers', sortedUsers);
+
     const response = await userTestManger.getUsers(
       TEST_ADMIN_CREDENTIALS.login,
       TEST_ADMIN_CREDENTIALS.password,
@@ -304,6 +306,8 @@ describe.skip('users', () => {
       sortBy,
       sortDirection,
     );
+
+    console.log('response.body.items', response.body.items);
 
     expect(response.body.items).toEqual(sortedUsers);
   });

@@ -14,6 +14,7 @@ import { DatabaseSettings } from './settings/env/database-settings';
 import { EmailConfirmation } from './features/users/domain/email-confirmation';
 import { PasswordRecovery } from './features/users/domain/password-recovery';
 import { Device } from './features/auth/security/domain/device.entity';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Module({
   imports: [
@@ -40,18 +41,9 @@ import { Device } from './features/auth/security/domain/device.entity';
           database: databaseSettings.DB_DATABASE,
           entities: [User, EmailConfirmation, PasswordRecovery, Device],
           synchronize: true,
+          logging: true,
+          namingStrategy: new SnakeNamingStrategy(),
         };
-
-        // database: {
-        //   type: 'postgres',
-        //     host: 'localhost',
-        //     port: 5432,
-        //     username: 'postgres',
-        //     password: '1234',
-        //     database: 'blogger',
-        //     entities: [User],
-        //     synchronize: true,
-        // },
       },
       inject: [ConfigService],
     }),

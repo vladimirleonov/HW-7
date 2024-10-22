@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
+import { PostsTypeormRepository } from '../../infrastructure/typeorm/posts-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class UpdateBlogPostCommand {
@@ -17,13 +17,13 @@ export class UpdateBlogPostUseCase
   implements ICommandHandler<UpdateBlogPostCommand>
 {
   constructor(
-    private readonly postsPostgresRepository: PostsPostgresRepository,
+    private readonly postsTypeormRepository: PostsTypeormRepository,
   ) {}
 
   async execute(command: UpdateBlogPostCommand) {
     const { title, shortDescription, content, blogId, postId } = command;
 
-    const post = await this.postsPostgresRepository.findByPostIdAndBlogId(
+    const post = await this.postsTypeormRepository.findByPostIdAndBlogId(
       postId,
       blogId,
     );
@@ -34,7 +34,7 @@ export class UpdateBlogPostUseCase
       );
     }
 
-    await this.postsPostgresRepository.update(
+    await this.postsTypeormRepository.update(
       title,
       shortDescription,
       content,

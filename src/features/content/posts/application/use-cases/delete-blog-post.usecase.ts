@@ -1,5 +1,5 @@
 import { CommandHandler } from '@nestjs/cqrs';
-import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
+import { PostsTypeormRepository } from '../../infrastructure/typeorm/posts-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class DeleteBlogPostCommand {
@@ -11,14 +11,12 @@ export class DeleteBlogPostCommand {
 
 @CommandHandler(DeleteBlogPostCommand)
 export class DeleteBlogPostUseCase {
-  constructor(
-    public readonly postsPostgresRepository: PostsPostgresRepository,
-  ) {}
+  constructor(public readonly postsTypeormRepository: PostsTypeormRepository) {}
 
   async execute(command: DeleteBlogPostCommand) {
     const { blogId, postId } = command;
 
-    const isDeleted = await this.postsPostgresRepository.delete(blogId, postId);
+    const isDeleted = await this.postsTypeormRepository.delete(blogId, postId);
 
     if (!isDeleted) {
       return Result.notFound(

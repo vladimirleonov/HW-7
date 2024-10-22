@@ -46,7 +46,7 @@ import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { UserAgent } from '../../../../core/decorators/param-decorators/user-agent.param.decorator';
 import { LoginModel } from './models/input/login.input.model';
 
-@UseGuards(ThrottlerGuard)
+//@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(

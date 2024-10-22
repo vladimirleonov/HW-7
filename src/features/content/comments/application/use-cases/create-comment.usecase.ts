@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
-import { PostsPostgresRepository } from '../../../posts/infrastructure/postgres/posts-postgres.repository';
+import { PostsTypeormRepository } from '../../../posts/infrastructure/typeorm/posts-typeorm.repository';
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CommentsPostgresRepository } from '../../infrastructure/postgres/comments-postgres.repository';
 
@@ -17,7 +17,7 @@ export class CreateCommentUseCase
   implements ICommandHandler<CreateCommentCommand>
 {
   constructor(
-    private readonly postsPostgresRepository: PostsPostgresRepository,
+    private readonly postsTypeormRepository: PostsTypeormRepository,
     private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly commentsPostgresRepository: CommentsPostgresRepository,
   ) {}
@@ -25,7 +25,7 @@ export class CreateCommentUseCase
   async execute(command: CreateCommentCommand) {
     const { postId, content, userId } = command;
 
-    const post = await this.postsPostgresRepository.findById(postId);
+    const post = await this.postsTypeormRepository.findById(postId);
 
     if (!post) {
       return Result.notFound(`Post with postId doesn't exist`);

@@ -16,7 +16,7 @@ import { SortingPropertiesType } from '../../../../base/types/sorting-properties
 import { CommandBus } from '@nestjs/cqrs';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
-import { PostsPostgresQueryRepository } from '../infrastructure/postgres/posts-postgres.query-repository';
+import { PostsTypeormQueryRepository } from '../infrastructure/typeorm/posts-typeorm.query-repository';
 import {
   Pagination,
   PaginationOutput,
@@ -45,7 +45,7 @@ export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly postsPostgresQueryRepository: PostsPostgresQueryRepository,
+    private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
     private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
   ) {}
 
@@ -61,7 +61,7 @@ export class PostsController {
     );
 
     const posts: PaginationOutput<PostOutputModel> =
-      await this.postsPostgresQueryRepository.getAllPosts(pagination, userId);
+      await this.postsTypeormQueryRepository.getAllPosts(pagination, userId);
 
     return posts;
   }
@@ -73,7 +73,7 @@ export class PostsController {
     @OptionalUserId() userId: number,
   ) {
     const post: PostOutputModel | null =
-      await this.postsPostgresQueryRepository.findById(id, userId);
+      await this.postsTypeormQueryRepository.findById(id, userId);
 
     if (!post) {
       throw new NotFoundException();
@@ -96,7 +96,7 @@ export class PostsController {
 
     // TODO: CreateDecorator to check current postId???
     const post: PostOutputModel | null =
-      await this.postsPostgresQueryRepository.findById(postId);
+      await this.postsTypeormQueryRepository.findById(postId);
 
     if (!post) {
       throw new NotFoundException();

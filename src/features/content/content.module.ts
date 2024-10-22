@@ -12,17 +12,17 @@ import { UsersModule } from '../users/users.module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { AuthModule } from '../auth/auth.module';
 import { BlogIsExistConstraint } from '../../core/decorators/validators/blog-is-exist.decorator';
-import { BlogsPostgresRepository } from './blogs/infrastructure/postgres/blogs-postgres.repository';
-import { BlogsPostgresQueryRepository } from './blogs/infrastructure/postgres/blogs-postgres.query-repository';
-import { PostsPostgresRepository } from './posts/infrastructure/postgres/posts-postgres.repository';
-import { PostsPostgresQueryRepository } from './posts/infrastructure/postgres/posts-postgres.query-repository';
+import { BlogsTypeormRepository } from './blogs/infrastructure/typeorm/blogs-typeorm.repository';
+import { BlogsTypeormQueryRepository } from './blogs/infrastructure/typeorm/blogs-typeorm.query-repository';
+import { PostsTypeormRepository } from './posts/infrastructure/typeorm/posts-typeorm.repository';
+import { PostsTypeormQueryRepository } from './posts/infrastructure/typeorm/posts-typeorm.query-repository';
 import { BlogsSAController } from './blogs/api/blogs-sa.controller';
 import { UpdateBlogPostUseCase } from './posts/application/use-cases/update-blog-post.usecase';
 import { DeleteBlogPostUseCase } from './posts/application/use-cases/delete-blog-post.usecase';
 import { CreateCommentUseCase } from './comments/application/use-cases/create-comment.usecase';
 import { CommentsPostgresRepository } from './comments/infrastructure/postgres/comments-postgres.repository';
 import { CommentsPostgresQueryRepository } from './comments/infrastructure/postgres/comments-postgres.query-repository';
-import { PostLikesPostgresRepository } from './posts/infrastructure/postgres/post-likes-postgres.repository';
+import { PostLikesTypeormRepository } from './posts/infrastructure/typeorm/post-likes-typeorm.repository';
 import { CommentsController } from './comments/api/comments.controller';
 import { UpdateCommentUseCase } from './comments/application/use-cases/update-comment.usecase';
 import { DeleteCommentUseCase } from './comments/application/use-cases/delete-comment.usecase';
@@ -38,8 +38,10 @@ const blogsProviders: Provider[] = [
   DeleteBlogPostUseCase,
 
   // repositories
-  BlogsPostgresRepository,
-  BlogsPostgresQueryRepository,
+  // BlogsTypeormRepository,
+  // BlogsPostgresQueryRepository,
+  BlogsTypeormRepository,
+  BlogsTypeormQueryRepository,
 
   // validation constraint
   BlogIsExistConstraint,
@@ -53,9 +55,12 @@ const postsProviders: Provider[] = [
   UpdatePostLikeStatusUseCase,
 
   // repositories
-  PostsPostgresRepository,
-  PostsPostgresQueryRepository,
-  PostLikesPostgresRepository,
+  // PostsPostgresRepository,
+  // PostsPostgresQueryRepository,
+  // PostLikesPostgresRepository,
+  PostsTypeormRepository,
+  PostsTypeormQueryRepository,
+  PostLikesTypeormRepository,
 ];
 
 const commentsProviders: Provider[] = [
@@ -80,6 +85,6 @@ const commentsProviders: Provider[] = [
     CommentsController,
   ],
   providers: [...blogsProviders, ...postsProviders, ...commentsProviders],
-  exports: [BlogsPostgresRepository], // Expose ContentService for other modules to use
+  exports: [BlogsTypeormRepository], // Expose ContentService for other modules to use
 })
 export class ContentModule {}

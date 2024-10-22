@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsPostgresRepository } from '../../infrastructure/postgres/blogs-postgres.repository';
+import { BlogsTypeormRepository } from '../../infrastructure/typeorm/blogs-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class DeleteBlogCommand {
@@ -9,11 +9,11 @@ export class DeleteBlogCommand {
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
   constructor(
-    private readonly blogsPostgresRepository: BlogsPostgresRepository,
+    private readonly blogsTypeormRepository: BlogsTypeormRepository,
   ) {}
 
   async execute(command: DeleteBlogCommand): Promise<any> {
-    const isDeleted: boolean = await this.blogsPostgresRepository.delete(
+    const isDeleted: boolean = await this.blogsTypeormRepository.delete(
       command.id,
     );
     if (isDeleted) {

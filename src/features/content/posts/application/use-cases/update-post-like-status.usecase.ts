@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
+import { PostsTypeormRepository } from '../../infrastructure/typeorm/posts-typeorm.repository';
 import { LikeStatus } from '../../../../../base/types/like-status';
 import { Result } from '../../../../../base/types/object-result';
-import { PostLikesPostgresRepository } from '../../infrastructure/postgres/post-likes-postgres.repository';
+import { PostLikesTypeormRepository } from '../../infrastructure/typeorm/post-likes-typeorm.repository';
 
 export class UpdatePostLikeStatusCommand {
   constructor(
@@ -17,20 +17,20 @@ export class UpdatePostLikeStatusUseCase
   implements ICommandHandler<UpdatePostLikeStatusCommand>
 {
   constructor(
-    private readonly postsPostgresRepository: PostsPostgresRepository,
-    private readonly postLikesPostgresRepository: PostLikesPostgresRepository,
+    private readonly postsTypeormRepository: PostsTypeormRepository,
+    private readonly postLikesTypeormRepository: PostLikesTypeormRepository,
   ) {}
 
   async execute(command: UpdatePostLikeStatusCommand) {
     const { likeStatus, postId, userId } = command;
 
-    const post = await this.postsPostgresRepository.findById(postId);
+    const post = await this.postsTypeormRepository.findById(postId);
 
     if (!post) {
       return Result.notFound(`Comment with ${postId} does not exist`);
     }
 
-    const userLike = await this.postLikesPostgresRepository.findById(
+    const userLike = await this.postLikesTypeormRepository.findById(
       postId,
       userId,
     );
@@ -43,16 +43,16 @@ export class UpdatePostLikeStatusUseCase
         return Result.success();
       }
 
-      await this.postLikesPostgresRepository.create(postId, userId, likeStatus);
+      await this.postLikesTypeormRepository.create(postId, userId, likeStatus);
 
       // for input.likeStatus = LikeStatus.Like
       if (likeStatus === LikeStatus.Like) {
-        await this.postsPostgresRepository.increaseLikesCount(postId);
+        await this.postsTypeormRepository.increaseLikesCount(postId);
       }
 
       // for input.likeStatus = LikeStatus.Dislike
       if (likeStatus === LikeStatus.Dislike) {
-        await this.postsPostgresRepository.increaseDislikesCount(postId);
+        await this.postsTypeormRepository.increaseDislikesCount(postId);
       }
 
       return Result.success();
@@ -67,16 +67,16 @@ export class UpdatePostLikeStatusUseCase
     // LikeStatus None (Like exists)
     if (likeStatus === LikeStatus.None) {
       console.log('None');
-      await this.postLikesPostgresRepository.delete(postId, userId);
+      await this.postLikesTypeormRepository.delete(postId, userId);
 
       // was dislike
       if (userLike.status === LikeStatus.Dislike) {
-        await this.postsPostgresRepository.decreaseDislikesCount(postId);
+        await this.postsTypeormRepository.decreaseDislikesCount(postId);
       }
 
       // was like
       if (userLike.status === LikeStatus.Like) {
-        await this.postsPostgresRepository.decreaseLikesCount(postId);
+        await this.postsTypeormRepository.decreaseLikesCount(postId);
       }
 
       return Result.success();
@@ -85,13 +85,13 @@ export class UpdatePostLikeStatusUseCase
     // LikeStatus different (status Like)
     if (likeStatus === LikeStatus.Like) {
       console.log('like');
-      await this.postLikesPostgresRepository.update(postId, userId, likeStatus);
+      await this.postLikesTypeormRepository.update(postId, userId, likeStatus);
 
       // was dislike
       if (userLike.status === LikeStatus.Dislike) {
-        await this.postsPostgresRepository.decreaseDislikesCount(postId);
+        await this.postsTypeormRepository.decreaseDislikesCount(postId);
       }
-      await this.postsPostgresRepository.increaseLikesCount(postId);
+      await this.postsTypeormRepository.increaseLikesCount(postId);
 
       return Result.success();
     }
@@ -99,13 +99,13 @@ export class UpdatePostLikeStatusUseCase
     // LikeStatus different (Like exists)
     if (likeStatus === LikeStatus.Dislike) {
       console.log('dislike');
-      await this.postLikesPostgresRepository.update(postId, userId, likeStatus);
+      await this.postLikesTypeormRepository.update(postId, userId, likeStatus);
 
       // was like
       if (userLike.status === LikeStatus.Like) {
-        await this.postsPostgresRepository.decreaseLikesCount(postId);
+        await this.postsTypeormRepository.decreaseLikesCount(postId);
       }
-      await this.postsPostgresRepository.increaseDislikesCount(postId);
+      await this.postsTypeormRepository.increaseDislikesCount(postId);
 
       return Result.success();
     }

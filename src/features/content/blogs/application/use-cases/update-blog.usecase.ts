@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsPostgresRepository } from '../../infrastructure/postgres/blogs-postgres.repository';
+import { BlogsTypeormRepository } from '../../infrastructure/typeorm/blogs-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class UpdateBlogCommand {
@@ -14,24 +14,19 @@ export class UpdateBlogCommand {
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
   constructor(
-    private readonly blogsPostgresRepository: BlogsPostgresRepository,
+    private readonly blogsTypeormRepository: BlogsTypeormRepository,
   ) {}
 
   async execute(command: UpdateBlogCommand) {
     const { id, name, description, websiteUrl } = command;
 
-    const blog = await this.blogsPostgresRepository.findById(command.id);
+    const blog = await this.blogsTypeormRepository.findById(command.id);
 
     if (!blog) {
       return Result.notFound(`Blog with id ${command.id} could not be found`);
     }
 
-    await this.blogsPostgresRepository.update(
-      id,
-      name,
-      description,
-      websiteUrl,
-    );
+    await this.blogsTypeormRepository.update(id, name, description, websiteUrl);
 
     return Result.success();
   }

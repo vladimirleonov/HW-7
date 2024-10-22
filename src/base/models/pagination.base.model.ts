@@ -4,6 +4,7 @@ import {
   PaginationWithSearchLoginAndEmailTermQuery,
   PaginationWithSearchNameTermQuery,
 } from './pagination-query.input.model';
+import { query } from 'express';
 
 export class PaginationOutput<D> {
   public readonly pagesCount: number;
@@ -35,7 +36,7 @@ export class Pagination<T extends PaginationQuery> {
   }
 
   public getSortDirectionInNumericFormat(): -1 | 1 {
-    return this.sortDirection === 'desc' ? -1 : 1;
+    return this.sortDirection === 'DESC' ? -1 : 1;
   }
 
   public getSkipItemsCount() {
@@ -43,15 +44,15 @@ export class Pagination<T extends PaginationQuery> {
   }
 
   private getSortDirection(query: T): SortDirectionType {
-    let sortDirection: SortDirectionType = 'desc';
+    let sortDirection: SortDirectionType = 'DESC';
 
-    switch (query.sortDirection) {
-      case 'desc': {
-        sortDirection = 'desc';
+    switch (query.sortDirection?.toUpperCase()) {
+      case 'DESC': {
+        sortDirection = 'DESC';
         break;
       }
-      case 'asc': {
-        sortDirection = 'asc';
+      case 'ASC': {
+        sortDirection = 'ASC';
         break;
       }
     }
@@ -59,7 +60,7 @@ export class Pagination<T extends PaginationQuery> {
   }
 
   private getSortBy(query: T, sortProperties: string[]): string {
-    let result = 'createdAt';
+    let result = 'created_at';
 
     const querySortBy = query.sortBy;
 
@@ -113,4 +114,4 @@ export class PaginationWithSearchNameTerm<
 }
 
 // TYPES
-export type SortDirectionType = 'desc' | 'asc';
+export type SortDirectionType = 'DESC' | 'ASC';

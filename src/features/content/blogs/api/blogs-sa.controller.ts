@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
-import { BlogsPostgresQueryRepository } from '../infrastructure/postgres/blogs-postgres.query-repository';
+import { BlogsTypeormQueryRepository } from '../infrastructure/typeorm/blogs-typeorm.query-repository';
 import { CommandBus } from '@nestjs/cqrs';
 import {
   Pagination,
@@ -34,7 +34,7 @@ import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase'
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase';
 import { PostForBlogCreateModel } from '../../posts/api/models/input/create-post-for-blog.input.model';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
-import { PostsPostgresQueryRepository } from '../../posts/infrastructure/postgres/posts-postgres.query-repository';
+import { PostsTypeormQueryRepository } from '../../posts/infrastructure/typeorm/posts-typeorm.query-repository';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
@@ -53,8 +53,8 @@ const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
 @UseGuards(BasicAuthGuard)
 export class BlogsSAController {
   constructor(
-    private readonly blogsPostgresQueryRepository: BlogsPostgresQueryRepository,
-    private readonly postsPostgresQueryRepository: PostsPostgresQueryRepository,
+    private readonly blogsTypeormQueryRepository: BlogsTypeormQueryRepository,
+    private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
     private readonly commandBus: CommandBus,
   ) {}
 
@@ -63,7 +63,7 @@ export class BlogsSAController {
     const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
-    const blogs = await this.blogsPostgresQueryRepository.getAll(pagination);
+    const blogs = await this.blogsTypeormQueryRepository.getAll(pagination);
 
     return blogs;
   }
@@ -79,7 +79,7 @@ export class BlogsSAController {
     const createdId: number = result.data;
 
     const createdBlog: BlogOutputModel | null =
-      await this.blogsPostgresQueryRepository.findById(createdId);
+      await this.blogsTypeormQueryRepository.findById(createdId);
 
     if (!createdBlog) {
       throw new InternalServerErrorException();
@@ -127,7 +127,7 @@ export class BlogsSAController {
     // TODO: ask if is it ok to check blog is exists in controller here
     // or delete it and check in postsPostgresQueryRepository.getAllBlogPosts
     const blog: BlogOutputModel | null =
-      await this.blogsPostgresQueryRepository.findById(blogId);
+      await this.blogsTypeormQueryRepository.findById(blogId);
 
     if (!blog) {
       throw new NotFoundException(`Blog with id ${blogId} not found`);
@@ -139,7 +139,7 @@ export class BlogsSAController {
     );
 
     const blogPosts: PaginationOutput<PostOutputModel> =
-      await this.postsPostgresQueryRepository.getAllBlogPosts(
+      await this.postsTypeormQueryRepository.getAllBlogPosts(
         pagination,
         blogId,
       );
@@ -165,7 +165,7 @@ export class BlogsSAController {
 
     const createdId: number = result.data;
 
-    const post = await this.postsPostgresQueryRepository.findById(createdId);
+    const post = await this.postsTypeormQueryRepository.findById(createdId);
 
     if (!post) {
       throw new InternalServerErrorException();

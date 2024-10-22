@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsPostgresRepository } from '../../infrastructure/postgres/blogs-postgres.repository';
+import { BlogsTypeormRepository } from '../../infrastructure/typeorm/blogs-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 
 export class CreateBlogCommand {
@@ -13,7 +13,7 @@ export class CreateBlogCommand {
 @CommandHandler(CreateBlogCommand)
 export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   constructor(
-    private readonly blogsPostgresRepository: BlogsPostgresRepository,
+    private readonly blogsPostgresRepository: BlogsTypeormRepository,
   ) {}
 
   async execute(command: CreateBlogCommand) {

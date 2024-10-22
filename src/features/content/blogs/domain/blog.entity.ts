@@ -1,40 +1,32 @@
-// import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-// import { HydratedDocument } from 'mongoose';
-//
-// export type BlogDocument = HydratedDocument<Blog>;
-//
-// @Schema()
-// export class Blog {
-//   @Prop({
-//     type: String,
-//     maxlength: 15,
-//     required: true,
-//   })
-//   name: string;
-//   @Prop({
-//     type: String,
-//     maxlength: 500,
-//     required: true,
-//   })
-//   description: string;
-//   @Prop({
-//     type: String,
-//     maxlength: 100,
-//     required: true,
-//     match:
-//       /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
-//   })
-//   websiteUrl: string;
-//   @Prop({
-//     type: Date,
-//     required: true,
-//   })
-//   createdAt: Date;
-//   @Prop({
-//     type: Boolean,
-//     default: false,
-//   })
-//   isMembership: boolean;
-// }
-//
-// export const BlogSchema = SchemaFactory.createForClass(Blog);
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Post } from '../../posts/domain/post.entity';
+
+@Entity()
+export class Blog {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ length: 15 })
+  name: string;
+
+  @Column({ length: 500 })
+  description: string;
+
+  @Column({ length: 100 })
+  websiteUrl: string;
+
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @Column()
+  isMembership: boolean;
+
+  @OneToMany(() => Post, (p) => p.blog)
+  posts: Post[];
+}

@@ -1,5 +1,5 @@
 // import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-// import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
+// import { PostsTypeormRepository } from '../../infrastructure/postgres/posts-postgres.repository';
 //
 // export class DeletePostCommand {
 //   constructor(public readonly id: string) {}
@@ -8,7 +8,7 @@
 // @CommandHandler(DeletePostCommand)
 // export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
 //   constructor(
-//     private readonly postsPostgresRepository: PostsPostgresRepository,
+//     private readonly postsPostgresRepository: PostsTypeormRepository,
 //   ) {}
 //
 //   async execute(command: DeletePostCommand) {

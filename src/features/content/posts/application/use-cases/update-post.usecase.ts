@@ -1,5 +1,5 @@
 // import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-// import { PostsPostgresRepository } from '../../infrastructure/postgres/posts-postgres.repository';
+// import { PostsTypeormRepository } from '../../infrastructure/postgres/posts-postgres.repository';
 //
 // export class UpdatePostCommand {
 //   constructor(
@@ -14,7 +14,7 @@
 // @CommandHandler(UpdatePostCommand)
 // export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
 //   constructor(
-//     private readonly postsPostgresRepository: PostsPostgresRepository,
+//     private readonly postsPostgresRepository: PostsTypeormRepository,
 //   ) {}
 //
 //   async execute(command: UpdatePostCommand) {
