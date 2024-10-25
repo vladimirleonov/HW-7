@@ -45,6 +45,7 @@ import { Cookie } from '../../../../core/decorators/param-decorators/cookie.para
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { UserAgent } from '../../../../core/decorators/param-decorators/user-agent.param.decorator';
 import { LoginModel } from './models/input/login.input.model';
+import { User } from '../../../users/domain/user.entity';
 
 //@UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -222,7 +223,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async authMe(@CurrentUserId() userId: string) {
-    const user: AuthMeOutputModel | null =
+    const user: User =
       await this.usersTypeormQueryRepository.findAuthenticatedUserById(userId);
 
     if (!user) {

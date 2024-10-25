@@ -1,58 +1,108 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { Post } from '../../domain/post.entity';
+import { Blog } from '../../../blogs/domain/blog.entity';
 
 @Injectable()
 export class PostsTypeormRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {} //@InjectModel(Post.name) private postModel: Model<Post>
+  constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
+    @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
+    @InjectRepository(Blog) private readonly blogsRepository: Repository<Blog>,
+  ) {}
 
   async findById(id: number): Promise<any> {
-    const query = `
-      SELECT * FROM posts
-      WHERE id = $1
-    `;
+    // Post | null
+    return await this.postsRepository.findOneBy({
+      id,
+    });
 
-    const result = await this.dataSource.query(query, [id]);
-
-    return result.length > 0 ? result[0] : null;
+    // const query = `
+    //   SELECT * FROM posts
+    //   WHERE id = $1
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [id]);
+    //
+    // return result.length > 0 ? result[0] : null;
   }
 
+  // +
   async findByPostIdAndBlogId(postId: number, blogId: number) {
-    const query = `
-      SELECT * FROM posts
-      WHERE id = $1 AND blog_id = $2
-    `;
+    // Post | null
+    return await this.postsRepository.findOneBy({
+      id: postId,
+      blogId: blogId,
+    });
 
-    const result = await this.dataSource.query(query, [postId, blogId]);
-
-    return result.length > 0 ? result[0] : null;
+    // const query = `
+    //   SELECT * FROM posts
+    //   WHERE id = $1 AND blog_id = $2
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [postId, blogId]);
+    //
+    // return result.length > 0 ? result[0] : null;
   }
 
+  // +
   async create(
     title: string,
     shortDescription: string,
     content: string,
     blogId: number,
   ): Promise<number> {
-    const query: string = `
-      INSERT INTO posts
-      (title, short_description, content, blog_id)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id;
-    `;
+    // const result: Blog | null = await this.blogsRepository
+    //   .createQueryBuilder('b')
+    //   .select('b.name')
+    //   .getOne();
+    // console.log(blogName);
 
-    const result = await this.dataSource.query(query, [
-      title,
-      shortDescription,
-      content,
-      blogId,
-    ]);
+    const createdPost: Post = await this.postsRepository.save({
+      title: title,
+      shortDescription: shortDescription,
+      content: content,
+      blogId: blogId,
+      // createdAt: new Date(),
+    });
 
-    const createdId: number = result[0].id;
+    const postId: number = createdPost.id;
+    // console.log(postId);
+    return postId;
 
-    return createdId;
+    // console.log('createdPost', createdPost);
+    // createdPost Post {
+    //   title: '111111111112qqqq',
+    //     shortDescription: 'shortDescription1233123',
+    //     content: 'content132123',
+    //     blog: Blog { id: 5 },
+    //   id: 5,
+    //     createdAt: 2024-10-23T18:56:22.445Z,
+    //     likesCount: 0,
+    //     dislikesCount: 0
+    // }
+    //
+    // const query: string = `
+    //   INSERT INTO posts
+    //   (title, short_description, content, blog_id)
+    //   VALUES ($1, $2, $3, $4)
+    //   RETURNING id;
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [
+    //   title,
+    //   shortDescription,
+    //   content,
+    //   blogId,
+    // ]);
+    //
+    // const createdId: number = result[0].id;
+    //
+    // return createdId;
   }
 
+  // +
   async update(
     title: string,
     shortDescription: string,
@@ -60,91 +110,144 @@ export class PostsTypeormRepository {
     blogId: number,
     postId: number,
   ): Promise<boolean> {
-    const query: string = `
-      UPDATE posts
-      SET title=$1, short_description=$2, content=$3
-      WHERE id=$4 AND blog_id=$5
-    `;
+    const result: UpdateResult = await this.postsRepository.update(
+      {
+        id: postId,
+        blogId: blogId,
+      },
+      {
+        title: title,
+        shortDescription: shortDescription,
+        content: content,
+      },
+    );
 
-    const result = await this.dataSource.query(query, [
-      title,
-      shortDescription,
-      content,
-      postId,
-      blogId,
-    ]);
+    return result.affected === 1;
 
-    const updatedRowsCount: number = result[1];
-
-    return updatedRowsCount === 1;
+    // const query: string = `
+    //   UPDATE posts
+    //   SET title=$1, short_description=$2, content=$3
+    //   WHERE id=$4 AND blog_id=$5
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [
+    //   title,
+    //   shortDescription,
+    //   content,
+    //   postId,
+    //   blogId,
+    // ]);
+    //
+    // const updatedRowsCount: number = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
   async increaseLikesCount(id: number) {
-    const query: string = `
-      UPDATE posts
-      SET likes_count = likes_count + 1
-      WHERE id = $1
-    `;
+    const result: UpdateResult = await this.postsRepository.update(
+      { id },
+      {
+        likesCount: () => `likesCount + 1`,
+      },
+    );
 
-    const result = this.dataSource.query(query, [id]);
+    return result.affected === 1;
 
-    const updatedRowsCount: number = result[1];
-
-    return updatedRowsCount === 1;
+    // const query: string = `
+    //   UPDATE posts
+    //   SET likes_count = likes_count + 1
+    //   WHERE id = $1
+    // `;
+    //
+    // const result = this.dataSource.query(query, [id]);
+    //
+    // const updatedRowsCount: number = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
   async decreaseLikesCount(id: number) {
-    const query: string = `
-      UPDATE posts
-      SET likes_count = GREATEST(likes_count - 1, 0)
-      WHERE id = $1
-    `;
+    const result: UpdateResult = await this.postsRepository.update(
+      { id },
+      {
+        likesCount: () => `GREATEST(likes_count - 1, 0)`,
+      },
+    );
 
-    const result = this.dataSource.query(query, [id]);
+    return result.affected === 1;
 
-    const updatedRowsCount: number = result[1];
-
-    return updatedRowsCount === 1;
+    // const query: string = `
+    //   UPDATE posts
+    //   SET likes_count = GREATEST(likes_count - 1, 0)
+    //   WHERE id = $1
+    // `;
+    //
+    // const result = this.dataSource.query(query, [id]);
+    //
+    // const updatedRowsCount: number = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
   async increaseDislikesCount(id: number) {
-    const query: string = `
-      UPDATE posts
-      SET dislikes_count = dislikes_count + 1
-      WHERE id = $1
-    `;
+    const result: UpdateResult = await this.postsRepository.update(
+      { id },
+      { dislikesCount: () => `dislikes_count + 1` },
+    );
 
-    const result = this.dataSource.query(query, [id]);
+    return result.affected === 1;
 
-    const updatedRowsCount: number = result[1];
-
-    return updatedRowsCount === 1;
+    // const query: string = `
+    //   UPDATE posts
+    //   SET dislikes_count = dislikes_count + 1
+    //   WHERE id = $1
+    // `;
+    //
+    // const result = this.dataSource.query(query, [id]);
+    //
+    // const updatedRowsCount: number = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
   async decreaseDislikesCount(id: number) {
-    const query: string = `
-      UPDATE posts
-      SET dislikes_count = GREATEST(dislikes_count - 1, 0)
-      WHERE id = $1
-    `;
+    const result: UpdateResult = await this.postsRepository.update(
+      { id },
+      { dislikesCount: () => `GREATEST(dislikes_count - 1, 0)` },
+    );
 
-    const result = this.dataSource.query(query, [id]);
-
-    const updatedRowsCount: number = result[1];
-
-    return updatedRowsCount === 1;
+    return result.affected === 1;
+    // const query: string = `
+    //   UPDATE posts
+    //   SET dislikes_count = GREATEST(dislikes_count - 1, 0)
+    //   WHERE id = $1
+    // `;
+    //
+    // const result = this.dataSource.query(query, [id]);
+    //
+    // const updatedRowsCount: number = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
+  // +
   async delete(blogId: number, postId: number): Promise<boolean> {
-    const query: string = `
-      DELETE FROM posts
-      WHERE id=$1 AND blog_id=$2
-    `;
+    // does not work: two conditions
+    // const result: DeleteResult = await this.postsRepository.delete({
+    //   id: postId,
+    //   bogId: blogId,
+    // });
 
-    const result = await this.dataSource.query(query, [postId, blogId]);
+    const result: DeleteResult = await this.postsRepository
+      .createQueryBuilder()
+      .delete()
+      .from('post')
+      .where('id = :postId AND blogId = :blogId', {
+        postId: postId,
+        blogId: blogId,
+      })
+      .execute();
 
-    const deletedRowsCount: number = result[1];
-
-    return deletedRowsCount === 1;
+    return result.affected === 1;
   }
 }

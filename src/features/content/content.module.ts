@@ -28,6 +28,12 @@ import { UpdateCommentUseCase } from './comments/application/use-cases/update-co
 import { DeleteCommentUseCase } from './comments/application/use-cases/delete-comment.usecase';
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.usecase';
 import { CommentLikesPostgresRepository } from './comments/infrastructure/postgres/comment-likes-postgres.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../users/domain/user.entity';
+import { EmailConfirmation } from '../users/domain/email-confirmation';
+import { PasswordRecovery } from '../users/domain/password-recovery';
+import { Post } from './posts/domain/post.entity';
+import { Blog } from './blogs/domain/blog.entity';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -77,7 +83,12 @@ const commentsProviders: Provider[] = [
 ];
 
 @Module({
-  imports: [CqrsModule, AuthModule, UsersModule],
+  imports: [
+    CqrsModule,
+    AuthModule,
+    UsersModule,
+    TypeOrmModule.forFeature([Blog, Post]),
+  ],
   controllers: [
     BlogsController,
     PostsController,

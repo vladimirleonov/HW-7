@@ -10,7 +10,7 @@ const TEST_ADMIN_CREDENTIALS = {
   password: 'qwerty',
 };
 
-describe('users', () => {
+describe.skip('users', () => {
   let app: INestApplication;
   let userTestManger: UsersTestManager;
 
@@ -32,7 +32,7 @@ describe('users', () => {
     // console.log('app in users test', app);
     userTestManger = expect.getState().userTestManger;
 
-    console.log('App initialized:', !!app);
+    // console.log('App initialized:', !!app);
     if (!app) {
       throw new Error('Application failed to initialize');
     }

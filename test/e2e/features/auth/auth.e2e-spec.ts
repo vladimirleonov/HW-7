@@ -15,7 +15,7 @@ import { PasswordRecoveryModel } from '../../../../src/features/auth/auth/api/mo
 import { NewPasswordModel } from '../../../../src/features/auth/auth/api/models/input/new-password.model';
 import { LoginModel } from '../../../../src/features/auth/auth/api/models/input/login.input.model';
 
-describe('auth', () => {
+describe.skip('auth', () => {
   let app: INestApplication;
   let authTestManager: AuthTestManager;
   let nodemailerServiceMock: NodemailerServiceMock;

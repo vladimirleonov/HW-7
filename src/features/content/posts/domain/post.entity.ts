@@ -25,6 +25,9 @@ export class Post {
   @JoinColumn()
   blog: Blog;
 
+  @Column()
+  blogId: number;
+
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

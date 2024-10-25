@@ -74,12 +74,14 @@ export class Pagination<T extends PaginationQuery> {
         const param = querySortBy[i];
 
         if (sortProperties.includes(param.toString())) {
+          // result = param.toString();
           result = toSnakeCase(param.toString());
           break;
         }
       }
     } else {
       if (sortProperties.includes(querySortBy.toString())) {
+        // result = querySortBy.toString();
         result = toSnakeCase(querySortBy.toString());
       }
     }

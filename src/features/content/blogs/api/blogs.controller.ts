@@ -20,9 +20,10 @@ import { BlogsTypeormQueryRepository } from '../infrastructure/typeorm/blogs-typ
 import { PostsTypeormQueryRepository } from '../../posts/infrastructure/typeorm/posts-typeorm.query-repository';
 import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
-import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
 import { BlogsPaginationQuery } from './models/input/blogs-pagination-query.input.model';
+import { Blog } from '../domain/blog.entity';
+import { Post } from '../../posts/domain/post.entity';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -36,12 +37,13 @@ export class BlogsController {
     private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
   ) {}
 
+  // +
   @Get()
   async getAll(@Query() query: BlogsPaginationQuery) {
     const pagination: PaginationWithSearchNameTerm<BlogsPaginationQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
-    const blogs: PaginationOutput<BlogOutputModel> =
+    const blogs: PaginationOutput<Blog> =
       await this.blogsTypeormQueryRepository.getAll(pagination);
 
     return blogs;
@@ -68,7 +70,7 @@ export class BlogsController {
       POSTS_SORTING_PROPERTIES,
     );
 
-    const blogPosts: PaginationOutput<PostOutputModel> =
+    const blogPosts: PaginationOutput<Post> =
       await this.postsTypeormQueryRepository.getAllBlogPosts(
         pagination,
         blogId,

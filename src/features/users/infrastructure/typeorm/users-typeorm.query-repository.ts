@@ -11,14 +11,13 @@ import { User } from '../../domain/user.entity';
 @Injectable()
 export class UsersTypeormQueryRepository {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    @InjectRepository(User) private readonly usersRepository: Repository<User>,
     // private readonly dataSource: DataSource,
   ) {}
 
   async getAll(
     pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery>,
-  ): Promise<any> {
+  ): Promise<PaginationOutput<User>> {
     // console.log(pagination.searchLoginTerm);
     const query = this.usersRepository
       .createQueryBuilder('u')
@@ -81,7 +80,7 @@ export class UsersTypeormQueryRepository {
   //   return this._getResult(finalWhereClause, pagination, params);
   // }
 
-  async findById(id: number): Promise<any> {
+  async findById(id: number): Promise<User> {
     const result = await this.usersRepository
       .createQueryBuilder('u')
       .select([
@@ -102,7 +101,7 @@ export class UsersTypeormQueryRepository {
   }
 
   // TODO: not sure about name
-  async findAuthenticatedUserById(id: string): Promise<any> {
+  async findAuthenticatedUserById(id: string): Promise<User> {
     // const query: string = `SELECT * FROM public."user" WHERE id=$1`;
     //
     // const result = await this.dataSource.query(query, [id]);

@@ -37,6 +37,7 @@ import { PostUpdateLikeStatusModel } from './models/input/update-post-like-statu
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
 import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
 import { PostsPaginationQuery } from './models/input/posts-pagination-query.input.model';
+import { Post as PostEntity } from './../domain/post.entity';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -49,6 +50,7 @@ export class PostsController {
     private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
   ) {}
 
+  // +
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   async getAll(
@@ -60,12 +62,13 @@ export class PostsController {
       POSTS_SORTING_PROPERTIES,
     );
 
-    const posts: PaginationOutput<PostOutputModel> =
+    const posts: PaginationOutput<PostEntity> =
       await this.postsTypeormQueryRepository.getAllPosts(pagination, userId);
 
     return posts;
   }
 
+  // +
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   async getOne(

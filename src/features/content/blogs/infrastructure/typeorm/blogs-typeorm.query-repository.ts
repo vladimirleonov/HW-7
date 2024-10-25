@@ -1,99 +1,71 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import {
-  Pagination,
   PaginationOutput,
   PaginationWithSearchNameTerm,
 } from '../../../../../base/models/pagination.base.model';
-import {
-  BlogOutputModel,
-  BlogOutputModelMapper,
-} from '../../api/models/output/blog.output.model';
-import {
-  PaginationQuery,
-  PaginationWithSearchNameTermQuery,
-} from '../../../../../base/models/pagination-query.input.model';
+import { PaginationWithSearchNameTermQuery } from '../../../../../base/models/pagination-query.input.model';
+import { Blog } from '../../domain/blog.entity';
 
 @Injectable()
 export class BlogsTypeormQueryRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Blog) private readonly blogsRepository: Repository<Blog>,
+  ) {}
 
   async getAll(
     pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery>,
-  ): Promise<PaginationOutput<BlogOutputModel>> {
-    let whereClause: string = '';
-    const params: string[] = [];
+  ): Promise<PaginationOutput<Blog>> {
+    const query = this.blogsRepository
+      .createQueryBuilder('b')
+      .select([
+        'CAST(b.id AS text) AS id',
+        'b.name as name',
+        'b.description as description',
+        'b.websiteUrl as "websiteUrl"',
+        'b.createdAt as "createdAt"',
+        'b.isMembership as "isMembership"',
+      ])
+      .orderBy(`b.${pagination.sortBy}`, pagination.sortDirection)
+      .offset((pagination.pageNumber - 1) * pagination.pageSize)
+      .limit(pagination.pageSize);
 
     if (pagination.searchNameTerm) {
-      whereClause += `name ILIKE $${params.length + 1}`;
-      params.push(`%${pagination.searchNameTerm}%`);
+      query.where('b.name ILIKE :name', {
+        name: `%${pagination.searchNameTerm}%`,
+      });
     }
 
-    // const finalWhereClause = whereClause ? `WHERE ${whereClause}` : '';
+    const blogs: Blog[] = await query.getRawMany();
+    // console.log('blogs', blogs);
 
-    return this._getResult(whereClause, pagination, params);
-  }
+    const totalCount: number = await query.getCount();
+    // console.log('totalCount', totalCount);
 
-  // async getAll(
-  //   pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery>,
-  // ): Promise<PaginationOutput<BlogOutputModel>> {
-  //   let whereClause: string = '';
-  //   const params: string[] = [];
-  //
-  //   if (pagination.searchNameTerm) {
-  //     whereClause += `name ILIKE $${params.length + 1}`;
-  //     params.push(`%${pagination.searchNameTerm}%`);
-  //   }
-  //
-  //   // const finalWhereClause = whereClause ? `WHERE ${whereClause}` : '';
-  //
-  //   return this._getResult(whereClause, pagination, params);
-  // }
-
-  async findById(id: number) {
-    const query: string = `
-      SELECT * FROM blogs
-      WHERE id = $1
-    `;
-
-    const result: string = await this.dataSource.query(query, [id]);
-
-    return result.length > 0 ? BlogOutputModelMapper(result[0]) : null;
-  }
-
-  async _getResult(
-    filter: any,
-    pagination: Pagination<PaginationQuery>,
-    params: any,
-  ): Promise<PaginationOutput<BlogOutputModel>> {
-    const query: string = `
-      SELECT * FROM blogs
-      ${filter ? filter : ''}
-      ORDER BY ${pagination.sortBy} ${pagination.sortDirection}
-      OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
-      LIMIT ${pagination.pageSize}
-    `;
-
-    const result = await this.dataSource.query(query, params);
-
-    // count docs
-    const countQuery: string = `
-      SELECT COUNT(*) as count FROM blogs
-      ${filter ? filter : ''}
-    `;
-
-    const countResult = await this.dataSource.query(countQuery, params);
-
-    const totalCount: number = Number(countResult[0].count);
-
-    const mappedBlogs: any[] = result.map(BlogOutputModelMapper);
-
-    return new PaginationOutput<BlogOutputModel>(
-      mappedBlogs,
+    return new PaginationOutput<Blog>(
+      blogs,
       pagination.pageNumber,
       pagination.pageSize,
       totalCount,
     );
+  }
+
+  // +
+  async findById(id: number) {
+    const result = await this.blogsRepository
+      .createQueryBuilder('b')
+      .select([
+        'CAST(b.id as text) as id',
+        'b.name as name',
+        'b.description as description',
+        'b.websiteUrl as "websiteUrl"',
+        'b.createdAt as "createdAt"',
+        'b.isMembership as "isMembership"',
+      ])
+      .where('b.id = :id', { id: id })
+      .getRawOne();
+
+    return result;
   }
 }

@@ -6,6 +6,7 @@ import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import { INestApplication } from '@nestjs/common';
 import { AuthTestManager } from '../features/auth/auth-test-manager';
 import { DataSource } from 'typeorm';
+import { BlogsTestManager } from '../features/blogs/blogs-test-manager';
 
 export const initSettings = async (
   //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -40,6 +41,7 @@ export const initSettings = async (
   // Init userManager, authManager
   const userTestManger: UsersTestManager = new UsersTestManager(app);
   const authTestManager: AuthTestManager = new AuthTestManager(app);
+  const blogTestManager: BlogsTestManager = new BlogsTestManager(app);
 
   await deleteAllData(dataSource);
 
@@ -60,5 +62,6 @@ export const initSettings = async (
     httpServer: httpServer,
     userTestManger: userTestManger,
     authTestManager: authTestManager,
+    blogTestManager: blogTestManager,
   });
 };

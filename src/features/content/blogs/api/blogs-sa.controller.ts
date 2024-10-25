@@ -36,7 +36,6 @@ import { PostForBlogCreateModel } from '../../posts/api/models/input/create-post
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
 import { PostsTypeormQueryRepository } from '../../posts/infrastructure/typeorm/posts-typeorm.query-repository';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
-import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
 import { UpdateBlogPostCommand } from '../../posts/application/use-cases/update-blog-post.usecase';
 import { DeleteBlogPostCommand } from '../../posts/application/use-cases/delete-blog-post.usecase';
@@ -44,6 +43,8 @@ import {
   PaginationQuery,
   PaginationWithSearchNameTermQuery,
 } from '../../../../base/models/pagination-query.input.model';
+import { Blog } from '../domain/blog.entity';
+import { Post as PostEntity } from '../../posts/domain/post.entity';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -58,6 +59,7 @@ export class BlogsSAController {
     private readonly commandBus: CommandBus,
   ) {}
 
+  // +
   @Get()
   async getAll(@Query() query: any) {
     const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
@@ -68,6 +70,7 @@ export class BlogsSAController {
     return blogs;
   }
 
+  // +
   @Post()
   async create(@Body() createModel: BlogCreateModel) {
     const { name, description, websiteUrl } = createModel;
@@ -78,7 +81,7 @@ export class BlogsSAController {
 
     const createdId: number = result.data;
 
-    const createdBlog: BlogOutputModel | null =
+    const createdBlog: Blog | null =
       await this.blogsTypeormQueryRepository.findById(createdId);
 
     if (!createdBlog) {
@@ -88,6 +91,7 @@ export class BlogsSAController {
     return createdBlog;
   }
 
+  // +
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async update(
@@ -106,6 +110,7 @@ export class BlogsSAController {
     }
   }
 
+  // +
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', new ParseIntPipe()) id: number) {
@@ -119,6 +124,7 @@ export class BlogsSAController {
     }
   }
 
+  // +
   @Get(':blogId/posts')
   async getAllBlogPosts(
     @Query() query: any,
@@ -126,7 +132,7 @@ export class BlogsSAController {
   ) {
     // TODO: ask if is it ok to check blog is exists in controller here
     // or delete it and check in postsPostgresQueryRepository.getAllBlogPosts
-    const blog: BlogOutputModel | null =
+    const blog: Blog | null =
       await this.blogsTypeormQueryRepository.findById(blogId);
 
     if (!blog) {
@@ -138,7 +144,7 @@ export class BlogsSAController {
       POSTS_SORTING_PROPERTIES,
     );
 
-    const blogPosts: PaginationOutput<PostOutputModel> =
+    const blogPosts: PaginationOutput<PostEntity> =
       await this.postsTypeormQueryRepository.getAllBlogPosts(
         pagination,
         blogId,
@@ -147,6 +153,7 @@ export class BlogsSAController {
     return blogPosts;
   }
 
+  // +
   @Post(':blogId/posts')
   async createPostForBlog(
     @Param('blogId', new ParseIntPipe()) blogId: number,
@@ -174,6 +181,7 @@ export class BlogsSAController {
     return post;
   }
 
+  // +
   @Put(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlogPost(
@@ -201,6 +209,7 @@ export class BlogsSAController {
     }
   }
 
+  // +
   @Delete(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlogPost(

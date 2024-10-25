@@ -15,6 +15,8 @@ import { EmailConfirmation } from './features/users/domain/email-confirmation';
 import { PasswordRecovery } from './features/users/domain/password-recovery';
 import { Device } from './features/auth/security/domain/device.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { Post } from './features/content/posts/domain/post.entity';
+import { Blog } from './features/content/blogs/domain/blog.entity';
 
 @Module({
   imports: [
@@ -39,7 +41,14 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
           username: databaseSettings.DB_USERNAME,
           password: databaseSettings.DB_PASSWORD,
           database: databaseSettings.DB_DATABASE,
-          entities: [User, EmailConfirmation, PasswordRecovery, Device],
+          entities: [
+            User,
+            EmailConfirmation,
+            PasswordRecovery,
+            Device,
+            Blog,
+            Post,
+          ],
           synchronize: true,
           logging: true,
           namingStrategy: new SnakeNamingStrategy(),
