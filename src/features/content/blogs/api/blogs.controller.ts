@@ -13,7 +13,7 @@ import {
 } from '../../../../base/models/pagination.base.model';
 import { BlogOutputModel } from './models/output/blog.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { BlogsTypeormQueryRepository } from '../infrastructure/typeorm/blogs-typeorm.query-repository';
@@ -24,6 +24,9 @@ import { PaginationQuery } from '../../../../base/models/pagination-query.input.
 import { BlogsPaginationQuery } from './models/input/blogs-pagination-query.input.model';
 import { Blog } from '../domain/blog.entity';
 import { Post } from '../../posts/domain/post.entity';
+import { GetAllBlogsQuery } from '../infrastructure/queries/get-all-blogs.query';
+import { GetAllBlogPostsQuery } from '../../posts/infrastructure/quueries/get-all-blog-posts.query';
+import { GetBlogQuery } from '../infrastructure/queries/get-blog.query';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -33,20 +36,27 @@ const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
 export class BlogsController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly blogsTypeormQueryRepository: BlogsTypeormQueryRepository,
     private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
   ) {}
 
-  // +
   @Get()
-  async getAll(@Query() query: BlogsPaginationQuery) {
+  async getAll(
+    @Query() query: BlogsPaginationQuery,
+  ): Promise<PaginationOutput<Blog>> {
     const pagination: PaginationWithSearchNameTerm<BlogsPaginationQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
-    const blogs: PaginationOutput<Blog> =
-      await this.blogsTypeormQueryRepository.getAll(pagination);
+    // const blogs: PaginationOutput<Blog> =
+    //   await this.blogsTypeormQueryRepository.getAll(pagination);
 
-    return blogs;
+    const result: PaginationOutput<Blog> = await this.queryBus.execute<
+      GetAllBlogsQuery,
+      PaginationOutput<Blog>
+    >(new GetAllBlogsQuery(pagination));
+
+    return result;
   }
 
   @Get(':blogId/posts')
@@ -56,8 +66,8 @@ export class BlogsController {
     @OptionalUserId() userId: number,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
-    // TODO: is it ok to get from blogsPostgresQueryRepository for check
-    // or check in getAllBlogPosts
+    // TODO: is it ok to get from blogsPostgresQueryRepository check
+    // or do it in getAllBlogPosts
     const blog: BlogOutputModel | null =
       await this.blogsTypeormQueryRepository.findById(blogId);
 
@@ -70,20 +80,30 @@ export class BlogsController {
       POSTS_SORTING_PROPERTIES,
     );
 
-    const blogPosts: PaginationOutput<Post> =
-      await this.postsTypeormQueryRepository.getAllBlogPosts(
-        pagination,
-        blogId,
-        userId,
-      );
+    // const blogPosts: PaginationOutput<Post> =
+    //   await this.postsTypeormQueryRepository.getAllBlogPosts(
+    //     pagination,
+    //     blogId,
+    //     userId,
+    //   );
+
+    const blogPosts: PaginationOutput<Post> = await this.queryBus.execute<
+      GetAllBlogPostsQuery,
+      PaginationOutput<Post>
+    >(new GetAllBlogPostsQuery(pagination, blogId, userId));
 
     return blogPosts;
   }
 
   @Get(':id')
   async getOne(@Param('id', new ParseIntPipe()) id: number) {
-    const blog: BlogOutputModel | null =
-      await this.blogsTypeormQueryRepository.findById(id);
+    // const blog: BlogOutputModel | null =
+    //   await this.blogsTypeormQueryRepository.findById(id);
+
+    const blog: Blog | null = await this.queryBus.execute<
+      GetBlogQuery,
+      Blog | null
+    >(new GetBlogQuery(id));
 
     if (!blog) {
       throw new NotFoundException(`Blog with id ${id} not found`);

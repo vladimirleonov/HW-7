@@ -23,4 +23,6 @@ export class Blog {
 
   @OneToMany(() => Post, (p) => p.blog)
   posts: Post[];
+
+  static create() {}
 }

@@ -51,7 +51,6 @@ export class BlogsTypeormQueryRepository {
     );
   }
 
-  // +
   async findById(id: number) {
     const result = await this.blogsRepository
       .createQueryBuilder('b')

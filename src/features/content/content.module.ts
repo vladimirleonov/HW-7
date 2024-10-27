@@ -29,11 +29,12 @@ import { DeleteCommentUseCase } from './comments/application/use-cases/delete-co
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.usecase';
 import { CommentLikesPostgresRepository } from './comments/infrastructure/postgres/comment-likes-postgres.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../users/domain/user.entity';
-import { EmailConfirmation } from '../users/domain/email-confirmation';
-import { PasswordRecovery } from '../users/domain/password-recovery';
 import { Post } from './posts/domain/post.entity';
 import { Blog } from './blogs/domain/blog.entity';
+import { GetAllBlogsUseCase } from './blogs/infrastructure/queries/get-all-blogs.query';
+import { GetBlogUseCase } from './blogs/infrastructure/queries/get-blog.query';
+import { GetAllBlogPostsUseCase } from './posts/infrastructure/quueries/get-all-blog-posts.query';
+import { GetAllPostsUseCase } from './posts/infrastructure/quueries/get-all-posts.query';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -42,6 +43,9 @@ const blogsProviders: Provider[] = [
   DeleteBlogUseCase,
   UpdateBlogPostUseCase,
   DeleteBlogPostUseCase,
+  //
+  GetAllBlogsUseCase,
+  GetBlogUseCase,
 
   // repositories
   // BlogsTypeormRepository,
@@ -59,6 +63,9 @@ const postsProviders: Provider[] = [
   // UpdatePostUseCase,
   // DeletePostUseCase,
   UpdatePostLikeStatusUseCase,
+  //
+  GetAllPostsUseCase,
+  GetAllBlogPostsUseCase,
 
   // repositories
   // PostsPostgresRepository,

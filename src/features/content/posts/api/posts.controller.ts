@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { PostOutputModel } from './models/output/post.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { PostsTypeormQueryRepository } from '../infrastructure/typeorm/posts-typeorm.query-repository';
@@ -38,6 +38,8 @@ import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-pos
 import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
 import { PostsPaginationQuery } from './models/input/posts-pagination-query.input.model';
 import { Post as PostEntity } from './../domain/post.entity';
+import { GetAllPostsQuery } from '../infrastructure/quueries/get-all-posts.query';
+import { GetPostQuery } from '../infrastructure/quueries/get-post.query';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -46,11 +48,11 @@ export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
 export class PostsController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
     private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
   ) {}
 
-  // +
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   async getAll(
@@ -62,21 +64,30 @@ export class PostsController {
       POSTS_SORTING_PROPERTIES,
     );
 
-    const posts: PaginationOutput<PostEntity> =
-      await this.postsTypeormQueryRepository.getAllPosts(pagination, userId);
+    // const posts: PaginationOutput<PostEntity> =
+    //   await this.postsTypeormQueryRepository.getAllPosts(pagination, userId);
+
+    const posts: PaginationOutput<PostEntity> = await this.queryBus.execute<
+      GetAllPostsQuery,
+      PaginationOutput<PostEntity>
+    >(new GetAllPostsQuery(pagination, userId));
 
     return posts;
   }
 
-  // +
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   async getOne(
     @Param('id', new ParseIntPipe()) id: number,
     @OptionalUserId() userId: number,
   ) {
-    const post: PostOutputModel | null =
-      await this.postsTypeormQueryRepository.findById(id, userId);
+    const post: PostEntity | null = await this.queryBus.execute<
+      GetPostQuery,
+      PostEntity | null
+    >(new GetPostQuery(id, userId));
+
+    // const post: PostOutputModel | null =
+    //   await this.postsTypeormQueryRepository.getOne(id, userId);
 
     if (!post) {
       throw new NotFoundException();
@@ -99,7 +110,7 @@ export class PostsController {
 
     // TODO: CreateDecorator to check current postId???
     const post: PostOutputModel | null =
-      await this.postsTypeormQueryRepository.findById(postId);
+      await this.postsTypeormQueryRepository.getOne(postId);
 
     if (!post) {
       throw new NotFoundException();

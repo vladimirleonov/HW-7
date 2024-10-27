@@ -66,8 +66,6 @@ export class UsersController {
       Result<number | null>
     >(new CreateUserCommand(login, password, email));
 
-    console.log('!!! create');
-
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.extensions!);
     }

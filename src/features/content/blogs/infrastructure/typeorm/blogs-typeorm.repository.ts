@@ -6,61 +6,41 @@ import { Blog } from '../../domain/blog.entity';
 @Injectable()
 export class BlogsTypeormRepository {
   constructor(
-    //@InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(Blog) private readonly blogsRepository: Repository<Blog>,
   ) {}
 
-  // +
-  async findById(id: number): Promise<any> {
+  async findById(id: number): Promise<Blog | null> {
     // Blog | null
     return this.blogsRepository.findOneBy({
       id: id,
     });
   }
 
-  // +
   async create(
     name: string,
     description: string,
     websiteUrl: string,
     isMembership: boolean,
-  ) {
-    const newBlog: Blog = this.blogsRepository.create({
-      name,
-      description,
-      websiteUrl,
-      isMembership,
-      // createdAt: new Date(),
-    });
+  ): Promise<number> {
+    const createdId: number = await this.blogsRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Blog)
+      .values({
+        name,
+        description,
+        websiteUrl,
+        isMembership,
+      })
+      .returning('id') // Indicate want to return only id
+      .execute()
+      .then((result) => result.raw[0].id); // extract only id from result
 
-    // console.log(newBlog);
+    // console.log('createdId', createdId);
 
-    const createdBlog: Blog = await this.blogsRepository.save(newBlog);
-
-    const blogId: number = createdBlog.id;
-
-    return blogId;
-
-    // const query: string = `
-    //   INSERT INTO blog
-    //   (name, description, website_url, is_membership)
-    //   VALUES ($1, $2, $3, $4)
-    //   RETURNING id;
-    // `;
-    //
-    // const result = await this.dataSource.query(query, [
-    //   name,
-    //   description,
-    //   websiteUrl,
-    //   isMembership,
-    // ]);
-    //
-    // const createdId: number = result[0].id;
-    //
-    // return createdId;
+    return createdId;
   }
 
-  // +
   async update(
     id: number,
     name: string,
@@ -80,16 +60,5 @@ export class BlogsTypeormRepository {
     const result: DeleteResult = await this.blogsRepository.delete(id);
 
     return result.affected === 1;
-
-    // const query: string = `
-    //   DELETE FROM blogs
-    //   WHERE id = $1
-    // `;
-    //
-    // const result = await this.dataSource.query(query, [id]);
-    //
-    // const deletedCount = result[1];
-    //
-    // return deletedCount === 1;
   }
 }
