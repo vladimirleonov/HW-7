@@ -20,14 +20,14 @@ import { BlogsSAController } from './blogs/api/blogs-sa.controller';
 import { UpdateBlogPostUseCase } from './posts/application/use-cases/update-blog-post.usecase';
 import { DeleteBlogPostUseCase } from './posts/application/use-cases/delete-blog-post.usecase';
 import { CreateCommentUseCase } from './comments/application/use-cases/create-comment.usecase';
-import { CommentsPostgresRepository } from './comments/infrastructure/postgres/comments-postgres.repository';
-import { CommentsPostgresQueryRepository } from './comments/infrastructure/postgres/comments-postgres.query-repository';
+import { CommentsTypeormRepository } from './comments/infrastructure/typeorm/comments-typeorm.repository';
+import { CommentsTypeormQueryRepository } from './comments/infrastructure/typeorm/comments-typeorm.query-repository';
 import { PostLikesTypeormRepository } from './posts/infrastructure/typeorm/post-likes-typeorm.repository';
 import { CommentsController } from './comments/api/comments.controller';
 import { UpdateCommentUseCase } from './comments/application/use-cases/update-comment.usecase';
 import { DeleteCommentUseCase } from './comments/application/use-cases/delete-comment.usecase';
 import { UpdateCommentLikeStatusUseCase } from './comments/application/use-cases/update-comment-like-status.usecase';
-import { CommentLikesPostgresRepository } from './comments/infrastructure/postgres/comment-likes-postgres.repository';
+import { CommentLikesTypeormRepository } from './comments/infrastructure/typeorm/comment-likes-typeorm.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './posts/domain/post.entity';
 import { Blog } from './blogs/domain/blog.entity';
@@ -84,9 +84,12 @@ const commentsProviders: Provider[] = [
   UpdateCommentLikeStatusUseCase,
 
   // repositories
-  CommentsPostgresRepository,
-  CommentsPostgresQueryRepository,
-  CommentLikesPostgresRepository,
+  // CommentsPostgresRepository,
+  // CommentsPostgresQueryRepository,
+  // CommentLikesPostgresRepository,
+  CommentsTypeormRepository,
+  CommentsTypeormQueryRepository,
+  CommentLikesTypeormRepository,
 ];
 
 @Module({

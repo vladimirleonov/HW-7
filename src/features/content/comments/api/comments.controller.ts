@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { CommentsPostgresQueryRepository } from '../infrastructure/postgres/comments-postgres.query-repository';
+import { CommentsTypeormQueryRepository } from '../infrastructure/typeorm/comments-typeorm.query-repository';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import {
@@ -36,7 +36,7 @@ export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<CommentOutputMode
 export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
+    private readonly commentsTypeormQueryRepository: CommentsTypeormQueryRepository,
   ) {}
 
   @Get(':id')
@@ -46,7 +46,7 @@ export class CommentsController {
     @OptionalUserId() userId: number,
   ) {
     const comment: CommentOutputModel | null =
-      await this.commentsPostgresQueryRepository.findById(id, userId);
+      await this.commentsTypeormQueryRepository.findById(id, userId);
 
     if (!comment) {
       throw new NotFoundException();

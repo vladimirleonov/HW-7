@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
-import { CommentsPostgresRepository } from '../../infrastructure/postgres/comments-postgres.repository';
+import { CommentsTypeormRepository } from '../../infrastructure/typeorm/comments-typeorm.repository';
 
 export class UpdateCommentCommand {
   constructor(
@@ -15,13 +15,13 @@ export class UpdateCommentUseCase
   implements ICommandHandler<UpdateCommentCommand>
 {
   constructor(
-    private readonly commentsPostgresRepository: CommentsPostgresRepository,
+    private readonly commentsTypeormRepository: CommentsTypeormRepository,
   ) {}
 
   async execute(command: UpdateCommentCommand) {
     const { commentId, content, userId } = command;
 
-    const comment = await this.commentsPostgresRepository.findById(commentId);
+    const comment = await this.commentsTypeormRepository.findById(commentId);
 
     if (!comment) {
       return Result.notFound(`Comment with ${commentId} doesn't exist`);
@@ -31,7 +31,7 @@ export class UpdateCommentUseCase
       return Result.forbidden("Comment doesn't belongs to user");
     }
 
-    const isUpdated: boolean = await this.commentsPostgresRepository.update(
+    const isUpdated: boolean = await this.commentsTypeormRepository.update(
       commentId,
       content,
     );

@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
 import { PostsTypeormRepository } from '../../../posts/infrastructure/typeorm/posts-typeorm.repository';
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
-import { CommentsPostgresRepository } from '../../infrastructure/postgres/comments-postgres.repository';
+import { CommentsTypeormRepository } from '../../infrastructure/typeorm/comments-typeorm.repository';
 
 export class CreateCommentCommand {
   constructor(
@@ -19,7 +19,7 @@ export class CreateCommentUseCase
   constructor(
     private readonly postsTypeormRepository: PostsTypeormRepository,
     private readonly usersTypeormRepository: UsersTypeormRepository,
-    private readonly commentsPostgresRepository: CommentsPostgresRepository,
+    private readonly commentsPostgresRepository: CommentsTypeormRepository,
   ) {}
 
   async execute(command: CreateCommentCommand) {

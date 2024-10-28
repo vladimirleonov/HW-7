@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../../base/types/object-result';
-import { CommentsPostgresRepository } from '../../infrastructure/postgres/comments-postgres.repository';
+import { CommentsTypeormRepository } from '../../infrastructure/typeorm/comments-typeorm.repository';
 
 export class DeleteCommentCommand {
   constructor(
@@ -14,13 +14,13 @@ export class DeleteCommentUseCase
   implements ICommandHandler<DeleteCommentCommand>
 {
   constructor(
-    private readonly commentsPostgresRepository: CommentsPostgresRepository,
+    private readonly commentsTypeormRepository: CommentsTypeormRepository,
   ) {}
 
   async execute(command: DeleteCommentCommand) {
     const { commentId, userId } = command;
 
-    const comment = await this.commentsPostgresRepository.findById(commentId);
+    const comment = await this.commentsTypeormRepository.findById(commentId);
 
     if (!comment) {
       return Result.notFound(`Comment with id ${comment} does not exist`);
@@ -31,7 +31,7 @@ export class DeleteCommentUseCase
     }
 
     const isDeleted: boolean =
-      await this.commentsPostgresRepository.delete(commentId);
+      await this.commentsTypeormRepository.delete(commentId);
     if (!isDeleted) {
       return Result.internalError();
     }

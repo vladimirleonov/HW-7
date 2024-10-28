@@ -9,14 +9,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './features/auth/auth.module';
 import { TestingModule } from './features/testing/testing.module';
 import { ContentModule } from './features/content/content.module';
-import { User } from './features/users/domain/user.entity';
 import { DatabaseSettings } from './settings/env/database-settings';
+import { User } from './features/users/domain/user.entity';
 import { EmailConfirmation } from './features/users/domain/email-confirmation';
 import { PasswordRecovery } from './features/users/domain/password-recovery';
 import { Device } from './features/auth/security/domain/device.entity';
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { Post } from './features/content/posts/domain/post.entity';
 import { Blog } from './features/content/blogs/domain/blog.entity';
+import { Post } from './features/content/posts/domain/post.entity';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { Blog } from './features/content/blogs/domain/blog.entity';
     }),
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
-        const databaseSettings: DatabaseSettings =
+        const databaseSettings =
           configService.get<DatabaseSettings>('databaseSettings');
 
         return {

@@ -31,7 +31,6 @@ import { CurrentUserId } from '../../../../core/decorators/param-decorators/curr
 import { CommentCreateModel } from '../../comments/api/models/input/create-comment.input.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CreateCommentCommand } from '../../comments/application/use-cases/create-comment.usecase';
-import { CommentsPostgresQueryRepository } from '../../comments/infrastructure/postgres/comments-postgres.query-repository';
 import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
 import { PostUpdateLikeStatusModel } from './models/input/update-post-like-status.model';
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
@@ -40,6 +39,7 @@ import { PostsPaginationQuery } from './models/input/posts-pagination-query.inpu
 import { Post as PostEntity } from './../domain/post.entity';
 import { GetAllPostsQuery } from '../infrastructure/quueries/get-all-posts.query';
 import { GetPostQuery } from '../infrastructure/quueries/get-post.query';
+import { CommentsTypeormQueryRepository } from '../../comments/infrastructure/typeorm/comments-typeorm.query-repository';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -50,7 +50,7 @@ export class PostsController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
-    private readonly commentsPostgresQueryRepository: CommentsPostgresQueryRepository,
+    private readonly commentsTypeormQueryRepository: CommentsTypeormQueryRepository,
   ) {}
 
   @Get()
@@ -117,7 +117,7 @@ export class PostsController {
     }
 
     const comments: PaginationOutput<PostOutputModel> =
-      await this.commentsPostgresQueryRepository.getAllPostComments(
+      await this.commentsTypeormQueryRepository.getAllPostComments(
         pagination,
         postId,
         userId,
@@ -147,7 +147,7 @@ export class PostsController {
       throw new UnauthorizedException();
     }
 
-    const comment = await this.commentsPostgresQueryRepository.findById(
+    const comment = await this.commentsTypeormQueryRepository.findById(
       result.data!,
       // userId,
     );

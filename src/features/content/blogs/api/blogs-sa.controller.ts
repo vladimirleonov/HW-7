@@ -179,7 +179,7 @@ export class BlogsSAController {
 
     const createdId: number = result.data;
 
-    const post = await this.postsTypeormQueryRepository.findById(createdId);
+    const post = await this.postsTypeormQueryRepository.getOne(createdId);
 
     if (!post) {
       throw new InternalServerErrorException();
