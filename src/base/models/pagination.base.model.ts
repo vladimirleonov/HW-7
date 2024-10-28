@@ -4,7 +4,6 @@ import {
   PaginationWithSearchLoginAndEmailTermQuery,
   PaginationWithSearchNameTermQuery,
 } from './pagination-query.input.model';
-import { query } from 'express';
 
 export class PaginationOutput<D> {
   public readonly pagesCount: number;

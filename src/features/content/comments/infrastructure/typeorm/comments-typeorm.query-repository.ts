@@ -27,7 +27,7 @@ export class CommentsTypeormQueryRepository {
     postId: number,
     userId?: number,
   ): Promise<any> {
-    const result = await this.commentRepository
+    const query = this.commentRepository
       .createQueryBuilder('c')
       .select([
         'CAST(c.id as text) as id',
@@ -48,9 +48,21 @@ export class CommentsTypeormQueryRepository {
           'myStatus', 'None'
         ) as "likesInfo"`,
       )
-      .getRawMany();
+      .where('c."post_id" = :postId', { postId });
 
-    return result;
+    const posts = await query.getRawMany();
+
+    const totalCount: number = await this.commentRepository
+      .createQueryBuilder('c')
+      .where('c."post_id" = :postId', { postId })
+      .getCount();
+
+    return new PaginationOutput<Comment>(
+      posts,
+      pagination.pageNumber,
+      pagination.pageSize,
+      totalCount,
+    );
   }
 
   // getAllPostComments(
