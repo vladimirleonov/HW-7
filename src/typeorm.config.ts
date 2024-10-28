@@ -6,6 +6,8 @@ import { PasswordRecovery } from './features/users/domain/password-recovery';
 import { Device } from './features/auth/security/domain/device.entity';
 import { Blog } from './features/content/blogs/domain/blog.entity';
 import { Post } from './features/content/posts/domain/post.entity';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { Comment } from './features/content/comments/domain/comments.entity';
 
 config({ path: ['.env.development', '.env'] });
 
@@ -16,8 +18,19 @@ export default new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  migrations: ['/src/migrations/*.ts'],
-  entities: [User, EmailConfirmation, PasswordRecovery, Device, Blog, Post],
+  migrations: ['src/migrations/*.ts'],
+  entities: [
+    User,
+    EmailConfirmation,
+    PasswordRecovery,
+    Device,
+    Blog,
+    Post,
+    Comment,
+  ],
+  synchronize: false,
+  logging: true,
+  namingStrategy: new SnakeNamingStrategy(),
 });
 
 // import { ConfigService } from '@nestjs/config';

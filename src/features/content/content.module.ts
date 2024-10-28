@@ -31,10 +31,12 @@ import { CommentLikesTypeormRepository } from './comments/infrastructure/typeorm
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './posts/domain/post.entity';
 import { Blog } from './blogs/domain/blog.entity';
-import { GetAllBlogsUseCase } from './blogs/infrastructure/queries/get-all-blogs.query';
-import { GetBlogUseCase } from './blogs/infrastructure/queries/get-blog.query';
-import { GetAllBlogPostsUseCase } from './posts/infrastructure/quueries/get-all-blog-posts.query';
-import { GetAllPostsUseCase } from './posts/infrastructure/quueries/get-all-posts.query';
+import { GetAllBlogsUseCase } from './blogs/api/queries/get-all-blogs.query';
+import { GetBlogUseCase } from './blogs/api/queries/get-blog.query';
+import { GetAllBlogPostsUseCase } from './posts/api/queries/get-all-blog-posts.query';
+import { GetAllPostsUseCase } from './posts/api/queries/get-all-posts.query';
+import { Comment } from './comments/domain/comments.entity';
+import { GetCommentUseCase } from './comments/api/queries/get-comment.query';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -82,6 +84,8 @@ const commentsProviders: Provider[] = [
   DeleteCommentUseCase,
   UpdateCommentUseCase,
   UpdateCommentLikeStatusUseCase,
+  //
+  GetCommentUseCase,
 
   // repositories
   // CommentsPostgresRepository,
@@ -97,7 +101,7 @@ const commentsProviders: Provider[] = [
     CqrsModule,
     AuthModule,
     UsersModule,
-    TypeOrmModule.forFeature([Blog, Post]),
+    TypeOrmModule.forFeature([Blog, Post, Comment]),
   ],
   controllers: [
     BlogsController,

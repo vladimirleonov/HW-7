@@ -16,7 +16,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 10 })
+  @Column({ length: 10, collation: 'C' })
   @Check(`length(login) >= 3`)
   //@Check(`length(login) >= 3 AND length(login) <= 10`)
   login: string;
@@ -25,7 +25,7 @@ export class User {
   @Check(`length(password) >= 6`)
   password: string;
 
-  @Column()
+  @Column({ collation: 'C' })
   email: string;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

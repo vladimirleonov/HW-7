@@ -14,13 +14,13 @@ export class Post {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 30 })
+  @Column({ length: 30, collation: 'C' })
   title: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, collation: 'C' })
   shortDescription: string;
 
-  @Column({ length: 1000 })
+  @Column({ length: 1000, collation: 'C' })
   content: string;
 
   @ManyToOne(() => Blog, (b) => b.posts, { onDelete: 'CASCADE' })

@@ -4,7 +4,7 @@ import {
 } from '../../../../../base/models/pagination.base.model';
 import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PostsTypeormQueryRepository } from '../typeorm/posts-typeorm.query-repository';
+import { PostsTypeormQueryRepository } from '../../infrastructure/typeorm/posts-typeorm.query-repository';
 import { Post } from '../../domain/post.entity';
 
 export class GetAllBlogPostsQuery {

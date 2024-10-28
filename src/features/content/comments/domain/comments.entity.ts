@@ -3,7 +3,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Post } from '../../posts/domain/post.entity';
@@ -21,18 +20,27 @@ export class Comment {
   // @Column()
   // postId: number;
 
-  @Column()
+  @Column({ length: 300, collation: 'C' })
   content: string;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   commentator: User;
 
-  // @Column()
-  // commentatorId: number;
+  @Column()
+  commentatorId: number;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  static create(post: Post, ccmmentator: User, content: string): Comment {
+    const comment: Comment = new this();
+    comment.post = post;
+    comment.commentator = ccmmentator;
+    comment.content = content;
+    comment.createdAt = new Date();
+    return comment;
+  }
 }
 
 // import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';

@@ -1,10 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Comment } from '../../domain/comments.entity';
 
 @Injectable()
 export class CommentsTypeormRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Comment)
+    private readonly commentRepository: Repository<Comment>,
+    @InjectDataSource() private readonly dataSource: DataSource,
+  ) {}
+
+  async save(comment: Comment) {
+    await this.commentRepository.save(comment);
+  }
 
   async findById(id: number): Promise<any> {
     const query: string = `

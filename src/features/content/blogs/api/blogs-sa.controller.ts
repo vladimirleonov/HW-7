@@ -14,7 +14,7 @@ import {
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../../../core/guards/passport/basic-auth.guard';
 import { BlogsTypeormQueryRepository } from '../infrastructure/typeorm/blogs-typeorm.query-repository';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   Pagination,
   PaginationOutput,
@@ -45,8 +45,8 @@ import {
 } from '../../../../base/models/pagination-query.input.model';
 import { Blog } from '../domain/blog.entity';
 import { Post as PostEntity } from '../../posts/domain/post.entity';
-import { GetAllBlogPostsQuery } from '../../posts/infrastructure/quueries/get-all-blog-posts.query';
-import { GetAllBlogsQuery } from '../infrastructure/queries/get-all-blogs.query';
+import { GetAllBlogPostsQuery } from '../../posts/api/queries/get-all-blog-posts.query';
+import { GetAllBlogsQuery } from './queries/get-all-blogs.query';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -59,7 +59,7 @@ export class BlogsSAController {
     private readonly blogsTypeormQueryRepository: BlogsTypeormQueryRepository,
     private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
     private readonly commandBus: CommandBus,
-    private readonly queryBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get()

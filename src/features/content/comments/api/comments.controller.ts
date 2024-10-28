@@ -28,6 +28,7 @@ import { UpdateCommentCommand } from '../application/use-cases/update-comment.us
 import { DeleteCommentCommand } from '../application/use-cases/delete-comment.usecase';
 import { CommentLikeStatusUpdateModel } from './models/input/update-comment-like-status';
 import { UpdateCommentLikeStatusCommand } from '../application/use-cases/update-comment-like-status.usecase';
+import { Comment } from '../domain/comments.entity';
 
 export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<CommentOutputModel> =
   ['createdAt'];
@@ -45,8 +46,8 @@ export class CommentsController {
     @Param('id', new ParseIntPipe()) id: number,
     @OptionalUserId() userId: number,
   ) {
-    const comment: CommentOutputModel | null =
-      await this.commentsTypeormQueryRepository.findById(id, userId);
+    const comment: Comment | null =
+      await this.commentsTypeormQueryRepository.getOne(id, userId);
 
     if (!comment) {
       throw new NotFoundException();

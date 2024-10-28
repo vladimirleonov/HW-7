@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { BlogsTypeormRepository } from '../typeorm/blogs-typeorm.repository';
+import { BlogsTypeormRepository } from '../../infrastructure/typeorm/blogs-typeorm.repository';
 import { Blog } from '../../domain/blog.entity';
 
 export class GetBlogQuery {

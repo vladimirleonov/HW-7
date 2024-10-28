@@ -3,6 +3,7 @@ import { Result } from '../../../../../base/types/object-result';
 import { PostsTypeormRepository } from '../../../posts/infrastructure/typeorm/posts-typeorm.repository';
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CommentsTypeormRepository } from '../../infrastructure/typeorm/comments-typeorm.repository';
+import { Comment } from '../../domain/comments.entity';
 
 export class CreateCommentCommand {
   constructor(
@@ -37,11 +38,17 @@ export class CreateCommentUseCase
       return Result.unauthorized("User doesn't exist");
     }
 
-    const commentId = await this.commentsPostgresRepository.create(
-      postId,
-      content,
-      userId,
-    );
+    const comment: Comment = Comment.create(post, user, content);
+
+    await this.commentsPostgresRepository.save(comment);
+
+    const commentId: number = comment.id;
+
+    // const commentId = await this.commentsPostgresRepository.create(
+    //   postId,
+    //   content,
+    //   userId,
+    // );
 
     return Result.success(commentId);
   }

@@ -24,9 +24,9 @@ import { PaginationQuery } from '../../../../base/models/pagination-query.input.
 import { BlogsPaginationQuery } from './models/input/blogs-pagination-query.input.model';
 import { Blog } from '../domain/blog.entity';
 import { Post } from '../../posts/domain/post.entity';
-import { GetAllBlogsQuery } from '../infrastructure/queries/get-all-blogs.query';
-import { GetAllBlogPostsQuery } from '../../posts/infrastructure/quueries/get-all-blog-posts.query';
-import { GetBlogQuery } from '../infrastructure/queries/get-blog.query';
+import { GetAllBlogsQuery } from './queries/get-all-blogs.query';
+import { GetAllBlogPostsQuery } from '../../posts/api/queries/get-all-blog-posts.query';
+import { GetBlogQuery } from './queries/get-blog.query';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',

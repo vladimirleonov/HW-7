@@ -37,9 +37,11 @@ import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-pos
 import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
 import { PostsPaginationQuery } from './models/input/posts-pagination-query.input.model';
 import { Post as PostEntity } from './../domain/post.entity';
-import { GetAllPostsQuery } from '../infrastructure/quueries/get-all-posts.query';
-import { GetPostQuery } from '../infrastructure/quueries/get-post.query';
+import { GetAllPostsQuery } from './queries/get-all-posts.query';
+import { GetPostQuery } from './queries/get-post.query';
 import { CommentsTypeormQueryRepository } from '../../comments/infrastructure/typeorm/comments-typeorm.query-repository';
+import { GetCommentQuery } from '../../comments/api/queries/get-comment.query';
+import { Comment } from '../../comments/domain/comments.entity';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -147,15 +149,21 @@ export class PostsController {
       throw new UnauthorizedException();
     }
 
-    const comment = await this.commentsTypeormQueryRepository.findById(
-      result.data!,
-      // userId,
+    const commentId: number = result.data;
+
+    const comment = await this.queryBus.execute<GetCommentQuery, Comment>(
+      new GetCommentQuery(commentId, userId),
     );
 
-    if (!comment) {
-      //error if just created comment not found
-      throw new InternalServerErrorException();
-    }
+    // const comment = await this.commentsTypeormQueryRepository.findById(
+    //   result.data!,
+    //   userId,
+    // );
+
+    // if (!comment) {
+    //   //error if just created comment not found
+    //   throw new InternalServerErrorException();
+    // }
 
     return comment;
   }

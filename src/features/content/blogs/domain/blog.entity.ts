@@ -6,10 +6,10 @@ export class Blog {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ length: 15 })
+  @Column({ length: 15, collation: 'C' })
   name: string;
 
-  @Column({ length: 500 })
+  @Column({ length: 500, collation: 'C' })
   description: string;
 
   @Column({ length: 100 })
