@@ -3,9 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Blog } from '../../blogs/domain/blog.entity';
+import { Comment } from '../../comments/domain/comments.entity';
 
 @Entity()
 export class Post {
@@ -36,4 +38,7 @@ export class Post {
 
   @Column({ default: 0 })
   dislikesCount: number;
+
+  @OneToMany(() => Post, (c) => c.comments, { onDelete: 'CASCADE' })
+  comments: Comment[];
 }

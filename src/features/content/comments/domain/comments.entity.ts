@@ -1,3 +1,40 @@
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Post } from '../../posts/domain/post.entity';
+import { User } from '../../../users/domain/user.entity';
+
+@Entity()
+export class Comment {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @ManyToOne(() => Post, (p) => p.comments, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  post: Post;
+
+  // @Column()
+  // postId: number;
+
+  @Column()
+  content: string;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  commentator: User;
+
+  // @Column()
+  // commentatorId: number;
+
+  @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+}
+
 // import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 // import mongoose, { HydratedDocument, Model } from 'mongoose';
 // import { Like, LikeSchema, LikeStatus } from '../../like/domain/like.entity';
