@@ -12,7 +12,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CommentsTypeormQueryRepository } from '../infrastructure/typeorm/comments-typeorm.query-repository';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
@@ -29,6 +29,7 @@ import { DeleteCommentCommand } from '../application/use-cases/delete-comment.us
 import { CommentLikeStatusUpdateModel } from './models/input/update-comment-like-status';
 import { UpdateCommentLikeStatusCommand } from '../application/use-cases/update-comment-like-status.usecase';
 import { Comment } from '../domain/comments.entity';
+import { GetCommentQuery } from './queries/get-comment.query';
 
 export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<CommentOutputModel> =
   ['createdAt'];
@@ -37,6 +38,7 @@ export const COMMENT_SORTING_PROPERTIES: SortingPropertiesType<CommentOutputMode
 export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly commentsTypeormQueryRepository: CommentsTypeormQueryRepository,
   ) {}
 
@@ -46,8 +48,13 @@ export class CommentsController {
     @Param('id', new ParseIntPipe()) id: number,
     @OptionalUserId() userId: number,
   ) {
-    const comment: Comment | null =
-      await this.commentsTypeormQueryRepository.getOne(id, userId);
+    const comment: Comment | null = await this.queryBus.execute<
+      GetCommentQuery,
+      Comment
+    >(new GetCommentQuery(id, userId));
+
+    // const comment: Comment | null =
+    //   await this.commentsTypeormQueryRepository.getOne(id, userId);
 
     if (!comment) {
       throw new NotFoundException();
