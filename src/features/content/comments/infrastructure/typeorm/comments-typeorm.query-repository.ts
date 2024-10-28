@@ -11,8 +11,6 @@ import {
 } from '../../../../../base/models/pagination.base.model';
 import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
 import { Comment } from '../../domain/comments.entity';
-import { async } from 'rxjs';
-import { query } from 'express';
 
 @Injectable()
 export class CommentsTypeormQueryRepository {
@@ -137,8 +135,35 @@ export class CommentsTypeormQueryRepository {
   // }
 
   async getOne(id: number, userId?: number): Promise<Comment | null> {
-    return this.commentRepository.findOneBy({ id, commentatorId: userId });
+    const result = await this.commentRepository
+      .createQueryBuilder('c')
+      .select([
+        'CAST(c.id as text) as id',
+        'c.content as content',
+        'c.createdAt as "createdAt"',
+      ])
+      .leftJoin('c.commentator', 'u')
+      .addSelect(
+        `json_build_object(
+       'userId', CAST(u.id as text),
+       'userLogin', u.login
+     ) as "commentatorInfo"`,
+      )
+      .addSelect(
+        `json_build_object(
+       'likesCount', 0,
+       'dislikesCount', 0,
+       'myStatus', 'None'
+     ) as "likesInfo"`,
+      )
+      .getRawOne();
+
+    return result;
   }
+
+  // async getOne(id: number, userId?: number): Promise<Comment | null> {
+  //   return this.commentRepository.findOneBy({ id, commentatorId: userId });
+  // }
 
   // async findById(id: number, userId?: number): Promise<any> {
   //   const params: any[] = [id];
