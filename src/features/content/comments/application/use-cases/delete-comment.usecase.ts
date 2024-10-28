@@ -26,7 +26,7 @@ export class DeleteCommentUseCase
       return Result.notFound(`Comment with id ${comment} does not exist`);
     }
 
-    if (comment.commentator_id !== userId) {
+    if (comment.commentatorId !== userId) {
       return Result.forbidden("Comment doesn't belongs to current user");
     }
 

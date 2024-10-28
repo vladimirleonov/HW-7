@@ -156,6 +156,7 @@ export class CommentsTypeormQueryRepository {
        'myStatus', 'None'
      ) as "likesInfo"`,
       )
+      .where('c.id = :id', { id })
       .getRawOne();
 
     return result;

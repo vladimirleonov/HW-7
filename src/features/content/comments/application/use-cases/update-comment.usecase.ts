@@ -27,7 +27,7 @@ export class UpdateCommentUseCase
       return Result.notFound(`Comment with ${commentId} doesn't exist`);
     }
 
-    if (userId !== comment.commentator_id) {
+    if (userId !== comment.commentatorId) {
       return Result.forbidden("Comment doesn't belongs to user");
     }
 

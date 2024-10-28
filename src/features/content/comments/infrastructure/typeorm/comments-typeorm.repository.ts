@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Comment } from '../../domain/comments.entity';
 
 @Injectable()
@@ -16,14 +16,17 @@ export class CommentsTypeormRepository {
   }
 
   async findById(id: number): Promise<any> {
-    const query: string = `
-      SELECT * FROM comments
-      WHERE id = $1
-    `;
+    // const query: string = `
+    //   SELECT * FROM comments
+    //   WHERE id = $1
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [id]);
+    //
+    // return result.length > 0 ? result[0] : null;
 
-    const result = await this.dataSource.query(query, [id]);
-
-    return result.length > 0 ? result[0] : null;
+    // Comment | null
+    return this.commentRepository.findOneBy({ id });
   }
 
   async create(postId: number, content: string, userId: number) {
@@ -45,17 +48,24 @@ export class CommentsTypeormRepository {
   }
 
   async update(id: number, content: string): Promise<boolean> {
-    const query: string = `
-      UPDATE comments 
-      SET content = $1
-      WHERE id = $2
-    `;
+    const result: UpdateResult = await this.commentRepository.update(
+      { id },
+      { content },
+    );
 
-    const result = await this.dataSource.query(query, [content, id]);
+    return result.affected === 1;
 
-    const updatedRowsCount = result[1];
-
-    return updatedRowsCount === 1;
+    // const query: string = `
+    //   UPDATE comments
+    //   SET content = $1
+    //   WHERE id = $2
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [content, id]);
+    //
+    // const updatedRowsCount = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
   async increaseLikesCount(id: number) {
@@ -115,15 +125,19 @@ export class CommentsTypeormRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const query: string = `
-      DELETE FROM comments
-      WHERE id=$1
-    `;
+    const result: DeleteResult = await this.commentRepository.delete({ id });
 
-    const result = await this.dataSource.query(query, [id]);
+    return result.affected === 1;
 
-    const deletedRowsCount = result[1];
-
-    return deletedRowsCount === 1;
+    // const query: string = `
+    //   DELETE FROM comments
+    //   WHERE id=$1
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [id]);
+    //
+    // const deletedRowsCount = result[1];
+    //
+    // return deletedRowsCount === 1;
   }
 }
