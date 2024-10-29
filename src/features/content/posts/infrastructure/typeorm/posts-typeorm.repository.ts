@@ -68,92 +68,93 @@ export class PostsTypeormRepository {
     return result.affected === 1;
   }
 
-  async increaseLikesCount(id: number) {
-    const result: UpdateResult = await this.postsRepository.update(
-      { id },
-      {
-        likesCount: () => `likesCount + 1`,
-      },
-    );
+  // async increaseLikesCount(id: number) {
+  //   const result: UpdateResult = await this.postsRepository.update(
+  //     { id },
+  //     {
+  //       likesCount: () => `likesCount + 1`,
+  //     },
+  //   );
+  //
+  //   return result.affected === 1;
+  //
+  //   // const query: string = `
+  //   //   UPDATE posts
+  //   //   SET likes_count = likes_count + 1
+  //   //   WHERE id = $1
+  //   // `;
+  //   //
+  //   // const result = this.dataSource.query(query, [id]);
+  //   //
+  //   // const updatedRowsCount: number = result[1];
+  //   //
+  //   // return updatedRowsCount === 1;
+  // }
 
-    return result.affected === 1;
+  // async decreaseLikesCount(id: number) {
+  //   const result: UpdateResult = await this.postsRepository.update(
+  //     { id },
+  //     {
+  //       likesCount: () => `GREATEST(likes_count - 1, 0)`,
+  //     },
+  //   );
+  //
+  //   return result.affected === 1;
+  //
+  //   // const query: string = `
+  //   //   UPDATE posts
+  //   //   SET likes_count = GREATEST(likes_count - 1, 0)
+  //   //   WHERE id = $1
+  //   // `;
+  //   //
+  //   // const result = this.dataSource.query(query, [id]);
+  //   //
+  //   // const updatedRowsCount: number = result[1];
+  //   //
+  //   // return updatedRowsCount === 1;
+  // }
 
-    // const query: string = `
-    //   UPDATE posts
-    //   SET likes_count = likes_count + 1
-    //   WHERE id = $1
-    // `;
-    //
-    // const result = this.dataSource.query(query, [id]);
-    //
-    // const updatedRowsCount: number = result[1];
-    //
-    // return updatedRowsCount === 1;
-  }
+  // async increaseDislikesCount(id: number) {
+  //   const result: UpdateResult = await this.postsRepository.update(
+  //     { id },
+  //     { dislikesCount: () => `dislikes_count + 1` },
+  //   );
+  //
+  //   return result.affected === 1;
+  //
+  //   // const query: string = `
+  //   //   UPDATE posts
+  //   //   SET dislikes_count = dislikes_count + 1
+  //   //   WHERE id = $1
+  //   // `;
+  //   //
+  //   // const result = this.dataSource.query(query, [id]);
+  //   //
+  //   // const updatedRowsCount: number = result[1];
+  //   //
+  //   // return updatedRowsCount === 1;
+  // }
 
-  async decreaseLikesCount(id: number) {
-    const result: UpdateResult = await this.postsRepository.update(
-      { id },
-      {
-        likesCount: () => `GREATEST(likes_count - 1, 0)`,
-      },
-    );
-
-    return result.affected === 1;
-
-    // const query: string = `
-    //   UPDATE posts
-    //   SET likes_count = GREATEST(likes_count - 1, 0)
-    //   WHERE id = $1
-    // `;
-    //
-    // const result = this.dataSource.query(query, [id]);
-    //
-    // const updatedRowsCount: number = result[1];
-    //
-    // return updatedRowsCount === 1;
-  }
-
-  async increaseDislikesCount(id: number) {
-    const result: UpdateResult = await this.postsRepository.update(
-      { id },
-      { dislikesCount: () => `dislikes_count + 1` },
-    );
-
-    return result.affected === 1;
-
-    // const query: string = `
-    //   UPDATE posts
-    //   SET dislikes_count = dislikes_count + 1
-    //   WHERE id = $1
-    // `;
-    //
-    // const result = this.dataSource.query(query, [id]);
-    //
-    // const updatedRowsCount: number = result[1];
-    //
-    // return updatedRowsCount === 1;
-  }
-
-  async decreaseDislikesCount(id: number) {
-    const result: UpdateResult = await this.postsRepository.update(
-      { id },
-      { dislikesCount: () => `GREATEST(dislikes_count - 1, 0)` },
-    );
-
-    return result.affected === 1;
-    // const query: string = `
-    //   UPDATE posts
-    //   SET dislikes_count = GREATEST(dislikes_count - 1, 0)
-    //   WHERE id = $1
-    // `;
-    //
-    // const result = this.dataSource.query(query, [id]);
-    //
-    // const updatedRowsCount: number = result[1];
-    //
-    // return updatedRowsCount === 1;
-  }
+  // async decreaseDislikesCount(id: number) {
+  //   const result: UpdateResult = await this.postsRepository.update(
+  //     { id },
+  //     { dislikesCount: () => `GREATEST(dislikes_count - 1, 0)` },
+  //   );
+  //
+  //   return result.affected === 1;
+  //
+  //   // const query: string = `
+  //   //   UPDATE posts
+  //   //   SET dislikes_count = GREATEST(dislikes_count - 1, 0)
+  //   //   WHERE id = $1
+  //   // `;
+  //   //
+  //   // const result = this.dataSource.query(query, [id]);
+  //   //
+  //   // const updatedRowsCount: number = result[1];
+  //   //
+  //   // return updatedRowsCount === 1;
+  // }
 
   async delete(blogId: number, postId: number): Promise<boolean> {
     // does not work: two conditions

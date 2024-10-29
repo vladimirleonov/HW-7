@@ -3,6 +3,7 @@ import { Result } from '../../../../../base/types/object-result';
 import { LikeStatus } from '../../../../../base/types/like-status';
 import { CommentsTypeormRepository } from '../../infrastructure/typeorm/comments-typeorm.repository';
 import { CommentLikesTypeormRepository } from '../../infrastructure/typeorm/comment-likes-typeorm.repository';
+import { CommentLike } from '../../../like/domain/like.entity';
 
 export class UpdateCommentLikeStatusCommand {
   constructor(
@@ -47,11 +48,19 @@ export class UpdateCommentLikeStatusUseCase
         return Result.success();
       }
 
-      await this.commentLikesTypeormRepository.create(
+      const like: CommentLike = CommentLike.create(
         commentId,
         userId,
         likeStatus,
       );
+
+      await this.commentLikesTypeormRepository.save(like);
+
+      // await this.commentLikesTypeormRepository.create(
+      //   commentId,
+      //   userId,
+      //   likeStatus,
+      // );
 
       // for input.likeStatus = LikeStatus.Like
       if (command.likeStatus === LikeStatus.Like) {

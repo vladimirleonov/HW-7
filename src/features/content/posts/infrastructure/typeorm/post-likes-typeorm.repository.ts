@@ -1,69 +1,98 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { LikeStatus } from '../../../../../base/types/like-status';
+import { PostLike } from '../../../like/domain/like.entity';
 
 @Injectable()
 export class PostLikesTypeormRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(PostLike)
+    private readonly postLikesRepository: Repository<PostLike>,
+  ) {}
 
-  async findById(postId: number, userId: number) {
-    const query = `
-      SELECT * FROM post_likes
-      WHERE post_id = $1 AND author_id = $2
-    `;
-
-    const result = await this.dataSource.query(query, [postId, userId]);
-
-    return result.length > 0 ? result[0] : null;
+  async save(like: PostLike): Promise<void> {
+    await this.postLikesRepository.save(like);
   }
 
-  async create(postId: number, userId: number, likeStatus: LikeStatus) {
-    const query: string = `
-      INSERT INTO post_likes (post_id, author_id, status)
-      VALUES ($1, $2, $3)
-      RETURNING id;
-    `;
+  async findById(postId: number, userId: number): Promise<PostLike | null> {
+    const post: PostLike | null = await this.postLikesRepository.findOneBy({
+      postId: postId,
+      authorId: userId,
+    });
 
-    const result = await this.dataSource.query(query, [
-      postId,
-      userId,
-      likeStatus,
-    ]);
+    return post;
 
-    const createdId: number = result[0].id;
-
-    return createdId;
+    // const query = `
+    //   SELECT * FROM post_likes
+    //   WHERE post_id = $1 AND author_id = $2
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [postId, userId]);
+    //
+    // return result.length > 0 ? result[0] : null;
   }
+
+  // async create(postId: number, userId: number, likeStatus: LikeStatus) {
+  //   const query: string = `
+  //     INSERT INTO post_likes (post_id, author_id, status)
+  //     VALUES ($1, $2, $3)
+  //     RETURNING id;
+  //   `;
+  //
+  //   const result = await this.dataSource.query(query, [
+  //     postId,
+  //     userId,
+  //     likeStatus,
+  //   ]);
+  //
+  //   const createdId: number = result[0].id;
+  //
+  //   return createdId;
+  // }
 
   async update(postId: number, userId: number, likeStatus: LikeStatus) {
-    const query: string = `
-      UPDATE post_likes 
-      SET status = $1, created_at = NOW()
-      WHERE post_id = $2 AND author_id = $3
-    `;
+    const result = await this.postLikesRepository.update(
+      { postId },
+      { authorId: userId, status: likeStatus },
+    );
 
-    const result = await this.dataSource.query(query, [
-      likeStatus,
-      postId,
-      userId,
-    ]);
+    return result.affected === 1;
 
-    const updatedRowsCount: number = result[1];
-
-    return updatedRowsCount === 1;
+    // const query: string = `
+    //   UPDATE post_likes
+    //   SET status = $1, created_at = NOW()
+    //   WHERE post_id = $2 AND author_id = $3
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [
+    //   likeStatus,
+    //   postId,
+    //   userId,
+    // ]);
+    //
+    // const updatedRowsCount: number = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
   async delete(postId: number, userId: number) {
-    const query: string = `
-      DELETE FROM post_likes
-      WHERE post_id = $1 AND author_id = $2
-    `;
+    const result = await this.postLikesRepository.delete({
+      postId,
+      authorId: userId,
+    });
 
-    const result = await this.dataSource.query(query, [postId, userId]);
+    return result.affected === 1;
 
-    const deletedRowsCount: number = result[1];
-
-    return deletedRowsCount === 1;
+    // const query: string = `
+    //   DELETE FROM post_likes
+    //   WHERE post_id = $1 AND author_id = $2
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [postId, userId]);
+    //
+    // const deletedRowsCount: number = result[1];
+    //
+    // return deletedRowsCount === 1;
   }
 }

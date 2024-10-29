@@ -34,11 +34,11 @@ export class Post {
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column({ default: 0 })
-  likesCount: number;
-
-  @Column({ default: 0 })
-  dislikesCount: number;
+  // @Column({ default: 0 })
+  // likesCount: number;
+  //
+  // @Column({ default: 0 })
+  // dislikesCount: number;
 
   @OneToMany(() => Post, (c) => c.comments, { onDelete: 'CASCADE' })
   comments: Comment[];

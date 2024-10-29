@@ -3,6 +3,7 @@ import { PostsTypeormRepository } from '../../infrastructure/typeorm/posts-typeo
 import { LikeStatus } from '../../../../../base/types/like-status';
 import { Result } from '../../../../../base/types/object-result';
 import { PostLikesTypeormRepository } from '../../infrastructure/typeorm/post-likes-typeorm.repository';
+import { PostLike } from '../../../like/domain/like.entity';
 
 export class UpdatePostLikeStatusCommand {
   constructor(
@@ -30,10 +31,8 @@ export class UpdatePostLikeStatusUseCase
       return Result.notFound(`Comment with ${postId} does not exist`);
     }
 
-    const userLike = await this.postLikesTypeormRepository.findById(
-      postId,
-      userId,
-    );
+    const userLike: PostLike | null =
+      await this.postLikesTypeormRepository.findById(postId, userId);
 
     // Add like to post likes
     if (!userLike) {
@@ -43,24 +42,16 @@ export class UpdatePostLikeStatusUseCase
         return Result.success();
       }
 
-      await this.postLikesTypeormRepository.create(postId, userId, likeStatus);
+      const like: PostLike = PostLike.create(postId, userId, likeStatus);
 
-      // for input.likeStatus = LikeStatus.Like
-      if (likeStatus === LikeStatus.Like) {
-        await this.postsTypeormRepository.increaseLikesCount(postId);
-      }
-
-      // for input.likeStatus = LikeStatus.Dislike
-      if (likeStatus === LikeStatus.Dislike) {
-        await this.postsTypeormRepository.increaseDislikesCount(postId);
-      }
+      await this.postLikesTypeormRepository.save(like);
 
       return Result.success();
     }
 
     // LikeStatus the same
     if (userLike.status === likeStatus) {
-      console.log('nothing change');
+      console.log('the same status');
       return Result.success();
     }
 
@@ -68,16 +59,6 @@ export class UpdatePostLikeStatusUseCase
     if (likeStatus === LikeStatus.None) {
       console.log('None');
       await this.postLikesTypeormRepository.delete(postId, userId);
-
-      // was dislike
-      if (userLike.status === LikeStatus.Dislike) {
-        await this.postsTypeormRepository.decreaseDislikesCount(postId);
-      }
-
-      // was like
-      if (userLike.status === LikeStatus.Like) {
-        await this.postsTypeormRepository.decreaseLikesCount(postId);
-      }
 
       return Result.success();
     }
@@ -87,12 +68,6 @@ export class UpdatePostLikeStatusUseCase
       console.log('like');
       await this.postLikesTypeormRepository.update(postId, userId, likeStatus);
 
-      // was dislike
-      if (userLike.status === LikeStatus.Dislike) {
-        await this.postsTypeormRepository.decreaseDislikesCount(postId);
-      }
-      await this.postsTypeormRepository.increaseLikesCount(postId);
-
       return Result.success();
     }
 
@@ -100,12 +75,6 @@ export class UpdatePostLikeStatusUseCase
     if (likeStatus === LikeStatus.Dislike) {
       console.log('dislike');
       await this.postLikesTypeormRepository.update(postId, userId, likeStatus);
-
-      // was like
-      if (userLike.status === LikeStatus.Like) {
-        await this.postsTypeormRepository.decreaseLikesCount(postId);
-      }
-      await this.postsTypeormRepository.increaseDislikesCount(postId);
 
       return Result.success();
     }

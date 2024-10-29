@@ -1,9 +1,18 @@
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { LikeStatus } from '../../../../../base/types/like-status';
+import { CommentLike } from '../../../like/domain/like.entity';
 
 export class CommentLikesTypeormRepository {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(CommentLike)
+    private readonly commentLikeRepository: Repository<CommentLike>,
+    @InjectDataSource() private readonly dataSource: DataSource,
+  ) {}
+
+  async save(like: CommentLike): Promise<void> {
+    await this.commentLikeRepository.save(like);
+  }
 
   async findById(commentId: number, userId: number) {
     const query: string = `
