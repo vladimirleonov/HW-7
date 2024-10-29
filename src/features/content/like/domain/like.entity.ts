@@ -8,6 +8,7 @@ import {
 import { LikeStatus } from '../../../../base/types/like-status';
 import { Comment } from '../../comments/domain/comments.entity';
 import { Post } from '../../posts/domain/post.entity';
+import { User } from '../../../users/domain/user.entity';
 
 export abstract class Like {
   @PrimaryGeneratedColumn()
@@ -18,6 +19,13 @@ export abstract class Like {
 
   @Column({ type: 'enum', enum: LikeStatus })
   status: LikeStatus;
+
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  author: number;
+
+  @Column()
+  authorId: number;
 }
 
 @Entity()
@@ -28,6 +36,15 @@ export class CommentLike extends Like {
 
   @Column()
   commentId: number;
+
+  static create(commentId: number, userId: number, likeStatus: LikeStatus) {
+    const comment = new this();
+    comment.commentId = commentId;
+    comment.authorId = userId;
+    comment.status = likeStatus;
+
+    return comment;
+  }
 }
 
 @Entity()
@@ -38,6 +55,15 @@ export class PostLike extends Like {
 
   @Column()
   postId: number;
+
+  static create(postId: number, userId: number, likeStatus: LikeStatus) {
+    const comment = new this();
+    comment.postId = postId;
+    comment.authorId = userId;
+    comment.status = likeStatus;
+
+    return comment;
+  }
 }
 
 // import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';

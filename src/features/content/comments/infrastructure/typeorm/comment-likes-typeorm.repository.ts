@@ -16,23 +16,23 @@ export class CommentLikesTypeormRepository {
     return result.length > 0 ? result[0] : null;
   }
 
-  async create(commentId: number, userId: number, likeStatus: LikeStatus) {
-    const query: string = `
-      INSERT INTO comment_likes (comment_id, author_id, status)
-      VALUES ($1, $2, $3)
-      RETURNING id;
-    `;
-
-    const result = await this.dataSource.query(query, [
-      commentId,
-      userId,
-      likeStatus,
-    ]);
-
-    const createdId: number = result[0].id;
-
-    return createdId;
-  }
+  // async create(commentId: number, userId: number, likeStatus: LikeStatus) {
+  //   const query: string = `
+  //     INSERT INTO comment_likes (comment_id, author_id, status)
+  //     VALUES ($1, $2, $3)
+  //     RETURNING id;
+  //   `;
+  //
+  //   const result = await this.dataSource.query(query, [
+  //     commentId,
+  //     userId,
+  //     likeStatus,
+  //   ]);
+  //
+  //   const createdId: number = result[0].id;
+  //
+  //   return createdId;
+  // }
 
   async update(commentId: number, userId: number, likeStatus: LikeStatus) {
     const query: string = `
