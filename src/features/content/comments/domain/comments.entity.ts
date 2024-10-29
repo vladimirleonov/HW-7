@@ -3,10 +3,12 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Post } from '../../posts/domain/post.entity';
 import { User } from '../../../users/domain/user.entity';
+import { CommentLike } from '../../like/domain/like.entity';
 
 @Entity()
 export class Comment {
@@ -32,6 +34,9 @@ export class Comment {
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  @OneToMany(() => CommentLike, (l) => l.comment, { onDelete: 'CASCADE' })
+  likes: CommentLike[];
 
   static create(post: Post, ccmmentator: User, content: string): Comment {
     const comment: Comment = new this();

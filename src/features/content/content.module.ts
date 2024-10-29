@@ -37,6 +37,7 @@ import { GetAllBlogPostsUseCase } from './posts/api/queries/get-all-blog-posts.q
 import { GetAllPostsUseCase } from './posts/api/queries/get-all-posts.query';
 import { Comment } from './comments/domain/comments.entity';
 import { GetCommentUseCase } from './comments/api/queries/get-comment.query';
+import { CommentLike } from './like/domain/like.entity';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -101,7 +102,7 @@ const commentsProviders: Provider[] = [
     CqrsModule,
     AuthModule,
     UsersModule,
-    TypeOrmModule.forFeature([Blog, Post, Comment]),
+    TypeOrmModule.forFeature([Blog, Post, Comment, CommentLike]),
   ],
   controllers: [
     BlogsController,

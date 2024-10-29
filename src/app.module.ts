@@ -18,6 +18,10 @@ import { Blog } from './features/content/blogs/domain/blog.entity';
 import { Post } from './features/content/posts/domain/post.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { Comment } from './features/content/comments/domain/comments.entity';
+import {
+  CommentLike,
+  PostLike,
+} from './features/content/like/domain/like.entity';
 
 @Module({
   imports: [
@@ -50,6 +54,8 @@ import { Comment } from './features/content/comments/domain/comments.entity';
             Blog,
             Post,
             Comment,
+            CommentLike,
+            PostLike,
           ],
           synchronize: false,
           logging: true,
