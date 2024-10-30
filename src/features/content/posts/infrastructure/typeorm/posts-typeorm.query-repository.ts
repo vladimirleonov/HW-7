@@ -8,6 +8,7 @@ import { DataSource, Repository } from 'typeorm';
 import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
 import { Post } from '../../domain/post.entity';
 import { mapSortFieldsMapper } from '../../../../../core/utils/sort-field-mapper';
+import { PostLike } from '../../../like/domain/like.entity';
 
 const postsSortFieldMapping = {
   title: 'p.title',
@@ -20,12 +21,63 @@ export class PostsTypeormQueryRepository {
   constructor(
     @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
+    @InjectRepository(PostLike)
+    private readonly postLikeRepository: Repository<PostLike>,
   ) {}
 
   async getAllPosts(
     pagination: Pagination<PaginationQuery>,
     userId?: number,
   ): Promise<PaginationOutput<Post>> {
+    console.log('userId', userId);
+
+    const likeCountSubquery = this.postLikeRepository
+      .createQueryBuilder('pl')
+      .select('COUNT(*)')
+      .where('pl.postId = p.id')
+      .andWhere("pl.status = 'Like'");
+
+    const dislikesCountSubquery = this.postLikeRepository
+      .createQueryBuilder('pl')
+      .select('COUNT(*)')
+      .where('pl.postId = p.id')
+      .andWhere("pl.status = 'Dislike'");
+
+    const myStatusSubquery = this.postLikeRepository
+      .createQueryBuilder('pl')
+      .select('pl.status')
+      .where('pl.postId=p.id')
+      .andWhere('pl.authorId = :userId');
+
+    const newestLikesSubquery = this.postLikeRepository
+      .createQueryBuilder('pl')
+      .select([
+        'pl.createdAt as created_at',
+        'pl.authorId as author_id',
+        'u.login as login',
+      ])
+      .leftJoin('pl.author', 'u')
+      .where('pl.postId = p.id')
+      .andWhere('pl.authorId = :userId')
+      .orderBy('pl.createdAt', 'DESC')
+      .limit(3);
+
+    const newestLikesJsonAgg = `
+      COALESCE(
+        (
+          SELECT json_agg(
+            json_build_object(
+              'addedAt', nl.created_at,
+              'userId', CAST(nl.author_id as text),
+              'login', nl.login
+            ) 
+          ) 
+          FROM (${newestLikesSubquery.getQuery()}) as nl
+        ),
+      '[]'::json
+      )
+    `;
+
     const query = this.postsRepository
       .createQueryBuilder('p')
       .select([
@@ -37,13 +89,19 @@ export class PostsTypeormQueryRepository {
         'b.name as "blogName"',
         'p.createdAt as "createdAt"',
       ])
+      // .addSelect(`(${likeCountSubquery.getQuery()})`, 'likesCount')
+      //.addSelect(`(${dislikesCountSubquery.getQuery()}) as "dislikesCount"`)
+      //.addSelect(
+      //  `COALESCE(${myStatusSubquery.getQuery()}, 'None') as "myStatus"`,
+      //)
+      // .addSelect(newestLikesSubquery + 'as "newestLikes"')
       .addSelect(
         `
         json_build_object(
-          'likesCount', 0,
-          'dislikesCount', 0,
-          'myStatus', 'None',
-          'newestLikes', '[]':: jsonb
+          'likesCount', (${likeCountSubquery.getQuery()}),
+          'dislikesCount', (${dislikesCountSubquery.getQuery()}),
+          'myStatus', COALESCE((${myStatusSubquery.getQuery()}), 'None'),
+          'newestLikes', ${newestLikesJsonAgg}
         ) as "extendedLikesInfo"
       `,
       )
@@ -53,7 +111,8 @@ export class PostsTypeormQueryRepository {
         pagination.sortDirection,
       )
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
-      .limit(pagination.pageSize);
+      .limit(pagination.pageSize)
+      .setParameters({ userId });
 
     const posts: Post[] = await query.getRawMany();
 
