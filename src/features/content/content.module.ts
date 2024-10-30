@@ -38,6 +38,7 @@ import { GetAllPostsUseCase } from './posts/api/queries/get-all-posts.query';
 import { Comment } from './comments/domain/comments.entity';
 import { GetCommentUseCase } from './comments/api/queries/get-comment.query';
 import { CommentLike, PostLike } from './like/domain/like.entity';
+import { GetPostUseCase } from './posts/api/queries/get-post.query';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -69,6 +70,7 @@ const postsProviders: Provider[] = [
   //
   GetAllPostsUseCase,
   GetAllBlogPostsUseCase,
+  GetPostUseCase,
 
   // repositories
   // PostsPostgresRepository,
