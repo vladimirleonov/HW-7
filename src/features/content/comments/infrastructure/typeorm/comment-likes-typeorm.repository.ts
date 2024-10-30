@@ -1,5 +1,5 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, DeleteResult, Repository } from 'typeorm';
 import { LikeStatus } from '../../../../../base/types/like-status';
 import { CommentLike } from '../../../like/domain/like.entity';
 
@@ -15,14 +15,20 @@ export class CommentLikesTypeormRepository {
   }
 
   async findById(commentId: number, userId: number) {
-    const query: string = `
-      SELECT * FROM comment_likes
-      WHERE comment_id = $1 AND author_id = $2
-    `;
+    // CommentLike | null
+    return this.commentLikeRepository.findOneBy({
+      commentId,
+      authorId: userId,
+    });
 
-    const result = await this.dataSource.query(query, [commentId, userId]);
-
-    return result.length > 0 ? result[0] : null;
+    // const query: string = `
+    //   SELECT * FROM comment_likes
+    //   WHERE comment_id = $1 AND author_id = $2
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [commentId, userId]);
+    //
+    // return result.length > 0 ? result[0] : null;
   }
 
   // async create(commentId: number, userId: number, likeStatus: LikeStatus) {
@@ -44,33 +50,47 @@ export class CommentLikesTypeormRepository {
   // }
 
   async update(commentId: number, userId: number, likeStatus: LikeStatus) {
-    const query: string = `
-      UPDATE comment_likes 
-      SET status = $1, created_at = NOW()
-      WHERE comment_id = $2 AND author_id = $3
-    `;
+    const result = await this.commentLikeRepository.update(
+      { commentId, authorId: userId },
+      { status: likeStatus },
+    );
 
-    const result = await this.dataSource.query(query, [
-      likeStatus,
-      commentId,
-      userId,
-    ]);
+    return result.affected === 1;
 
-    const updatedRowsCount = result[1];
-
-    return updatedRowsCount === 1;
+    // const query: string = `
+    //   UPDATE comment_likes
+    //   SET status = $1, created_at = NOW()
+    //   WHERE comment_id = $2 AND author_id = $3
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [
+    //   likeStatus,
+    //   commentId,
+    //   userId,
+    // ]);
+    //
+    // const updatedRowsCount = result[1];
+    //
+    // return updatedRowsCount === 1;
   }
 
   async delete(commentId: number, userId: number) {
-    const query: string = `
-      DELETE FROM comment_likes
-      WHERE comment_id = $1 AND author_id = $2
-    `;
+    const result: DeleteResult = await this.commentLikeRepository.delete({
+      commentId,
+      authorId: userId,
+    });
 
-    const result = await this.dataSource.query(query, [commentId, userId]);
+    return result.affected === 1;
 
-    const deletedRowsCount = result[1];
-
-    return deletedRowsCount === 1;
+    // const query: string = `
+    //   DELETE FROM comment_likes
+    //   WHERE comment_id = $1 AND author_id = $2
+    // `;
+    //
+    // const result = await this.dataSource.query(query, [commentId, userId]);
+    //
+    // const deletedRowsCount = result[1];
+    //
+    // return deletedRowsCount === 1;
   }
 }
