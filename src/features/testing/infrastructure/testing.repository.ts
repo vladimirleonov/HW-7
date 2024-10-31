@@ -7,9 +7,9 @@ export class TestingRepository {
 
   async deleteAllData() {
     const tables: string[] = [
-      'comment_likes',
-      'comments',
-      'post_likes',
+      'comment_like',
+      'comment',
+      'post_like',
       'post',
       'blog',
       `public."user"`,

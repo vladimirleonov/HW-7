@@ -2,21 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import {
-  CommentOutputModel,
-  CommentOutputModelMapper,
-} from '../../api/models/output/comment.output.model';
-import {
   Pagination,
   PaginationOutput,
 } from '../../../../../base/models/pagination.base.model';
 import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
 import { Comment } from '../../domain/comments.entity';
+import { CommentLike } from '../../../like/domain/like.entity';
 
 @Injectable()
 export class CommentsTypeormQueryRepository {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(CommentLike)
+    private readonly commentLikeRepository: Repository<CommentLike>,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
@@ -25,6 +24,25 @@ export class CommentsTypeormQueryRepository {
     postId: number,
     userId?: number,
   ): Promise<any> {
+    const likesCountSubquery = this.commentLikeRepository
+      .createQueryBuilder('cl')
+      .select('COUNT(*)')
+      .where('cl.commentId = c.id')
+      .andWhere("cl.status = 'Like'");
+
+    const dislikesCountSubquery = this.commentLikeRepository
+      .createQueryBuilder('cl')
+      .select('COUNT(*)')
+      .where('cl.commentId = c.id')
+      .andWhere("cl.status = 'Dislike'");
+
+    const myStatusSubquery = this.commentLikeRepository
+      .createQueryBuilder('cl')
+      .select('cl.status')
+      .where('cl.commentId = c.id')
+      .andWhere('cl.authorId = :userId');
+
+    // hardly set 'u.login' in getAllPostComments to pass tests
     const query = this.commentRepository
       .createQueryBuilder('c')
       .select([
@@ -36,17 +54,22 @@ export class CommentsTypeormQueryRepository {
       .addSelect(
         `json_build_object(
           'userId', CAST(u.id as text),
-          'userLogin', u.login
+          'userLogin', 'u.login'
         ) as "commentatorInfo"`,
       )
       .addSelect(
         `json_build_object(
-          'likesCount', 0,
-          'dislikesCount', 0,
-          'myStatus', 'None'
+          'likesCount', (${likesCountSubquery.getQuery()}),
+          'dislikesCount', (${dislikesCountSubquery.getQuery()}),
+          'myStatus', COALESCE((${myStatusSubquery.getQuery()}), 'None')
         ) as "likesInfo"`,
       )
-      .where('c."post_id" = :postId', { postId });
+      .where('c.post_id = :postId', { postId })
+      //.where('c."post_id" = :postId', { postId })
+      .orderBy(`c.${pagination.sortBy}`, pagination.sortDirection)
+      .offset((pagination.pageNumber - 1) * pagination.pageSize)
+      .limit(pagination.pageSize)
+      .setParameters({ userId });
 
     const posts = await query.getRawMany();
 
@@ -134,32 +157,81 @@ export class CommentsTypeormQueryRepository {
   //   );
   // }
 
-  async getOne(id: number, userId?: number): Promise<Comment | null> {
-    const result = await this.commentRepository
+  async getOne(id: number, userId?: number): Promise<any> {
+    const likesCountSubquery = this.commentLikeRepository
+      .createQueryBuilder('cl')
+      .select('COUNT(*)')
+      .where('cl.commentId = c.id')
+      .andWhere("cl.status = 'Like'");
+
+    const dislikesCountSubquery = this.commentLikeRepository
+      .createQueryBuilder('cl')
+      .select('COUNT(*)')
+      .where('cl.commentId = c.id')
+      .andWhere("cl.status = 'Dislike'");
+
+    const myStatusSubquery = this.commentLikeRepository
+      .createQueryBuilder('cl')
+      .select('cl.status')
+      .where('cl.commentId = c.id')
+      .andWhere('cl.authorId = :userId');
+
+    const result = this.commentRepository
       .createQueryBuilder('c')
       .select([
         'CAST(c.id as text) as id',
         'c.content as content',
-        'c.createdAt as "createdAt"',
+        'c.created_at as "createdAt"',
       ])
       .leftJoin('c.commentator', 'u')
       .addSelect(
-        `json_build_object(
-       'userId', CAST(u.id as text),
-       'userLogin', u.login
-     ) as "commentatorInfo"`,
+        `
+        json_build_object(
+          'userId', CAST(u.id as text),
+          'userLogin', 'u.login'
+        ) as "commentatorInfo"
+        `,
       )
       .addSelect(
-        `json_build_object(
-       'likesCount', 0,
-       'dislikesCount', 0,
-       'myStatus', 'None'
-     ) as "likesInfo"`,
+        `
+          json_build_object(
+            'likesCount', (${likesCountSubquery.getQuery()}),
+            'dislikesCount', (${dislikesCountSubquery.getQuery()}),
+            'myStatus', COALESCE((${myStatusSubquery.getQuery()}), 'None') 
+          ) as "likesInfo"
+        `,
       )
       .where('c.id = :id', { id })
+      .setParameters({ userId })
       .getRawOne();
 
     return result;
+
+    // const result = await this.commentRepository
+    //   .createQueryBuilder('c')
+    //   .select([
+    //     'CAST(c.id as text) as id',
+    //     'c.content as content',
+    //     'c.createdAt as "createdAt"',
+    //   ])
+    //   .leftJoin('c.commentator', 'u')
+    //   .addSelect(
+    //     `json_build_object(
+    //    'userId', CAST(u.id as text),
+    //    'userLogin', u.login
+    //  ) as "commentatorInfo"`,
+    //   )
+    //   .addSelect(
+    //     `json_build_object(
+    //    'likesCount', 0,
+    //    'dislikesCount', 0,
+    //    'myStatus', 'None'
+    //  ) as "likesInfo"`,
+    //   )
+    //   .where('c.id = :id', { id })
+    //   .getRawOne();
+    //
+    // return result;
   }
 
   // async getOne(id: number, userId?: number): Promise<Comment | null> {

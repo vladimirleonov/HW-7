@@ -42,6 +42,7 @@ import { GetPostQuery } from './queries/get-post.query';
 import { CommentsTypeormQueryRepository } from '../../comments/infrastructure/typeorm/comments-typeorm.query-repository';
 import { GetCommentQuery } from '../../comments/api/queries/get-comment.query';
 import { Comment } from '../../comments/domain/comments.entity';
+import { GetPostCommentsQuery } from '../../comments/api/queries/get-post-comments.query';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =
   ['title', 'blogName', 'createdAt'];
@@ -118,12 +119,17 @@ export class PostsController {
       throw new NotFoundException();
     }
 
-    const comments: PaginationOutput<PostOutputModel> =
-      await this.commentsTypeormQueryRepository.getAllPostComments(
-        pagination,
-        postId,
-        userId,
-      );
+    const comments: PaginationOutput<Comment> = await this.queryBus.execute<
+      GetPostCommentsQuery,
+      PaginationOutput<Comment>
+    >(new GetPostCommentsQuery(pagination, postId, userId));
+
+    // const comments: PaginationOutput<PostOutputModel> =
+    //   await this.commentsTypeormQueryRepository.getAllPostComments(
+    //     pagination,
+    //     postId,
+    //     userId,
+    //   );
 
     return comments;
   }
@@ -150,6 +156,7 @@ export class PostsController {
     }
 
     const commentId: number = result.data;
+    console.log('commentId', commentId);
 
     const comment = await this.queryBus.execute<GetCommentQuery, Comment>(
       new GetCommentQuery(commentId, userId),

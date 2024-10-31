@@ -13,11 +13,10 @@ import {
 } from '../../../../base/models/pagination.base.model';
 import { BlogOutputModel } from './models/output/blog.output.model';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { QueryBus } from '@nestjs/cqrs';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import { BlogsTypeormQueryRepository } from '../infrastructure/typeorm/blogs-typeorm.query-repository';
-import { PostsTypeormQueryRepository } from '../../posts/infrastructure/typeorm/posts-typeorm.query-repository';
 import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
@@ -27,6 +26,7 @@ import { Post } from '../../posts/domain/post.entity';
 import { GetAllBlogsQuery } from './queries/get-all-blogs.query';
 import { GetAllBlogPostsQuery } from '../../posts/api/queries/get-all-blog-posts.query';
 import { GetBlogQuery } from './queries/get-blog.query';
+import { PostsPaginationQuery } from '../../posts/api/models/input/posts-pagination-query.input.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -35,10 +35,8 @@ const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly blogsTypeormQueryRepository: BlogsTypeormQueryRepository,
-    private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
   ) {}
 
   @Get()
@@ -47,9 +45,6 @@ export class BlogsController {
   ): Promise<PaginationOutput<Blog>> {
     const pagination: PaginationWithSearchNameTerm<BlogsPaginationQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
-
-    // const blogs: PaginationOutput<Blog> =
-    //   await this.blogsTypeormQueryRepository.getAll(pagination);
 
     const result: PaginationOutput<Blog> = await this.queryBus.execute<
       GetAllBlogsQuery,
@@ -62,7 +57,7 @@ export class BlogsController {
   @Get(':blogId/posts')
   @UseGuards(OptionalJwtAuthGuard)
   async getAllBlogPosts(
-    @Query() query: any,
+    @Query() query: PostsPaginationQuery,
     @OptionalUserId() userId: number,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {

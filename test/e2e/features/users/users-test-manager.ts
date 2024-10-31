@@ -5,7 +5,7 @@ import { UserCreateModel } from '../../../../src/features/users/api/models/input
 export class UsersTestManager {
   constructor(protected readonly app: INestApplication) {}
 
-  // можно выносить некоторые проверки в отдельные методы для лучшей читаемости тестов
+  // you can take out some methods for better readability
   expectCorrectModel(createModel: any, responseModel: any) {
     expect(createModel.name).toBe(responseModel.name);
     expect(createModel.email).toBe(responseModel.email);

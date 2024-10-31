@@ -60,7 +60,7 @@ export class RegistrationUseCase
       saltRounds,
     );
 
-    const createdUser: any = await this.usersTypeormRepository.create(
+    const createdUser: User = await this.usersTypeormRepository.create(
       login,
       passwordHash,
       email,

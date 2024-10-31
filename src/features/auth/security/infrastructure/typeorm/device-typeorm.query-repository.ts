@@ -5,7 +5,6 @@ import {
   InjectRepository,
 } from '@nestjs/typeorm';
 import { Device } from '../../domain/device.entity';
-import { DeviceOutputModelMapper } from '../../api/models/output/device.output.model';
 
 export class DevicesTypeormQueryRepository {
   constructor(
@@ -16,11 +15,24 @@ export class DevicesTypeormQueryRepository {
   ) {}
 
   async findAllForOutputByUserId(userId: number): Promise<any> {
-    // Device[] | []
-    const result: Device[] = await this.deviceRepository.find({
-      where: { userId },
-    });
+    const result = await this.deviceRepository
+      .createQueryBuilder('d')
+      .select([
+        'd.ip as ip',
+        'd.deviceName as title',
+        'd.iat as "lastActiveDate"',
+        'd.deviceId as "deviceId"',
+      ])
+      .where('d.userId = :userId', { userId })
+      .getRawMany();
 
-    return result.map(DeviceOutputModelMapper);
+    return result;
+
+    // Device[] | []
+    // const result: Device[] = await this.deviceRepository.find({
+    //   where: { userId },
+    // });
+    //
+    // return result.map(DeviceOutputModelMapper);
   }
 }

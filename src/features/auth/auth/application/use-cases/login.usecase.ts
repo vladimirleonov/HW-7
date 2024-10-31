@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { DevicesTypeormRepository } from '../../../security/infrastructure/typeorm/device-typeorm.repository';
 import { JwtPayload } from 'jsonwebtoken';
+import { User } from '../../../../users/domain/user.entity';
 
 export class LoginCommand {
   constructor(
@@ -38,7 +39,7 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       }
     }
 
-    const user: any = await this.usersTypeormRepository.findById(
+    const user: User | null = await this.usersTypeormRepository.findById(
       command.userId,
     );
     // console.log('get user login usecase', user);

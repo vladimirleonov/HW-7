@@ -75,10 +75,10 @@ export class UsersController {
     const createdUser =
       await this.usersTypeormQueryRepository.findById(createdUserId);
 
-    if (!createdUser) {
-      // error if just created blog not found
-      throw new InternalServerErrorException(result.errorMessage!);
-    }
+    // if (!createdUser) {
+    //   // error if just created blog not found
+    //   throw new InternalServerErrorException(result.errorMessage!);
+    // }
 
     return createdUser;
   }

@@ -12,7 +12,7 @@ export class GetBlogUseCase implements IQueryHandler {
     private readonly blogsTypeormQueryRepository: BlogsTypeormRepository,
   ) {}
 
-  execute(query: any): Promise<Blog | null> {
+  execute(query: GetBlogQuery): Promise<Blog | null> {
     const { id } = query;
 
     return this.blogsTypeormQueryRepository.findById(id);

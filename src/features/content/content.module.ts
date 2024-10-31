@@ -39,6 +39,7 @@ import { Comment } from './comments/domain/comments.entity';
 import { GetCommentUseCase } from './comments/api/queries/get-comment.query';
 import { CommentLike, PostLike } from './like/domain/like.entity';
 import { GetPostUseCase } from './posts/api/queries/get-post.query';
+import { GetPostCommentsUseCase } from './comments/api/queries/get-post-comments.query';
 
 const blogsProviders: Provider[] = [
   // use cases
@@ -89,6 +90,7 @@ const commentsProviders: Provider[] = [
   UpdateCommentLikeStatusUseCase,
   //
   GetCommentUseCase,
+  GetPostCommentsUseCase,
 
   // repositories
   // CommentsPostgresRepository,

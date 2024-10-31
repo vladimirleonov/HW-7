@@ -47,6 +47,8 @@ import { Blog } from '../domain/blog.entity';
 import { Post as PostEntity } from '../../posts/domain/post.entity';
 import { GetAllBlogPostsQuery } from '../../posts/api/queries/get-all-blog-posts.query';
 import { GetAllBlogsQuery } from './queries/get-all-blogs.query';
+import { BlogsPaginationQuery } from './models/input/blogs-pagination-query.input.model';
+import { PostsPaginationQuery } from '../../posts/api/models/input/posts-pagination-query.input.model';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -63,7 +65,7 @@ export class BlogsSAController {
   ) {}
 
   @Get()
-  async getAll(@Query() query: any) {
+  async getAll(@Query() query: BlogsPaginationQuery) {
     const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
@@ -130,7 +132,7 @@ export class BlogsSAController {
 
   @Get(':blogId/posts')
   async getAllBlogPosts(
-    @Query() query: any,
+    @Query() query: PostsPaginationQuery,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
     // TODO: ask if is it ok to check blog is exists in controller here
@@ -181,9 +183,9 @@ export class BlogsSAController {
 
     const post = await this.postsTypeormQueryRepository.getOne(createdId);
 
-    if (!post) {
-      throw new InternalServerErrorException();
-    }
+    // if (!post) {
+    //   throw new InternalServerErrorException();
+    // }
 
     return post;
   }

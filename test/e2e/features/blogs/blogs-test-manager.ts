@@ -5,6 +5,7 @@ import { INestApplication } from '@nestjs/common';
 export class BlogsTestManager {
   constructor(protected readonly app: INestApplication) {}
 
+  // you can take out some methods for better readability
   expectCorrectModel(createModel: any, responseModel: any) {
     expect(createModel.id).toBe(responseModel.id);
     expect(createModel.name).toBe(responseModel.name);

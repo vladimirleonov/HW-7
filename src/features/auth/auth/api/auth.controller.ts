@@ -16,7 +16,6 @@ import { Response } from 'express';
 import { RegistrationModel } from './models/input/registration.input.model';
 import { ConfirmRegistrationModel } from './models/input/confirm-registration.model';
 import { RegistrationEmailResendingModel } from './models/input/registration-email-resending.model';
-import { AuthMeOutputModel } from './models/output/auth-me.output';
 import { UsersTypeormQueryRepository } from '../../../users/infrastructure/typeorm/users-typeorm.query-repository';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
@@ -47,7 +46,7 @@ import { UserAgent } from '../../../../core/decorators/param-decorators/user-age
 import { LoginModel } from './models/input/login.input.model';
 import { User } from '../../../users/domain/user.entity';
 
-//@UseGuards(ThrottlerGuard)
+// @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(

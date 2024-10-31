@@ -220,6 +220,7 @@ export class PostsTypeormQueryRepository {
     // optimization
     const totalCount: number = await this.postsRepository
       .createQueryBuilder('p')
+      .where('p.blog_id = :blogId', { blogId })
       .getCount();
     //const totalCount: number = await query.getCount();
     // console.log('totalCount', totalCount);
