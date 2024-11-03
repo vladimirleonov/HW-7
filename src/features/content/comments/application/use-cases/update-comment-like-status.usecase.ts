@@ -56,21 +56,6 @@ export class UpdateCommentLikeStatusUseCase
 
       await this.commentLikesTypeormRepository.save(like);
 
-      // await this.commentLikesTypeormRepository.create(
-      //   commentId,
-      //   userId,
-      //   likeStatus,
-      // );
-
-      // for input.likeStatus = LikeStatus.Like
-      // if (command.likeStatus === LikeStatus.Like) {
-      //   await this.commentsTypeormRepository.increaseLikesCount(commentId);
-      // }
-
-      // for input.likeStatus = LikeStatus.Dislike
-      // if (command.likeStatus === LikeStatus.Dislike) {
-      //   await this.commentsTypeormRepository.increaseDislikesCount(commentId);
-      // }
       return Result.success();
     }
 
@@ -85,16 +70,6 @@ export class UpdateCommentLikeStatusUseCase
       console.log('None');
 
       await this.commentLikesTypeormRepository.delete(commentId, userId);
-
-      // was dislike
-      // if (userLike.status === LikeStatus.Dislike) {
-      //   await this.commentsTypeormRepository.decreaseDislikesCount(commentId);
-      // }
-
-      // was like
-      // if (userLike.status === LikeStatus.Like) {
-      //   await this.commentsTypeormRepository.decreaseLikesCount(commentId);
-      // }
     }
 
     // Existing like with different status Like
@@ -105,13 +80,6 @@ export class UpdateCommentLikeStatusUseCase
         userId,
         likeStatus,
       );
-
-      // was dislike
-      // if (userLike.status === LikeStatus.Dislike) {
-      //   await this.commentsTypeormRepository.decreaseDislikesCount(commentId);
-      // }
-      //
-      // await this.commentsTypeormRepository.increaseLikesCount(commentId);
     }
     // Existing like with different status Dislike
     if (likeStatus === LikeStatus.Dislike) {
@@ -121,13 +89,6 @@ export class UpdateCommentLikeStatusUseCase
         userId,
         likeStatus,
       );
-
-      // was like
-      // if (userLike.status === LikeStatus.Like) {
-      //   await this.commentsTypeormRepository.decreaseLikesCount(commentId);
-      // }
-      //
-      // await this.commentsTypeormRepository.increaseDislikesCount(commentId);
     }
 
     return Result.success();

@@ -10,21 +10,22 @@ import {
 } from '@nestjs/common';
 import { RefreshTokenAuthGuard } from '../../../../core/guards/passport/refresh-token-auth.guard';
 import { CurrentDeviceId } from '../../../../core/decorators/param-decorators/current-device-id.param.decorator';
-import { DevicesTypeormQueryRepository } from '../infrastructure/typeorm/device-typeorm.query-repository';
 import { CurrentUserIdFromDevice } from '../../../../core/decorators/param-decorators/current-user-id-from-device.param.decorator';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { TerminateAllOtherUserDevicesCommand } from '../application/use-cases/terminate-all-other-user-devices.usecase';
 import { TerminateUserDeviceCommand } from '../application/use-cases/terminate-user-device.usecase';
 import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 import { ParseUUIDPipe } from '../../../../core/pipes/parse-uuid.pipe';
+import { DeviceOutputModel } from './models/output/device.output.model';
+import { GetAllDevicesQuery } from './queries/get-all-devices.query';
 
 @Controller('security/devices')
 @UseGuards(RefreshTokenAuthGuard)
 export class SecurityController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly devicesTypeormQueryRepository: DevicesTypeormQueryRepository,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Get()
@@ -32,9 +33,12 @@ export class SecurityController {
     @CurrentDeviceId() deviceId: string,
     @CurrentUserIdFromDevice() userId: number,
   ) {
-    const userDevices =
-      await this.devicesTypeormQueryRepository.findAllForOutputByUserId(userId);
-    return userDevices;
+    const result: DeviceOutputModel[] = await this.queryBus.execute<
+      GetAllDevicesQuery,
+      DeviceOutputModel[]
+    >(new GetAllDevicesQuery(userId));
+
+    return result;
   }
 
   @Delete()
@@ -43,9 +47,10 @@ export class SecurityController {
     @CurrentDeviceId() deviceId: string,
     @CurrentUserIdFromDevice() userId: number,
   ) {
-    const result = await this.commandBus.execute(
-      new TerminateAllOtherUserDevicesCommand(deviceId, userId),
-    );
+    const result: Result = await this.commandBus.execute<
+      TerminateAllOtherUserDevicesCommand,
+      Result
+    >(new TerminateAllOtherUserDevicesCommand(deviceId, userId));
 
     if (result.status === ResultStatus.Success) {
       return;
@@ -58,9 +63,10 @@ export class SecurityController {
     @Param('deviceId', new ParseUUIDPipe()) deviceId: string,
     @CurrentUserIdFromDevice() userId: number,
   ) {
-    const result: Result = await this.commandBus.execute(
-      new TerminateUserDeviceCommand(deviceId, userId),
-    );
+    const result: Result = await this.commandBus.execute<
+      TerminateUserDeviceCommand,
+      Result
+    >(new TerminateUserDeviceCommand(deviceId, userId));
 
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException(result.errorMessage);

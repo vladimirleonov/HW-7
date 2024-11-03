@@ -9,6 +9,11 @@ export class DevicesTypeormRepository {
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
   ) {}
+
+  async save(device: Device): Promise<void> {
+    await this.deviceRepository.save(device);
+  }
+
   async deleteOneByDeviceIdAndIAt(
     deviceId: string,
     iat: string,
@@ -21,12 +26,15 @@ export class DevicesTypeormRepository {
     return result.affected === 1;
   }
 
-  async findByDeviceId(deviceId: string): Promise<any> {
+  async findByDeviceId(deviceId: string): Promise<Device | null> {
     // Device | null
     return this.deviceRepository.findOneBy({ deviceId: deviceId });
   }
 
-  async findOneByDeviceIdAndIat(deviceId: string, iat: string): Promise<any> {
+  async findOneByDeviceIdAndIat(
+    deviceId: string,
+    iat: string,
+  ): Promise<Device | null> {
     // Device | null
     return this.deviceRepository.findOne({
       where: {
@@ -36,29 +44,7 @@ export class DevicesTypeormRepository {
     });
   }
 
-  async create(
-    userId: number,
-    deviceId: string,
-    iat: string,
-    deviceName: string,
-    ip: string,
-    exp: string,
-  ) {
-    const newDevice: Device = this.deviceRepository.create({
-      deviceId: deviceId,
-      userId: userId,
-      iat: new Date(iat),
-      deviceName: deviceName,
-      ip: ip,
-      exp: new Date(exp),
-    });
-
-    const createdDevice: Device = await this.deviceRepository.save(newDevice);
-
-    return createdDevice;
-  }
-
-  async updateIat(deviceId: string, iat: string): Promise<any> {
+  async updateIat(deviceId: string, iat: string): Promise<boolean> {
     const result: UpdateResult = await this.deviceRepository.update(deviceId, {
       iat: new Date(iat),
     });
@@ -69,7 +55,7 @@ export class DevicesTypeormRepository {
   async deleteAllOtherByDeviceIdAndUserId(
     deviceId: string,
     userId: number,
-  ): Promise<any> {
+  ): Promise<boolean> {
     const result: DeleteResult = await this.deviceRepository.delete({
       deviceId: Not(deviceId),
       userId,

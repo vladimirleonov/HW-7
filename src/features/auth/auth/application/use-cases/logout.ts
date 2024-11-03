@@ -25,8 +25,7 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
       );
 
     if (!isDeleted) {
-      // TODO: check error message
-      return Result.unauthorized('Invalid or expired refresh token');
+      return Result.unauthorized('Invalid or expired token');
     }
 
     return Result.success();

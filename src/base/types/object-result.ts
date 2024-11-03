@@ -26,7 +26,7 @@ export class Result<T = null> {
     this.extensions = extensions;
   }
 
-  static success<T = null>(data: T | null = null): Result<T | null> {
+  static success<T = null>(data: T = null as T): Result<T> {
     return new Result(ResultStatus.Success, data);
   }
 

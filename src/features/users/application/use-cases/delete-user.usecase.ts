@@ -19,19 +19,7 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   async execute(command: DeleteUserCommand) {
     const { id } = command;
 
-    // const user = await this.userRepository.findOne({ where: { id: id } });
-    // console.log('user', user);
-    // if (!user || user.deletedAt) {
-    //   console.log('!user');
-    //   return Result.notFound(`User with id ${command.id} does not exist`);
-    // }
-    //
-    // const res: UpdateResult = await this.userRepository.softDelete(command.id);
-    // console.log('softDelete res', res);
-    // return Result.success();
-
     const deleteResult: DeleteResult = await this.userRepository.delete(id);
-    console.log(deleteResult);
 
     if (deleteResult.affected) {
       return Result.success();

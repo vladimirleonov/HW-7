@@ -7,6 +7,7 @@ import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm
 import { DevicesTypeormRepository } from '../../../security/infrastructure/typeorm/device-typeorm.repository';
 import { JwtPayload } from 'jsonwebtoken';
 import { User } from '../../../../users/domain/user.entity';
+import { Device } from '../../../security/domain/device.entity';
 
 export class LoginCommand {
   constructor(
@@ -26,7 +27,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
   ) {}
 
   async execute(command: LoginCommand) {
-    // console.log('command.refreshToken', command.refreshToken);
     if (command.refreshToken) {
       try {
         this.jwtService.verify(command.refreshToken);
@@ -42,7 +42,6 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     const user: User | null = await this.usersTypeormRepository.findById(
       command.userId,
     );
-    // console.log('get user login usecase', user);
 
     if (!user) {
       return Result.unauthorized('User not found');
@@ -90,14 +89,16 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
       const deviceName: string = command.deviceName;
       const ip: string = command.ip;
 
-      await this.devicesTypeormRepository.create(
+      const device: Device = Device.create(
+        deviceId,
         command.userId,
-        decodedRefreshToken.deviceId,
-        unixToISOString(iat),
         deviceName,
         ip,
+        unixToISOString(iat),
         unixToISOString(exp),
       );
+
+      await this.devicesTypeormRepository.save(device);
 
       return Result.success({
         accessToken,

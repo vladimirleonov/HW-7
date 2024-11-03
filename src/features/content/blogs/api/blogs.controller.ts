@@ -62,7 +62,6 @@ export class BlogsController {
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
     // TODO: is it ok to get from blogsPostgresQueryRepository check
-    // or do it in getAllBlogPosts
     const blog: BlogOutputModel | null =
       await this.blogsTypeormQueryRepository.findById(blogId);
 
@@ -75,13 +74,6 @@ export class BlogsController {
       POSTS_SORTING_PROPERTIES,
     );
 
-    // const blogPosts: PaginationOutput<Post> =
-    //   await this.postsTypeormQueryRepository.getAllBlogPosts(
-    //     pagination,
-    //     blogId,
-    //     userId,
-    //   );
-
     const blogPosts: PaginationOutput<Post> = await this.queryBus.execute<
       GetAllBlogPostsQuery,
       PaginationOutput<Post>
@@ -92,9 +84,6 @@ export class BlogsController {
 
   @Get(':id')
   async getOne(@Param('id', new ParseIntPipe()) id: number) {
-    // const blog: BlogOutputModel | null =
-    //   await this.blogsTypeormQueryRepository.findById(id);
-
     const blog: Blog | null = await this.queryBus.execute<
       GetBlogQuery,
       Blog | null

@@ -26,6 +26,7 @@ import { RefreshTokenJwtStrategy } from '../../core/stratagies/refresh-token-jwt
 import { OptionalJwtStrategy } from '../../core/stratagies/optional-jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Device } from './security/domain/device.entity';
+import { GetAllDevicesUseCase } from './security/api/queries/get-all-devices.query';
 
 const authProviders: Provider[] = [
   // use cases
@@ -37,6 +38,8 @@ const authProviders: Provider[] = [
   LoginUseCase,
   RefreshTokenUseCase,
   LogoutUseCase,
+  //
+  GetAllDevicesUseCase,
 
   // service
   AuthService,

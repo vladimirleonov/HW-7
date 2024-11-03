@@ -25,7 +25,6 @@ import { Result, ResultStatus } from '../../../base/types/object-result';
 import { CreateUserCommand } from '../application/use-cases/create-user.usecase';
 import {
   BadRequestException,
-  InternalServerErrorException,
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
 import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
@@ -74,11 +73,6 @@ export class UsersController {
 
     const createdUser =
       await this.usersTypeormQueryRepository.findById(createdUserId);
-
-    // if (!createdUser) {
-    //   // error if just created blog not found
-    //   throw new InternalServerErrorException(result.errorMessage!);
-    // }
 
     return createdUser;
   }

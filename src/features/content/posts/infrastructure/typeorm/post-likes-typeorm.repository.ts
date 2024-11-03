@@ -22,15 +22,6 @@ export class PostLikesTypeormRepository {
     });
 
     return post;
-
-    // const query = `
-    //   SELECT * FROM post_likes
-    //   WHERE post_id = $1 AND author_id = $2
-    // `;
-    //
-    // const result = await this.dataSource.query(query, [postId, userId]);
-    //
-    // return result.length > 0 ? result[0] : null;
   }
 
   // async create(postId: number, userId: number, likeStatus: LikeStatus) {
@@ -58,22 +49,6 @@ export class PostLikesTypeormRepository {
     );
 
     return result.affected === 1;
-
-    // const query: string = `
-    //   UPDATE post_likes
-    //   SET status = $1, created_at = NOW()
-    //   WHERE post_id = $2 AND author_id = $3
-    // `;
-    //
-    // const result = await this.dataSource.query(query, [
-    //   likeStatus,
-    //   postId,
-    //   userId,
-    // ]);
-    //
-    // const updatedRowsCount: number = result[1];
-    //
-    // return updatedRowsCount === 1;
   }
 
   async delete(postId: number, userId: number) {
@@ -83,16 +58,5 @@ export class PostLikesTypeormRepository {
     });
 
     return result.affected === 1;
-
-    // const query: string = `
-    //   DELETE FROM post_likes
-    //   WHERE post_id = $1 AND author_id = $2
-    // `;
-    //
-    // const result = await this.dataSource.query(query, [postId, userId]);
-    //
-    // const deletedRowsCount: number = result[1];
-    //
-    // return deletedRowsCount === 1;
   }
 }

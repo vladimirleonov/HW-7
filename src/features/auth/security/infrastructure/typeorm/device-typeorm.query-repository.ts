@@ -1,21 +1,16 @@
-import { DataSource, EntityManager, Repository } from 'typeorm';
-import {
-  InjectDataSource,
-  InjectEntityManager,
-  InjectRepository,
-} from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Device } from '../../domain/device.entity';
+import { DeviceOutputModel } from '../../api/models/output/device.output.model';
 
 export class DevicesTypeormQueryRepository {
   constructor(
-    @InjectEntityManager() private readonly entityManager: EntityManager,
-    @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(Device)
     private readonly deviceRepository: Repository<Device>,
   ) {}
 
-  async findAllForOutputByUserId(userId: number): Promise<any> {
-    const result = await this.deviceRepository
+  async findAllForOutputByUserId(userId: number): Promise<DeviceOutputModel[]> {
+    const result: DeviceOutputModel[] = await this.deviceRepository
       .createQueryBuilder('d')
       .select([
         'd.ip as ip',
@@ -27,12 +22,5 @@ export class DevicesTypeormQueryRepository {
       .getRawMany();
 
     return result;
-
-    // Device[] | []
-    // const result: Device[] = await this.deviceRepository.find({
-    //   where: { userId },
-    // });
-    //
-    // return result.map(DeviceOutputModelMapper);
   }
 }

@@ -31,15 +31,7 @@ export class UpdateCommentUseCase
       return Result.forbidden("Comment doesn't belongs to user");
     }
 
-    const isUpdated: boolean = await this.commentsTypeormRepository.update(
-      commentId,
-      content,
-    );
-
-    // TODO: should check !isUpdated???
-    if (!isUpdated) {
-      // return Result.internalError
-    }
+    await this.commentsTypeormRepository.update(commentId, content);
 
     return Result.success();
   }

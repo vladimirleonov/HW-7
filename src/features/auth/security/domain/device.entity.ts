@@ -24,4 +24,23 @@ export class Device {
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   exp: Date;
+
+  static create(
+    deviceId: string,
+    userId: number,
+    deviceName: string,
+    ip: string,
+    iat: string,
+    exp: string,
+  ): Device {
+    const newDevice: Device = new Device();
+    newDevice.deviceId = deviceId;
+    newDevice.userId = userId;
+    newDevice.deviceName = deviceName;
+    newDevice.ip = ip;
+    newDevice.iat = new Date(iat);
+    newDevice.exp = new Date(exp);
+
+    return newDevice;
+  }
 }

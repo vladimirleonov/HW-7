@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
@@ -12,13 +12,11 @@ import { User } from '../../domain/user.entity';
 export class UsersTypeormQueryRepository {
   constructor(
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
-    // private readonly dataSource: DataSource,
   ) {}
 
   async getAll(
     pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery>,
   ): Promise<PaginationOutput<User>> {
-    // console.log(pagination.searchLoginTerm);
     const query = this.usersRepository
       .createQueryBuilder('u')
       .select([
@@ -58,28 +56,6 @@ export class UsersTypeormQueryRepository {
     );
   }
 
-  // async getAll(
-  //   pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery>,
-  // ): Promise<PaginationOutput<any>> {
-  //   let whereClause = '';
-  //   const params: string[] = [];
-  //
-  //   if (pagination.searchLoginTerm) {
-  //     whereClause += `login ILIKE $${params.length + 1}`;
-  //     params.push(`%${pagination.searchLoginTerm}%`);
-  //   }
-  //
-  //   if (pagination.searchEmailTerm) {
-  //     if (whereClause) whereClause += ' OR ';
-  //     whereClause += `email ILIKE $${params.length + 1}`;
-  //     params.push(`%${pagination.searchEmailTerm}%`);
-  //   }
-  //
-  //   const finalWhereClause = whereClause ? `WHERE ${whereClause}` : '';
-  //
-  //   return this._getResult(finalWhereClause, pagination, params);
-  // }
-
   async findById(id: number): Promise<User> {
     const result = await this.usersRepository
       .createQueryBuilder('u')
@@ -92,22 +68,11 @@ export class UsersTypeormQueryRepository {
       .where('u.id = :id', { id: id })
       .getRawOne();
 
-    console.log(result);
-
     return result;
-    // const result: User | null = await this.usersRepository.findOneBy({ id });
-    // console.log(result);
-    // return result ? UserOutputModelMapper(result) : null;
   }
 
   // TODO: not sure about name
   async findAuthenticatedUserById(id: string): Promise<User> {
-    // const query: string = `SELECT * FROM public."user" WHERE id=$1`;
-    //
-    // const result = await this.dataSource.query(query, [id]);
-    //
-    // return result.length > 0 ? AuthenticatedUserModelMapper(result[0]) : null;
-
     const result = await this.usersRepository
       .createQueryBuilder('u')
       .select([
@@ -122,40 +87,4 @@ export class UsersTypeormQueryRepository {
 
     return result;
   }
-
-  // // TODO: change type any
-  // private async _getResult(
-  //   filter: any,
-  //   pagination: PaginationWithSearchLoginAndEmailTerm<PaginationWithSearchLoginAndEmailTermQuery>,
-  //   params: string[],
-  // ) {
-  //   const query: string = `
-  //     SELECT * FROM public."user"
-  //     ${filter ? filter : ''}
-  //     ORDER BY "${pagination.sortBy}" ${pagination.sortDirection}
-  //     OFFSET ${(pagination.pageNumber - 1) * pagination.pageSize}
-  //     LIMIT ${pagination.pageSize}
-  //   `;
-  //
-  //   const result = await this.dataSource.query(query, params);
-  //
-  //   // count documents with filter
-  //   const countQuery: string = `
-  //     SELECT COUNT(*) as count FROM public."user"
-  //     ${filter ? filter : ''}
-  //   `;
-  //
-  //   const countResult = await this.dataSource.query(countQuery, params);
-  //
-  //   const totalCount: number = Number(countResult[0].count);
-  //
-  //   const mappedUsers: any[] = result.map(UserOutputModelMapper);
-  //
-  //   return new PaginationOutput<UserOutputModel>(
-  //     mappedUsers,
-  //     pagination.pageNumber,
-  //     pagination.pageSize,
-  //     totalCount,
-  //   );
-  // }
 }

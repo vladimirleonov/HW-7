@@ -53,8 +53,6 @@ const blogsProviders: Provider[] = [
   GetBlogUseCase,
 
   // repositories
-  // BlogsTypeormRepository,
-  // BlogsPostgresQueryRepository,
   BlogsTypeormRepository,
   BlogsTypeormQueryRepository,
 
@@ -65,18 +63,12 @@ const blogsProviders: Provider[] = [
 const postsProviders: Provider[] = [
   // use cases
   CreatePostUseCase,
-  // UpdatePostUseCase,
-  // DeletePostUseCase,
   UpdatePostLikeStatusUseCase,
   //
   GetAllPostsUseCase,
   GetAllBlogPostsUseCase,
   GetPostUseCase,
 
-  // repositories
-  // PostsPostgresRepository,
-  // PostsPostgresQueryRepository,
-  // PostLikesPostgresRepository,
   PostsTypeormRepository,
   PostsTypeormQueryRepository,
   PostLikesTypeormRepository,
@@ -93,9 +85,6 @@ const commentsProviders: Provider[] = [
   GetPostCommentsUseCase,
 
   // repositories
-  // CommentsPostgresRepository,
-  // CommentsPostgresQueryRepository,
-  // CommentLikesPostgresRepository,
   CommentsTypeormRepository,
   CommentsTypeormQueryRepository,
   CommentLikesTypeormRepository,

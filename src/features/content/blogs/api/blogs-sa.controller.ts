@@ -24,10 +24,7 @@ import { BlogCreateModel } from './models/input/create-blog.input.model';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { CreateBlogCommand } from '../application/use-cases/create-blog.usecase';
 import { BlogOutputModel } from './models/output/blog.output.model';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '../../../../core/exception-filters/http-exception-filter';
+import { NotFoundException } from '../../../../core/exception-filters/http-exception-filter';
 import { SortingPropertiesType } from '../../../../base/types/sorting-properties.type';
 import { BlogUpdateModel } from './models/input/update-blog.input.model';
 import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase';
@@ -69,8 +66,6 @@ export class BlogsSAController {
     const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
-    // const blogs = await this.blogsTypeormQueryRepository.getAll(pagination);
-
     const blogs: PaginationOutput<Blog> = await this.queryBus.execute<
       GetAllBlogsQuery,
       PaginationOutput<Blog>
@@ -83,18 +78,15 @@ export class BlogsSAController {
   async create(@Body() createModel: BlogCreateModel) {
     const { name, description, websiteUrl } = createModel;
 
-    const result: Result<number> = await this.commandBus.execute(
-      new CreateBlogCommand(name, description, websiteUrl),
-    );
+    const result: Result<number> = await this.commandBus.execute<
+      CreateBlogCommand,
+      Result<number>
+    >(new CreateBlogCommand(name, description, websiteUrl));
 
     const createdId: number = result.data;
 
     const createdBlog: Blog | null =
       await this.blogsTypeormQueryRepository.findById(createdId);
-
-    // if (!createdBlog) {
-    //   throw new InternalServerErrorException();
-    // }
 
     return createdBlog;
   }
@@ -136,7 +128,6 @@ export class BlogsSAController {
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
     // TODO: ask if is it ok to check blog is exists in controller here
-    // or do it in.getAllBlogPosts
     const blog: Blog | null =
       await this.blogsTypeormQueryRepository.findById(blogId);
 
@@ -148,12 +139,6 @@ export class BlogsSAController {
       query,
       POSTS_SORTING_PROPERTIES,
     );
-
-    // const blogPosts: PaginationOutput<PostEntity> =
-    //   await this.postsTypeormQueryRepository.getAllBlogPosts(
-    //     pagination,
-    //     blogId,
-    //   );
 
     const blogPosts: PaginationOutput<PostEntity> = await this.queryBus.execute<
       GetAllBlogPostsQuery,
@@ -182,10 +167,6 @@ export class BlogsSAController {
     const createdId: number = result.data;
 
     const post = await this.postsTypeormQueryRepository.getOne(createdId);
-
-    // if (!post) {
-    //   throw new InternalServerErrorException();
-    // }
 
     return post;
   }

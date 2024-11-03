@@ -9,6 +9,10 @@ export class BlogsTypeormRepository {
     @InjectRepository(Blog) private readonly blogsRepository: Repository<Blog>,
   ) {}
 
+  async save(blog: Blog): Promise<void> {
+    await this.blogsRepository.save(blog);
+  }
+
   async findById(id: number): Promise<Blog | null> {
     // Blog | null
     return this.blogsRepository.findOneBy({
@@ -35,8 +39,6 @@ export class BlogsTypeormRepository {
       .returning('id') // Indicate want to return only id
       .execute()
       .then((result) => result.raw[0].id); // extract only id from result
-
-    // console.log('createdId', createdId);
 
     return createdId;
   }

@@ -4,6 +4,7 @@ import { PostsTypeormRepository } from '../../../posts/infrastructure/typeorm/po
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CommentsTypeormRepository } from '../../infrastructure/typeorm/comments-typeorm.repository';
 import { Comment } from '../../domain/comments.entity';
+import { User } from '../../../../users/domain/user.entity';
 
 export class CreateCommentCommand {
   constructor(
@@ -32,7 +33,8 @@ export class CreateCommentUseCase
       return Result.notFound(`Post with postId doesn't exist`);
     }
 
-    const user = await this.usersTypeormRepository.findById(userId);
+    const user: User | null =
+      await this.usersTypeormRepository.findById(userId);
 
     if (!user) {
       return Result.unauthorized("User doesn't exist");

@@ -89,12 +89,6 @@ export class PostsTypeormQueryRepository {
         'b.name as "blogName"',
         'p.createdAt as "createdAt"',
       ])
-      // .addSelect(`(${likeCountSubquery.getQuery()})`, 'likesCount')
-      //.addSelect(`(${dislikesCountSubquery.getQuery()}) as "dislikesCount"`)
-      //.addSelect(
-      //  `COALESCE(${myStatusSubquery.getQuery()}, 'None') as "myStatus"`,
-      //)
-      // .addSelect(newestLikesSubquery + 'as "newestLikes"')
       .addSelect(
         `
         json_build_object(
@@ -120,9 +114,6 @@ export class PostsTypeormQueryRepository {
     const totalCount: number = await this.postsRepository
       .createQueryBuilder('p')
       .getCount();
-
-    // const totalCount: number = await query.getCount();
-    // console.log(totalCount);
 
     return new PaginationOutput<Post>(
       posts,
@@ -215,15 +206,12 @@ export class PostsTypeormQueryRepository {
       .setParameters({ userId });
 
     const posts: Post[] = await query.getRawMany();
-    // console.log('posts', posts);
 
     // optimization
     const totalCount: number = await this.postsRepository
       .createQueryBuilder('p')
       .where('p.blog_id = :blogId', { blogId })
       .getCount();
-    //const totalCount: number = await query.getCount();
-    // console.log('totalCount', totalCount);
 
     return new PaginationOutput<Post>(
       posts,
@@ -304,8 +292,6 @@ export class PostsTypeormQueryRepository {
       .where('p.id = :id', { id: id })
       .setParameters({ id, userId })
       .getRawOne();
-
-    // console.log(result);
 
     return result;
   }

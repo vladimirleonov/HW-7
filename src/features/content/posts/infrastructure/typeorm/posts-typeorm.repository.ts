@@ -41,7 +41,6 @@ export class PostsTypeormRepository {
     });
 
     const postId: number = createdPost.id;
-    // console.log(postId);
 
     return postId;
   }

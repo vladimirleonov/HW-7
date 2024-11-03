@@ -1,12 +1,13 @@
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthService } from '../../features/auth/auth/application/auth.service';
 import { Result, ResultStatus } from '../../base/types/object-result';
 import { unixToISOString } from '../utils/convert-unix-to-iso';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../settings/env/configuration';
 import { RequestWithDeviceAndCookies } from '../../base/types/request-with-device-and-cookie';
+import { UnauthorizedException } from '../exception-filters/http-exception-filter';
 
 // logic
 // 1) extract token from cookie -> validate

@@ -17,7 +17,7 @@ export class TerminateUserDeviceUseCase
     private readonly devicesTypeormRepository: DevicesTypeormRepository,
   ) {}
 
-  async execute(command: TerminateUserDeviceCommand) {
+  async execute(command: TerminateUserDeviceCommand): Promise<Result> {
     const { deviceId, userId } = command;
 
     const device = await this.devicesTypeormRepository.findByDeviceId(deviceId);

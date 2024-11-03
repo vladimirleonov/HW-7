@@ -94,10 +94,8 @@ export class UsersTypeormRepository {
         email: email,
         createdAt: new Date(),
       });
-      //console.log('newUser', newUser);
 
       const createdUser = await manager.save(newUser);
-      //console.log(' repo', createdUser);
 
       // Create email confirmation entity
       const emailConfirmation = manager.create(EmailConfirmation, {
@@ -115,7 +113,6 @@ export class UsersTypeormRepository {
         recoveryCode: passwordRecoveryData.recoveryCode,
         expirationDate: passwordRecoveryData.expirationDate,
       });
-      //console.log('passwordRecovery', passwordRecovery);
       await manager.save(passwordRecovery);
 
       return createdUser;

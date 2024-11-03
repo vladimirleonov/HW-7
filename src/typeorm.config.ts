@@ -23,6 +23,7 @@ export default new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   migrations: ['src/migrations/*.ts'],
+  // migrations: [__dirname + '/migrations/**/*{.ts, .js}'],
   entities: [
     User,
     EmailConfirmation,

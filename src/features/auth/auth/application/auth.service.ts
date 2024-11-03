@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Result } from '../../../../base/types/object-result';
 import { UsersTypeormRepository } from '../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CryptoService } from '../../../../core/application/crypto.service';
+import { User } from '../../../users/domain/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +28,7 @@ export class AuthService {
 
   // jwt-strategy; refresh-token-strategy
   async validateUserById(id: number): Promise<Result> {
-    const user = await this.usersTypeormRepository.findById(id);
+    const user: User | null = await this.usersTypeormRepository.findById(id);
 
     if (!user) {
       return Result.notFound('Wrong user id');

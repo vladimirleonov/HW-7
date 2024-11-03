@@ -19,15 +19,11 @@ const usersProviders: Provider[] = [
   DeleteUserUseCase,
 
   // repositories
-  // UsersMongoRepository,
-  // UsersMongoQueryRepository,
-  // UsersPostgresRepository,
-  // UsersPostgresQueryRepository,
   UsersTypeormRepository,
   UsersTypeormQueryRepository,
 
   // validation constraints
-  // LoginIsExistConstraint,
+  // LoginIsExistConstraint
   EmailIsExistConstraint,
 ];
 

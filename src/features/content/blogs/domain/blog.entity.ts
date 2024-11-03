@@ -24,5 +24,18 @@ export class Blog {
   @OneToMany(() => Post, (p) => p.blog)
   posts: Post[];
 
-  static create() {}
+  static create(
+    name: string,
+    description: string,
+    websiteUrl: string,
+    isMembership: boolean,
+  ): Blog {
+    const newBlog: Blog = new Blog();
+    newBlog.name = name;
+    newBlog.description = description;
+    newBlog.websiteUrl = websiteUrl;
+    newBlog.isMembership = isMembership;
+
+    return newBlog;
+  }
 }

@@ -7,7 +7,6 @@ import {
 } from '../../../../../base/models/pagination.base.model';
 import { PaginationWithSearchNameTermQuery } from '../../../../../base/models/pagination-query.input.model';
 import { Blog } from '../../domain/blog.entity';
-
 @Injectable()
 export class BlogsTypeormQueryRepository {
   constructor(
@@ -38,10 +37,8 @@ export class BlogsTypeormQueryRepository {
     }
 
     const blogs: Blog[] = await query.getRawMany();
-    // console.log('blogs', blogs);
 
     const totalCount: number = await query.getCount();
-    // console.log('totalCount', totalCount);
 
     return new PaginationOutput<Blog>(
       blogs,

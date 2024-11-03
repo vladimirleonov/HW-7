@@ -21,14 +21,5 @@ export class TestingModule {
       controllers: [],
       providers: [],
     };
-
-    // console.log(process.env.ENV);
-    //
-    // return {
-    //   module: TestingModule,
-    //   imports: [],
-    //   controllers: [TestingController],
-    //   providers: [TestingService, TestingRepository],
-    // };
   }
 }

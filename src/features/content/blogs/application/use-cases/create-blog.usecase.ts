@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BlogsTypeormRepository } from '../../infrastructure/typeorm/blogs-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
+import { Blog } from '../../domain/blog.entity';
 
 export class CreateBlogCommand {
   constructor(
@@ -16,16 +17,22 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
     private readonly blogsPostgresRepository: BlogsTypeormRepository,
   ) {}
 
-  async execute(command: CreateBlogCommand) {
+  async execute(command: CreateBlogCommand): Promise<Result<number>> {
     const { name, description, websiteUrl } = command;
 
-    const createdId: number = await this.blogsPostgresRepository.create(
-      name,
-      description,
-      websiteUrl,
-      false,
-    );
+    const blog: Blog = Blog.create(name, description, websiteUrl, false);
 
-    return Result.success(createdId);
+    await this.blogsPostgresRepository.save(blog);
+
+    const blogId: number = blog.id;
+
+    // const createdId: number = await this.blogsPostgresRepository.create(
+    //   name,
+    //   description,
+    //   websiteUrl,
+    //   false,
+    // );
+
+    return Result.success(blogId);
   }
 }

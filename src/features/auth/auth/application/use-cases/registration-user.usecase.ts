@@ -60,12 +60,14 @@ export class RegistrationUseCase
       saltRounds,
     );
 
+    const confirmationCode: string = randomUUID();
+
     const createdUser: User = await this.usersTypeormRepository.create(
       login,
       passwordHash,
       email,
       {
-        confirmationCode: randomUUID(),
+        confirmationCode: confirmationCode,
         expirationDate: add(new Date(), {
           hours: 1,
           minutes: 30,
@@ -78,19 +80,9 @@ export class RegistrationUseCase
       },
     );
 
-    // TODO: ask how to improve below code
-    const createdUserWithRelations: User | null =
-      await this.usersTypeormRepository.findById(createdUser.id);
-
-    if (!createdUserWithRelations) {
-      return Result.internalError();
-    }
-
     this.nodemailerService.sendEmail(
       createdUser.email,
-      registrationEmailTemplate(
-        createdUserWithRelations.emailConfirmation.confirmationCode,
-      ),
+      registrationEmailTemplate(confirmationCode),
       'Registration Confirmation',
     );
 
