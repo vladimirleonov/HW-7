@@ -19,7 +19,7 @@ export class BlogsTypeormQueryRepository {
     const query = this.blogsRepository
       .createQueryBuilder('b')
       .select([
-        'CAST(b.id AS text) AS id',
+        'CAST(b.id AS text) as id',
         'b.name as name',
         'b.description as description',
         'b.websiteUrl as "websiteUrl"',
@@ -52,7 +52,7 @@ export class BlogsTypeormQueryRepository {
     const result = await this.blogsRepository
       .createQueryBuilder('b')
       .select([
-        'CAST(b.id as text) as id',
+        'CAST(b.id AS text) as id',
         'b.name as name',
         'b.description as description',
         'b.websiteUrl as "websiteUrl"',
