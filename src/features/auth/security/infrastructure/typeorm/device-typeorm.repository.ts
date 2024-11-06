@@ -14,21 +14,17 @@ export class DevicesTypeormRepository {
     await this.deviceRepository.save(device);
   }
 
-  async deleteOneByDeviceIdAndIAt(
-    deviceId: string,
-    iat: string,
-  ): Promise<boolean> {
-    const result: DeleteResult = await this.deviceRepository.delete({
-      deviceId,
+  async findByDeviceId(deviceId: string): Promise<Device | null> {
+    // Device | null
+    return this.deviceRepository.findOneBy({ deviceId: deviceId });
+  }
+
+  async updateIat(deviceId: string, iat: string): Promise<boolean> {
+    const result: UpdateResult = await this.deviceRepository.update(deviceId, {
       iat: new Date(iat),
     });
 
     return result.affected === 1;
-  }
-
-  async findByDeviceId(deviceId: string): Promise<Device | null> {
-    // Device | null
-    return this.deviceRepository.findOneBy({ deviceId: deviceId });
   }
 
   async findOneByDeviceIdAndIat(
@@ -44,8 +40,12 @@ export class DevicesTypeormRepository {
     });
   }
 
-  async updateIat(deviceId: string, iat: string): Promise<boolean> {
-    const result: UpdateResult = await this.deviceRepository.update(deviceId, {
+  async deleteOneByDeviceIdAndIAt(
+    deviceId: string,
+    iat: string,
+  ): Promise<boolean> {
+    const result: DeleteResult = await this.deviceRepository.delete({
+      deviceId,
       iat: new Date(iat),
     });
 

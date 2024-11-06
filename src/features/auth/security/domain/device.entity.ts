@@ -1,12 +1,22 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { User } from '../../../users/domain/user.entity';
 
 @Entity()
+@Index(['iat', 'deviceId'])
+@Index(['userId', 'deviceId'])
 export class Device {
   @PrimaryColumn({ type: 'uuid' })
   deviceId: string;
 
   @Column()
+  @Index('idx_user_id')
   userId: number;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
