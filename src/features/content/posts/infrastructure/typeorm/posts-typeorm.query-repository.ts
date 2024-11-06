@@ -29,8 +29,6 @@ export class PostsTypeormQueryRepository {
     pagination: Pagination<PaginationQuery>,
     userId?: number,
   ): Promise<PaginationOutput<Post>> {
-    console.log('userId', userId);
-
     const likeCountSubquery = this.postLikeRepository
       .createQueryBuilder('pl')
       .select('COUNT(*)')

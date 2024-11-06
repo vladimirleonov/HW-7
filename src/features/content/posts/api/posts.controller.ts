@@ -22,7 +22,6 @@ import {
   PaginationOutput,
 } from '../../../../base/models/pagination.base.model';
 import {
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '../../../../core/exception-filters/http-exception-filter';
