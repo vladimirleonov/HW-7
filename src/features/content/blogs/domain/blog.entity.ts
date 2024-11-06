@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Post } from '../../posts/domain/post.entity';
 
 @Entity()
@@ -16,6 +22,7 @@ export class Blog {
   websiteUrl: string;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @Index('idx_created_at')
   createdAt: Date;
 
   @Column()
