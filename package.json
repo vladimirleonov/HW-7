@@ -17,8 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/typeorm.config.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/typeorm.config.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/typeorm.config.ts",
     "test:e2e": "set ENV=TESTING && jest --config ./test/jest-e2e.json --runInBand --watch",
     "test:e2e:linux": "ENV=TESTING jest --config ./test/jest-e2e.json --runInBand"
   },

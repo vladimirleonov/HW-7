@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -12,6 +19,7 @@ export class PasswordRecovery {
   user: User;
 
   @Column({ type: 'uuid' })
+  @Index('idx_user_recovery_code')
   recoveryCode: string;
 
   @Column({ type: 'timestamptz' })

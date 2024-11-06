@@ -17,14 +17,6 @@ export class UsersTypeormRepository {
     private readonly passwordRecoveryRepository: Repository<PasswordRecovery>,
   ) {}
 
-  async findById(id: number): Promise<User | null> {
-    // User | null
-    return await this.usersRepository.findOne({
-      where: { id: id },
-      relations: ['emailConfirmation', 'passwordRecovery'],
-    });
-  }
-
   async findByField(field: string, value: string): Promise<any> {
     // User | null
     return this.usersRepository.findOneBy({
@@ -32,23 +24,11 @@ export class UsersTypeormRepository {
     });
   }
 
-  async findUserByConfirmationCode(confirmationCode: string): Promise<any> {
+  async findById(id: number): Promise<User | null> {
     // User | null
-    return this.usersRepository.findOne({
-      where: {
-        emailConfirmation: { confirmationCode },
-      },
-      relations: ['emailConfirmation'],
-    });
-  }
-
-  async findUserByRecoveryCode(recoveryCode: string): Promise<any> {
-    // User | null
-    return this.usersRepository.findOne({
-      where: {
-        passwordRecovery: { recoveryCode },
-      },
-      relations: ['passwordRecovery'],
+    return await this.usersRepository.findOne({
+      where: { id: id },
+      relations: ['emailConfirmation', 'passwordRecovery'],
     });
   }
 
@@ -69,6 +49,26 @@ export class UsersTypeormRepository {
     // User | null
     return this.usersRepository.findOne({
       where: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
+  }
+
+  async findUserByConfirmationCode(confirmationCode: string): Promise<any> {
+    // User | null
+    return this.usersRepository.findOne({
+      where: {
+        emailConfirmation: { confirmationCode },
+      },
+      relations: ['emailConfirmation'],
+    });
+  }
+
+  async findUserByRecoveryCode(recoveryCode: string): Promise<any> {
+    // User | null
+    return this.usersRepository.findOne({
+      where: {
+        passwordRecovery: { recoveryCode },
+      },
+      relations: ['passwordRecovery'],
     });
   }
 
