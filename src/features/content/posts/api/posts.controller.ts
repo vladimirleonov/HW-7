@@ -40,7 +40,7 @@ import { GetAllPostsQuery } from './queries/get-all-posts.query';
 import { GetPostQuery } from './queries/get-post.query';
 import { CommentsTypeormQueryRepository } from '../../comments/infrastructure/typeorm/comments-typeorm.query-repository';
 import { GetCommentQuery } from '../../comments/api/queries/get-comment.query';
-import { Comment } from '../../comments/domain/comments.entity';
+import { Comment } from '../../comments/domain/comment.entity';
 import { GetPostCommentsQuery } from '../../comments/api/queries/get-post-comments.query';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<PostOutputModel> =

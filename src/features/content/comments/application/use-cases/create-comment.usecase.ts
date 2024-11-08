@@ -3,7 +3,7 @@ import { Result } from '../../../../../base/types/object-result';
 import { PostsTypeormRepository } from '../../../posts/infrastructure/typeorm/posts-typeorm.repository';
 import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
 import { CommentsTypeormRepository } from '../../infrastructure/typeorm/comments-typeorm.repository';
-import { Comment } from '../../domain/comments.entity';
+import { Comment } from '../../domain/comment.entity';
 import { User } from '../../../../users/domain/user.entity';
 
 export class CreateCommentCommand {

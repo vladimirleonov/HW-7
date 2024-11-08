@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -19,8 +20,9 @@ export class Comment {
   @JoinColumn()
   post: Post;
 
-  // @Column()
-  // postId: number;
+  @Column()
+  @Index('idx_post_id')
+  postId: number;
 
   @Column({ length: 300, collation: 'C' })
   content: string;
@@ -30,9 +32,11 @@ export class Comment {
   commentator: User;
 
   @Column()
+  @Index('idx_commentator_id')
   commentatorId: number;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @Index('idx_comment_created_at')
   createdAt: Date;
 
   @OneToMany(() => CommentLike, (l) => l.comment, { onDelete: 'CASCADE' })

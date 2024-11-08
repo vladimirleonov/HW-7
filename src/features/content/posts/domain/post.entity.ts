@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Blog } from '../../blogs/domain/blog.entity';
-import { Comment } from '../../comments/domain/comments.entity';
+import { Comment } from '../../comments/domain/comment.entity';
 import { PostLike } from '../../like/domain/like.entity';
 
 @Entity()

@@ -1,12 +1,13 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { LikeStatus } from '../../../../base/types/like-status';
-import { Comment } from '../../comments/domain/comments.entity';
+import { Comment } from '../../comments/domain/comment.entity';
 import { Post } from '../../posts/domain/post.entity';
 import { User } from '../../../users/domain/user.entity';
 
@@ -29,6 +30,8 @@ export abstract class Like {
 }
 
 @Entity()
+@Index(['commentId', 'status'])
+@Index(['commentId', 'authorId'])
 export class CommentLike extends Like {
   @ManyToOne(() => Comment, (c) => c.likes, { onDelete: 'CASCADE' })
   @JoinColumn()

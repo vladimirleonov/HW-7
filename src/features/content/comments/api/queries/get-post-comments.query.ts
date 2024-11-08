@@ -4,7 +4,7 @@ import {
   PaginationOutput,
 } from '../../../../../base/models/pagination.base.model';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Comment } from '../../domain/comments.entity';
+import { Comment } from '../../domain/comment.entity';
 import { CommentsTypeormQueryRepository } from '../../infrastructure/typeorm/comments-typeorm.query-repository';
 
 export class GetPostCommentsQuery {

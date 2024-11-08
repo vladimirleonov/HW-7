@@ -17,7 +17,7 @@ import { Device } from './features/auth/security/domain/device.entity';
 import { Blog } from './features/content/blogs/domain/blog.entity';
 import { Post } from './features/content/posts/domain/post.entity';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
-import { Comment } from './features/content/comments/domain/comments.entity';
+import { Comment } from './features/content/comments/domain/comment.entity';
 import {
   CommentLike,
   PostLike,

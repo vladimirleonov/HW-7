@@ -12,11 +12,16 @@ import { PasswordRecovery } from './password-recovery';
 // TODO: validation in entity should be the same as in api?
 // TODO: Check or length better use
 
-// ****************************************************************
-// for ILIKE GIN index in future if need
-// ****************************************************************
+/*
+  for ILIKE GIN index in future if need
+*/
+
+/*
+  idx_user_id_login userd in CommentsTypeormQueryRepository
+*/
 
 @Entity()
+@Index('idx_user_id_login', ['id', 'login'])
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
