@@ -26,7 +26,9 @@ export class LoginUseCase implements ICommandHandler<LoginCommand> {
     private readonly jwtService: JwtService,
   ) {}
 
-  async execute(command: LoginCommand) {
+  async execute(
+    command: LoginCommand,
+  ): Promise<Result<null | { accessToken: string; refreshToken: string }>> {
     if (command.refreshToken) {
       try {
         this.jwtService.verify(command.refreshToken);

@@ -6,17 +6,14 @@ import {
   HttpStatus,
   Ip,
   Post,
-  Req,
   Res,
   UseGuards,
-  ValidationPipe,
 } from '@nestjs/common';
 import { Result, ResultStatus } from '../../../../base/types/object-result';
 import { Response } from 'express';
 import { RegistrationModel } from './models/input/registration.input.model';
 import { ConfirmRegistrationModel } from './models/input/confirm-registration.model';
 import { RegistrationEmailResendingModel } from './models/input/registration-email-resending.model';
-import { UsersTypeormQueryRepository } from '../../../users/infrastructure/typeorm/users-typeorm.query-repository';
 import { PasswordRecoveryModel } from './models/input/password-recovery.model';
 import { NewPasswordModel } from './models/input/new-password.model';
 import { CurrentUserId } from '../../../../core/decorators/param-decorators/current-user-id.param.decorator';
@@ -26,10 +23,9 @@ import {
   BadRequestException,
   UnauthorizedException,
 } from '../../../../core/exception-filters/http-exception-filter';
-import { RequestWithCookies } from '../../../../base/types/request-with-cookie';
 import { LocalAuthGuard } from '../../../../core/guards/passport/local-auth.guard';
 import { JwtAuthGuard } from '../../../../core/guards/passport/jwt-auth.guard';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RegistrationUserCommand } from '../application/use-cases/registration-user.usecase';
 import { PasswordRecoveryCommand } from '../application/use-cases/password-recovery.usecase';
 import { SetNewPasswordCommand } from '../application/use-cases/set-new-password.usecase';
@@ -43,15 +39,15 @@ import { RefreshTokenCommand } from '../application/use-cases/refresh-token.usec
 import { Cookie } from '../../../../core/decorators/param-decorators/cookie.param.decorator';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { UserAgent } from '../../../../core/decorators/param-decorators/user-agent.param.decorator';
-import { LoginModel } from './models/input/login.input.model';
-import { User } from '../../../users/domain/user.entity';
+import { GetAuthMeQuery } from './queries/auth-me.query';
+import { AuthMeOutputModel } from './models/output/auth-me.output';
 
 // @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly usersTypeormQueryRepository: UsersTypeormQueryRepository,
+    private readonly queryBus: QueryBus,
   ) {}
 
   @Post('registration')
@@ -116,14 +112,14 @@ export class AuthController {
   }
 
   @Post('new-password')
-  // @UseGuards(RateLimitGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async newPassword(@Body() newPasswordModel: NewPasswordModel) {
     const { newPassword, recoveryCode } = newPasswordModel;
 
-    const result: Result = await this.commandBus.execute(
-      new SetNewPasswordCommand(newPassword, recoveryCode),
-    );
+    const result: Result = await this.commandBus.execute<
+      SetNewPasswordCommand,
+      Result
+    >(new SetNewPasswordCommand(newPassword, recoveryCode));
 
     if (result.status === ResultStatus.BadRequest) {
       throw new BadRequestException(result.extensions!);
@@ -134,19 +130,21 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   async login(
-    @Req() req: RequestWithCookies,
     @CurrentUserId() userId: number,
     @Cookie('refreshToken') refreshToken: string,
     @Ip() ip: string,
     @UserAgent() deviceName: string,
-    @Body(new ValidationPipe()) loginDto: LoginModel,
     @Res() res: Response,
   ) {
-    const loginResult = await this.commandBus.execute(
-      new LoginCommand(userId, ip, deviceName, refreshToken),
-    );
+    const loginResult: Result<null | {
+      accessToken: string;
+      refreshToken: string;
+    }> = await this.commandBus.execute<
+      LoginCommand,
+      Result<null | { accessToken: string; refreshToken: string }>
+    >(new LoginCommand(userId, ip, deviceName, refreshToken));
 
-    if (loginResult.status === ResultStatus.Unauthorized) {
+    if (loginResult.status === ResultStatus.Unauthorized || !loginResult.data) {
       throw new UnauthorizedException(loginResult.errorMessage!);
     }
 
@@ -171,19 +169,20 @@ export class AuthController {
     @CurrentDeviceIat() iat: string,
     @Res() res: Response,
   ) {
-    const result = await this.commandBus.execute(
-      new RefreshTokenCommand(userId, deviceId, iat),
-    );
+    const result: Result<null | { accessToken: string; refreshToken: string }> =
+      await this.commandBus.execute<
+        RefreshTokenCommand,
+        Result<null | { accessToken: string; refreshToken: string }>
+      >(new RefreshTokenCommand(userId, deviceId, iat));
 
-    if (result.status === ResultStatus.Unauthorized) {
+    if (result.status === ResultStatus.Unauthorized || !result.data) {
       throw new UnauthorizedException();
     }
 
-    res.cookie('refreshToken', result.data?.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      // secure: SETTINGS.NODE_ENV === 'production',
-      sameSite: 'strict',
+    res.cookie('refreshToken', result.data.refreshToken, {
+      httpOnly: true, // cookie can only be accessed via http or https
+      secure: true, // send cookie only over https
+      sameSite: 'strict', // protects against CSRF attacks
     });
 
     res.status(HttpStatus.OK).send({
@@ -221,9 +220,11 @@ export class AuthController {
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async authMe(@CurrentUserId() userId: string) {
-    const user: User =
-      await this.usersTypeormQueryRepository.findAuthenticatedUserById(userId);
+  async authMe(@CurrentUserId() userId: number) {
+    const user: AuthMeOutputModel = await this.queryBus.execute<
+      GetAuthMeQuery,
+      AuthMeOutputModel
+    >(new GetAuthMeQuery(userId));
 
     if (!user) {
       throw new UnauthorizedException();

@@ -68,7 +68,7 @@ export class UsersTypeormQueryRepository {
     return result;
   }
 
-  async findAuthenticatedUserById(id: string): Promise<User> {
+  async findAuthenticatedUserById(id: number): Promise<User> {
     const result = await this.usersRepository
       .createQueryBuilder('u')
       .select([

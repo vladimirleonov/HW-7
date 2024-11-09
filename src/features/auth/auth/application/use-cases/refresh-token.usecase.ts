@@ -21,7 +21,9 @@ export class RefreshTokenUseCase implements ICommandHandler {
     private readonly jwtService: JwtService,
   ) {}
 
-  async execute(command: RefreshTokenCommand) {
+  async execute(
+    command: RefreshTokenCommand,
+  ): Promise<Result<null | { accessToken: string; refreshToken: string }>> {
     const { deviceId, userId, iat: issuedAt } = command;
 
     const device = await this.devicesTypeormRepository.findOneByDeviceIdAndIat(

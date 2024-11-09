@@ -27,6 +27,7 @@ import { OptionalJwtStrategy } from '../../core/stratagies/optional-jwt.strategy
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Device } from './security/domain/device.entity';
 import { GetAllDevicesUseCase } from './security/api/queries/get-all-devices.query';
+import { GetAuthMeUseCase } from './auth/api/queries/auth-me.query';
 
 const authProviders: Provider[] = [
   // use cases
@@ -40,6 +41,7 @@ const authProviders: Provider[] = [
   LogoutUseCase,
   //
   GetAllDevicesUseCase,
+  GetAuthMeUseCase,
 
   // service
   AuthService,
