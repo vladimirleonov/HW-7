@@ -9,6 +9,10 @@ import {
 import { User } from './user.entity';
 
 @Entity()
+@Index('idx_confirmation_code_expiration_data', [
+  'confirmationCode',
+  'expirationDate',
+])
 export class EmailConfirmation {
   @PrimaryColumn()
   userId: number;
@@ -19,7 +23,7 @@ export class EmailConfirmation {
   user: User;
 
   @Column({ type: 'uuid' })
-  @Index('idx_user_confirmation_code')
+  // @Index('idx_user_confirmation_code')
   confirmationCode: string;
 
   @Column({ type: 'timestamptz' })
