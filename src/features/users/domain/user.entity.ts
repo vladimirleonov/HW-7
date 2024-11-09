@@ -13,10 +13,6 @@ import { PasswordRecovery } from './password-recovery';
 // TODO: Check or length better use
 
 /*
-  for ILIKE GIN index in future if need
-*/
-
-/*
   idx_user_id_login userd in CommentsTypeormQueryRepository
 */
 

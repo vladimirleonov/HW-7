@@ -20,29 +20,6 @@ export class BlogsTypeormRepository {
     });
   }
 
-  async create(
-    name: string,
-    description: string,
-    websiteUrl: string,
-    isMembership: boolean,
-  ): Promise<number> {
-    const createdId: number = await this.blogsRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Blog)
-      .values({
-        name,
-        description,
-        websiteUrl,
-        isMembership,
-      })
-      .returning('id') // Indicate want to return only id
-      .execute()
-      .then((result) => result.raw[0].id); // extract only id from result
-
-    return createdId;
-  }
-
   async update(
     id: number,
     name: string,

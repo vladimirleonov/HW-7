@@ -1,5 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+/*
+  for ILIKE GIN index
+*/
+
 export class AddUserGinIndexes1730916998253 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Create the pg_trgm extension if it does not exist already
