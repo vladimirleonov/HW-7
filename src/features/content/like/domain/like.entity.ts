@@ -29,6 +29,10 @@ export abstract class Like {
   authorId: number;
 }
 
+/*
+  instead of @Index(['commentId', 'authorId']) can create covering index with status
+*/
+
 @Entity()
 @Index(['commentId', 'status'])
 @Index(['commentId', 'authorId'])

@@ -19,7 +19,7 @@ import { PostLike } from '../../like/domain/like.entity';
 */
 
 @Entity()
-@Index('idx_blog_id_blog_id', ['id', 'blogId'])
+@Index(['id', 'blogId'])
 @Index('idx_blog_id_title', ['title', 'blogId'])
 @Index('idx_blog_id_created_at', ['createdAt', 'blogId'])
 // TODO:: ask about blogName. How to use it in index because it is in orderBy
