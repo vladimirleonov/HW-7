@@ -9,6 +9,7 @@ import {
 import { User } from './user.entity';
 
 @Entity()
+@Index('idx_recovery_code_expiration_data', ['recoveryCode', 'expirationDate'])
 export class PasswordRecovery {
   @PrimaryColumn()
   userId: number;
@@ -19,7 +20,7 @@ export class PasswordRecovery {
   user: User;
 
   @Column({ type: 'uuid' })
-  @Index('idx_user_recovery_code')
+  //@Index('idx_user_recovery_code')
   recoveryCode: string;
 
   @Column({ type: 'timestamptz' })

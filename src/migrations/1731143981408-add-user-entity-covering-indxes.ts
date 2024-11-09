@@ -9,11 +9,11 @@ export class AddUserEntityCoveringIndxes1731143981408
     );
 
     await queryRunner.query(
-      `CREATE INDEX idx_user_login_btree_covering ON "user" ("login") INCLUDE ("id", "email", "created_at")`,
+      `CREATE INDEX idx_user_login_covering ON "user" ("login") INCLUDE ("id", "email", "created_at")`,
     );
 
     await queryRunner.query(
-      `CREATE INDEX idx_user_email_btree_covering ON "user" ("email") INCLUDE ("id", "login", "created_at")`,
+      `CREATE INDEX idx_user_email_covering ON "user" ("email") INCLUDE ("id", "login", "created_at")`,
     );
   }
 
@@ -22,12 +22,8 @@ export class AddUserEntityCoveringIndxes1731143981408
       `DROP INDEX IF EXISTS idx_user_created_at_covering;`,
     );
 
-    await queryRunner.query(
-      `DROP INDEX IF EXISTS idx_user_login_btree_covering;`,
-    );
+    await queryRunner.query(`DROP INDEX IF EXISTS idx_user_login_covering;`);
 
-    await queryRunner.query(
-      `DROP INDEX IF EXISTS idx_user_email_btree_covering;`,
-    );
+    await queryRunner.query(`DROP INDEX IF EXISTS idx_user_email_covering;`);
   }
 }
