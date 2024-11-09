@@ -40,13 +40,10 @@ export class UsersTypeormQueryRepository {
         searchEmailTerm: `%${pagination.searchEmailTerm}%`,
       });
     }
-    //console.log(query);
 
     const users: User[] = await query.getRawMany();
-    console.log('users', users);
 
     const totalCount: number = await query.getCount();
-    // console.log('totalCount', totalCount);
 
     return new PaginationOutput<User>(
       users,
@@ -71,7 +68,6 @@ export class UsersTypeormQueryRepository {
     return result;
   }
 
-  // TODO: not sure about name
   async findAuthenticatedUserById(id: string): Promise<User> {
     const result = await this.usersRepository
       .createQueryBuilder('u')
@@ -82,8 +78,6 @@ export class UsersTypeormQueryRepository {
       ])
       .where('u.id = :id', { id: id })
       .getRawOne();
-
-    console.log(result);
 
     return result;
   }

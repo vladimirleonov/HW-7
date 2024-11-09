@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddUserEntityCoveringIndex1731098288213
+export class AddDeviceEntityCoveringIndex1731098288213
   implements MigrationInterface
 {
   public async up(queryRunner: QueryRunner): Promise<void> {
