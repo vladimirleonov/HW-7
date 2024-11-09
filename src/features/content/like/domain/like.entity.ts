@@ -50,7 +50,14 @@ export class CommentLike extends Like {
   }
 }
 
+/*
+  instead of @Index(['postId', 'status']) can create covering index with authorId, createdAt, login
+  instead of @Index(['postId', 'authorId']) can create covering index with status
+*/
+
 @Entity()
+@Index(['postId', 'status'])
+@Index(['postId', 'authorId'])
 export class PostLike extends Like {
   @ManyToOne(() => Post, (p) => p.likes, { onDelete: 'CASCADE' })
   @JoinColumn()

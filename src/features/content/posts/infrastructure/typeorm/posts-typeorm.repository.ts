@@ -12,6 +12,10 @@ export class PostsTypeormRepository {
     @InjectRepository(Blog) private readonly blogsRepository: Repository<Blog>,
   ) {}
 
+  async save(post: Post): Promise<void> {
+    await this.postsRepository.save(post);
+  }
+
   async findById(id: number): Promise<any> {
     // Post | null
     return await this.postsRepository.findOneBy({
@@ -27,23 +31,23 @@ export class PostsTypeormRepository {
     });
   }
 
-  async create(
-    title: string,
-    shortDescription: string,
-    content: string,
-    blogId: number,
-  ): Promise<number> {
-    const createdPost: Post = await this.postsRepository.save({
-      title: title,
-      shortDescription: shortDescription,
-      content: content,
-      blogId: blogId,
-    });
-
-    const postId: number = createdPost.id;
-
-    return postId;
-  }
+  // async create(
+  //   title: string,
+  //   shortDescription: string,
+  //   content: string,
+  //   blogId: number,
+  // ): Promise<number> {
+  //   const createdPost: Post = await this.postsRepository.save({
+  //     title: title,
+  //     shortDescription: shortDescription,
+  //     content: content,
+  //     blogId: blogId,
+  //   });
+  //
+  //   const postId: number = createdPost.id;
+  //
+  //   return postId;
+  // }
 
   async update(
     title: string,

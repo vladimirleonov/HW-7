@@ -3,6 +3,7 @@ import { PostsTypeormRepository } from '../../infrastructure/typeorm/posts-typeo
 import { BlogsTypeormRepository } from '../../../blogs/infrastructure/typeorm/blogs-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
 import { Blog } from '../../../blogs/domain/blog.entity';
+import { Post } from '../../domain/post.entity';
 
 export class CreatePostCommand {
   constructor(
@@ -31,13 +32,19 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       return Result.notFound(`Blog with id ${command.blogId} not found`);
     }
 
-    const createdId: number = await this.postsTypeormRepository.create(
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const post: Post = Post.create(title, shortDescription, content, blogId);
 
-    return Result.success(createdId);
+    await this.postsTypeormRepository.save(post);
+
+    const postId: number = post.id;
+
+    // const createdId: number = await this.postsTypeormRepository.create(
+    //   title,
+    //   shortDescription,
+    //   content,
+    //   blogId,
+    // );
+
+    return Result.success(postId);
   }
 }
