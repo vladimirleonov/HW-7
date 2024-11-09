@@ -16,7 +16,6 @@ export class Device {
   deviceId: string;
 
   @Column()
-  @Index('idx_user_id')
   userId: number;
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
