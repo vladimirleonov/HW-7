@@ -19,7 +19,7 @@ import {
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/models/pagination.base.model';
 import { UserCreateModel } from './models/input/create-user.input.model';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UsersTypeormQueryRepository } from '../infrastructure/typeorm/users-typeorm.query-repository';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { CreateUserCommand } from '../application/use-cases/create-user.usecase';
@@ -30,6 +30,8 @@ import {
 import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
 import { UsersPaginationQuery } from './models/input/users-pagination-query.input.model';
+import { User } from '../domain/user.entity';
+import { GetAllUsersQuery } from './queries/get-all-users.query';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -39,6 +41,7 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 export class UsersController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     private readonly usersTypeormQueryRepository: UsersTypeormQueryRepository,
   ) {}
 
@@ -50,8 +53,10 @@ export class UsersController {
         USERS_SORTING_PROPERTIES,
       );
 
-    const users: PaginationOutput<any> =
-      await this.usersTypeormQueryRepository.getAll(pagination);
+    const users: PaginationOutput<User> = await this.queryBus.execute<
+      GetAllUsersQuery,
+      PaginationOutput<User>
+    >(new GetAllUsersQuery(pagination));
 
     return users;
   }
@@ -71,7 +76,7 @@ export class UsersController {
 
     const createdUserId: number = result.data!;
 
-    const createdUser =
+    const createdUser: User =
       await this.usersTypeormQueryRepository.findById(createdUserId);
 
     return createdUser;

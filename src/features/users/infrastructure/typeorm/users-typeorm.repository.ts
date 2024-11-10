@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { DataSource, Repository, UpdateResult } from 'typeorm';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/user.entity';
 import { EmailConfirmation } from '../../domain/email-confirmation';
@@ -17,7 +17,7 @@ export class UsersTypeormRepository {
     private readonly passwordRecoveryRepository: Repository<PasswordRecovery>,
   ) {}
 
-  async findByField(field: string, value: string): Promise<any> {
+  async findByField(field: string, value: string): Promise<User | null> {
     // User | null
     return this.usersRepository.findOneBy({
       [field]: value,
@@ -32,7 +32,7 @@ export class UsersTypeormRepository {
     });
   }
 
-  async findByEmail(email: string): Promise<any> {
+  async findByEmail(email: string): Promise<User | null> {
     // User | null
     return this.usersRepository.findOne({
       where: { email },
@@ -40,19 +40,21 @@ export class UsersTypeormRepository {
     });
   }
 
-  async findByLogin(login: string): Promise<any> {
+  async findByLogin(login: string): Promise<User | null> {
     // User | null
     return this.usersRepository.findOneBy({ login });
   }
 
-  async findByLoginOrEmailField(loginOrEmail: string): Promise<any> {
+  async findByLoginOrEmailField(loginOrEmail: string): Promise<User | null> {
     // User | null
     return this.usersRepository.findOne({
       where: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
   }
 
-  async findUserByConfirmationCode(confirmationCode: string): Promise<any> {
+  async findUserByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<User | null> {
     // User | null
     return this.usersRepository.findOne({
       where: {
@@ -62,7 +64,7 @@ export class UsersTypeormRepository {
     });
   }
 
-  async findUserByRecoveryCode(recoveryCode: string): Promise<any> {
+  async findUserByRecoveryCode(recoveryCode: string): Promise<User | null> {
     // User | null
     return this.usersRepository.findOne({
       where: {
@@ -95,24 +97,30 @@ export class UsersTypeormRepository {
         createdAt: new Date(),
       });
 
-      const createdUser = await manager.save(newUser);
+      const createdUser: User = await manager.save(newUser);
 
       // Create email confirmation entity
-      const emailConfirmation = manager.create(EmailConfirmation, {
-        user: createdUser,
-        confirmationCode: emailConfirmationData.confirmationCode,
-        expirationDate: emailConfirmationData.expirationDate,
-        isConfirmed: emailConfirmationData.isConfirmed,
-      });
-      // console.log('emailConfirmation', emailConfirmation);
+      const emailConfirmation: EmailConfirmation = manager.create(
+        EmailConfirmation,
+        {
+          user: createdUser,
+          confirmationCode: emailConfirmationData.confirmationCode,
+          expirationDate: emailConfirmationData.expirationDate,
+          isConfirmed: emailConfirmationData.isConfirmed,
+        },
+      );
+
       await manager.save(emailConfirmation);
 
       // Create password recovery
-      const passwordRecovery = manager.create(PasswordRecovery, {
-        user: createdUser,
-        recoveryCode: passwordRecoveryData.recoveryCode,
-        expirationDate: passwordRecoveryData.expirationDate,
-      });
+      const passwordRecovery: PasswordRecovery = manager.create(
+        PasswordRecovery,
+        {
+          user: createdUser,
+          recoveryCode: passwordRecoveryData.recoveryCode,
+          expirationDate: passwordRecoveryData.expirationDate,
+        },
+      );
       await manager.save(passwordRecovery);
 
       return createdUser;
@@ -156,7 +164,7 @@ export class UsersTypeormRepository {
     recoveryCode: string,
     expirationDate: Date,
     userId: number,
-  ) {
+  ): Promise<boolean> {
     const userUpdateResult: UpdateResult = await this.usersRepository.update(
       userId,
       {
@@ -176,7 +184,10 @@ export class UsersTypeormRepository {
     );
   }
 
-  async updateIsConfirmed(isConfirmed: boolean, userId: number) {
+  async updateIsConfirmed(
+    isConfirmed: boolean,
+    userId: number,
+  ): Promise<boolean> {
     const result: UpdateResult = await this.emailConfirmationRepository.update(
       userId,
       { isConfirmed },

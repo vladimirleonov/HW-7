@@ -7,6 +7,7 @@ import {
 import { UsersPaginationQuery } from '../../api/models/input/users-pagination-query.input.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/user.entity';
+import { UserOutputModel } from '../../api/models/output/user.output.model';
 
 @Injectable()
 export class UsersTypeormQueryRepository {
