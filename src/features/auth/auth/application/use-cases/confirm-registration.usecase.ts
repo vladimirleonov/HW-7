@@ -14,7 +14,7 @@ export class ConfirmRegistrationUseCase
     private readonly usersTypeormRepository: UsersTypeormRepository,
   ) {}
 
-  async execute(command: ConfirmRegistrationCommand): Promise<any> {
+  async execute(command: ConfirmRegistrationCommand): Promise<Result> {
     const { code } = command;
 
     const existingUser =

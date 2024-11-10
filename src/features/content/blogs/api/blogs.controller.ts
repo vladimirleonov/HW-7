@@ -61,9 +61,14 @@ export class BlogsController {
     @OptionalUserId() userId: number,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
-    // TODO: is it ok to get from blogsPostgresQueryRepository check
+    // TODO: is it ok to get from blogsPostgresQueryRepository to check
     const blog: BlogOutputModel | null =
       await this.blogsTypeormQueryRepository.findById(blogId);
+
+    // const blog: BlogOutputModel | null = await this.queryBus.execute<
+    //   GetBlogQuery,
+    //   BlogOutputModel | null
+    // >(new GetBlogQuery(blogId));
 
     if (!blog) {
       throw new NotFoundException(`Blog with id ${blogId} not found`);

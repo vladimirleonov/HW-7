@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsTypeormRepository } from '../../infrastructure/typeorm/posts-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
+import { Post } from '../../domain/post.entity';
 
 export class UpdateBlogPostCommand {
   constructor(
@@ -20,13 +21,11 @@ export class UpdateBlogPostUseCase
     private readonly postsTypeormRepository: PostsTypeormRepository,
   ) {}
 
-  async execute(command: UpdateBlogPostCommand) {
+  async execute(command: UpdateBlogPostCommand): Promise<Result> {
     const { title, shortDescription, content, blogId, postId } = command;
 
-    const post = await this.postsTypeormRepository.findByPostIdAndBlogId(
-      postId,
-      blogId,
-    );
+    const post: Post | null =
+      await this.postsTypeormRepository.findByPostIdAndBlogId(postId, blogId);
 
     if (!post) {
       return Result.notFound(

@@ -22,7 +22,6 @@ export class Comment {
   post: Post;
 
   @Column()
-  // @Index('idx_post_id')
   postId: number;
 
   @Column({ length: 300, collation: 'C' })
@@ -33,7 +32,6 @@ export class Comment {
   commentator: User;
 
   @Column()
-  // @Index('idx_commentator_id')
   commentatorId: number;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

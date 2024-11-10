@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Comment } from '../../domain/comment.entity';
 
 @Injectable()
@@ -8,14 +8,13 @@ export class CommentsTypeormRepository {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
-    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
-  async save(comment: Comment) {
+  async save(comment: Comment): Promise<void> {
     await this.commentRepository.save(comment);
   }
 
-  async findById(id: number): Promise<any> {
+  async findById(id: number): Promise<Comment | null> {
     // Comment | null
     return this.commentRepository.findOneBy({ id });
   }

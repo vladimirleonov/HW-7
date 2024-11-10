@@ -4,8 +4,6 @@ import { DeleteUserUseCase } from './application/use-cases/delete-user.usecase';
 import { UsersController } from './api/users.controller';
 import { CryptoService } from '../../core/application/crypto.service';
 import { CqrsModule } from '@nestjs/cqrs';
-// import { LoginIsExistConstraint } from '../../core/decorators/validators/login-is-exist.decorator';
-import { EmailIsExistConstraint } from '../../core/decorators/validators/email-is-exist.decorator';
 import { UsersTypeormRepository } from './infrastructure/typeorm/users-typeorm.repository';
 import { UsersTypeormQueryRepository } from './infrastructure/typeorm/users-typeorm.query-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -24,13 +22,12 @@ const usersProviders: Provider[] = [
 
   // validation constraints
   // LoginIsExistConstraint
-  EmailIsExistConstraint,
+  // EmailIsExistConstraint,
 ];
 
 @Module({
   imports: [
     CqrsModule,
-    // MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     TypeOrmModule.forFeature([User, EmailConfirmation, PasswordRecovery]),
   ],
   controllers: [UsersController],

@@ -15,7 +15,7 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
     private readonly devicesTypeormRepository: DevicesTypeormRepository,
   ) {}
 
-  async execute(command: LogoutCommand) {
+  async execute(command: LogoutCommand): Promise<Result> {
     const { deviceId, iat } = command;
 
     const isDeleted: boolean =

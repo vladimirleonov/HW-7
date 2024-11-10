@@ -5,7 +5,7 @@ import { Post } from '../../domain/post.entity';
 export class GetPostQuery {
   constructor(
     public readonly id: number,
-    public readonly userId: number,
+    public readonly userId?: number,
   ) {}
 }
 

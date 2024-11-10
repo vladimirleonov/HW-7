@@ -52,7 +52,6 @@ export class PostsController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
     private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
-    private readonly commentsTypeormQueryRepository: CommentsTypeormQueryRepository,
   ) {}
 
   @Get()
@@ -65,9 +64,6 @@ export class PostsController {
       query,
       POSTS_SORTING_PROPERTIES,
     );
-
-    // const posts: PaginationOutput<PostEntity> =
-    //   await this.postsTypeormQueryRepository.getAllPosts(pagination, userId);
 
     const posts: PaginationOutput<PostEntity> = await this.queryBus.execute<
       GetAllPostsQuery,
@@ -88,9 +84,6 @@ export class PostsController {
       PostEntity | null
     >(new GetPostQuery(id, userId));
 
-    // const post: PostOutputModel | null =
-    //   await this.postsTypeormQueryRepository.getOne(id, userId);
-
     if (!post) {
       throw new NotFoundException();
     }
@@ -110,9 +103,11 @@ export class PostsController {
       COMMENT_SORTING_PROPERTIES,
     );
 
-    // TODO: CreateDecorator to check current postId???
-    const post: PostOutputModel | null =
-      await this.postsTypeormQueryRepository.getOne(postId);
+    // TODO: is it ok?
+    const post: PostOutputModel | null = await this.queryBus.execute<
+      GetPostQuery,
+      PostOutputModel | null
+    >(new GetPostQuery(postId));
 
     if (!post) {
       throw new NotFoundException();
@@ -122,13 +117,6 @@ export class PostsController {
       GetPostCommentsQuery,
       PaginationOutput<Comment>
     >(new GetPostCommentsQuery(pagination, postId, userId));
-
-    // const comments: PaginationOutput<PostOutputModel> =
-    //   await this.commentsTypeormQueryRepository.getAllPostComments(
-    //     pagination,
-    //     postId,
-    //     userId,
-    //   );
 
     return comments;
   }
@@ -155,21 +143,11 @@ export class PostsController {
     }
 
     const commentId: number = result.data;
-    console.log('commentId', commentId);
 
-    const comment = await this.queryBus.execute<GetCommentQuery, Comment>(
-      new GetCommentQuery(commentId, userId),
-    );
-
-    // const comment = await this.commentsTypeormQueryRepository.findById(
-    //   result.data!,
-    //   userId,
-    // );
-
-    // if (!comment) {
-    //   //error if just created comment not found
-    //   throw new InternalServerErrorException();
-    // }
+    const comment: Comment = await this.queryBus.execute<
+      GetCommentQuery,
+      Comment
+    >(new GetCommentQuery(commentId, userId));
 
     return comment;
   }

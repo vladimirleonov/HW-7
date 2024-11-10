@@ -13,7 +13,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CommentsTypeormQueryRepository } from '../infrastructure/typeorm/comments-typeorm.query-repository';
 import { OptionalUserId } from '../../../../core/decorators/param-decorators/current-user-optional-user-id.param.decorator';
 import { OptionalJwtAuthGuard } from '../../../../core/guards/passport/optional-jwt-auth-guard';
 import {
@@ -39,7 +38,6 @@ export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-    private readonly commentsTypeormQueryRepository: CommentsTypeormQueryRepository,
   ) {}
 
   @Get(':id')
@@ -62,7 +60,7 @@ export class CommentsController {
 
   @Put('/:commentId')
   @UseGuards(JwtAuthGuard)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async update(
     @Param('commentId', new ParseIntPipe()) commentId: number,
     @CurrentUserId() userId: number,

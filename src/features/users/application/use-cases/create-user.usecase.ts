@@ -75,7 +75,6 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     );
 
     const userId: number = createdUser.id;
-    // console.log('userId', userId);
 
     return Result.success(userId);
   }

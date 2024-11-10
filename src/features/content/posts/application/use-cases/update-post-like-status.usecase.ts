@@ -22,7 +22,7 @@ export class UpdatePostLikeStatusUseCase
     private readonly postLikesTypeormRepository: PostLikesTypeormRepository,
   ) {}
 
-  async execute(command: UpdatePostLikeStatusCommand) {
+  async execute(command: UpdatePostLikeStatusCommand): Promise<Result> {
     const { likeStatus, postId, userId } = command;
 
     const post = await this.postsTypeormRepository.findById(postId);
@@ -36,7 +36,7 @@ export class UpdatePostLikeStatusUseCase
 
     // Add like to post likes
     if (!userLike) {
-      console.log('was not like');
+      // console.log('was not like');
       // for input.likeStatus = None
       if (likeStatus === LikeStatus.None) {
         return Result.success();
@@ -51,13 +51,13 @@ export class UpdatePostLikeStatusUseCase
 
     // LikeStatus the same
     if (userLike.status === likeStatus) {
-      console.log('the same status');
+      // console.log('the same status');
       return Result.success();
     }
 
     // LikeStatus None (Like exists)
     if (likeStatus === LikeStatus.None) {
-      console.log('None');
+      // console.log('None');
       await this.postLikesTypeormRepository.delete(postId, userId);
 
       return Result.success();
@@ -65,7 +65,7 @@ export class UpdatePostLikeStatusUseCase
 
     // LikeStatus different (status Like)
     if (likeStatus === LikeStatus.Like) {
-      console.log('like');
+      // console.log('like');
       await this.postLikesTypeormRepository.update(postId, userId, likeStatus);
 
       return Result.success();
@@ -73,7 +73,7 @@ export class UpdatePostLikeStatusUseCase
 
     // LikeStatus different (Like exists)
     if (likeStatus === LikeStatus.Dislike) {
-      console.log('dislike');
+      // console.log('dislike');
       await this.postLikesTypeormRepository.update(postId, userId, likeStatus);
 
       return Result.success();

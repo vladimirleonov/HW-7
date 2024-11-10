@@ -38,11 +38,11 @@ export class UpdateCommentLikeStatusUseCase
       commentId,
       userId,
     );
-    console.log('userLike', userLike);
+    // console.log('userLike', userLike);
 
     // add like to comment likes
     if (!userLike) {
-      console.log('!userLike');
+      // console.log('!userLike');
       // for input.likeStatus = None
       if (command.likeStatus === LikeStatus.None) {
         return Result.success();
@@ -61,20 +61,20 @@ export class UpdateCommentLikeStatusUseCase
 
     // Existing like with same status
     if (userLike.status === command.likeStatus) {
-      console.log('nothing change');
+      // console.log('nothing change');
       return Result.success();
     }
 
     // Existing like with status None
     if (command.likeStatus === LikeStatus.None) {
-      console.log('None');
+      // console.log('None');
 
       await this.commentLikesTypeormRepository.delete(commentId, userId);
     }
 
     // Existing like with different status Like
     if (command.likeStatus === LikeStatus.Like) {
-      console.log('Like');
+      // console.log('Like');
       await this.commentLikesTypeormRepository.update(
         commentId,
         userId,
@@ -83,7 +83,7 @@ export class UpdateCommentLikeStatusUseCase
     }
     // Existing like with different status Dislike
     if (likeStatus === LikeStatus.Dislike) {
-      console.log('Dislike');
+      // console.log('Dislike');
       await this.commentLikesTypeormRepository.update(
         commentId,
         userId,

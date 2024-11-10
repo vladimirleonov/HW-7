@@ -13,7 +13,7 @@ import { PasswordRecovery } from './password-recovery';
 // TODO: Check or length better use
 
 /*
-  idx_user_id_login userd in CommentsTypeormQueryRepository
+  idx_user_id_login userId in CommentsTypeormQueryRepository
 */
 
 @Entity()
@@ -25,7 +25,6 @@ export class User {
   @Column({ length: 10, collation: 'C' })
   @Check(`length(login) >= 3`)
   //@Check(`length(login) >= 3 AND length(login) <= 10`)
-  //@Index('idx_user_login', { unique: true })
   login: string;
 
   @Column({ length: 60 })
@@ -33,11 +32,9 @@ export class User {
   password: string;
 
   @Column({ collation: 'C' })
-  //@Index('idx_user_email', { unique: true })
   email: string;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  //@Index('idx_user_created_at')
   createdAt: Date;
 
   @OneToOne(() => EmailConfirmation, (ec) => ec.user, { onDelete: 'CASCADE' })

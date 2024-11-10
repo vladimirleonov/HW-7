@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DevicesTypeormRepository } from '../../infrastructure/typeorm/device-typeorm.repository';
 import { Result } from '../../../../../base/types/object-result';
+import { Device } from '../../domain/device.entity';
 
 export class TerminateUserDeviceCommand {
   constructor(
@@ -20,7 +21,9 @@ export class TerminateUserDeviceUseCase
   async execute(command: TerminateUserDeviceCommand): Promise<Result> {
     const { deviceId, userId } = command;
 
-    const device = await this.devicesTypeormRepository.findByDeviceId(deviceId);
+    const device: Device | null =
+      await this.devicesTypeormRepository.findByDeviceId(deviceId);
+
     if (!device) {
       return Result.notFound(`Device with id ${deviceId} does not exist`);
     }

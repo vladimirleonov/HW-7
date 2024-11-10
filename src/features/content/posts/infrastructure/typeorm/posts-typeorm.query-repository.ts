@@ -3,8 +3,8 @@ import {
   Pagination,
   PaginationOutput,
 } from '../../../../../base/models/pagination.base.model';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
 import { Post } from '../../domain/post.entity';
 import { mapSortFieldsMapper } from '../../../../../core/utils/sort-field-mapper';
@@ -19,7 +19,6 @@ const postsSortFieldMapping = {
 @Injectable()
 export class PostsTypeormQueryRepository {
   constructor(
-    @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
     @InjectRepository(PostLike)
     private readonly postLikeRepository: Repository<PostLike>,

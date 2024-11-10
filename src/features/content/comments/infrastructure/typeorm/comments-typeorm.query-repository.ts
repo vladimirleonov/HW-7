@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import {
   Pagination,
   PaginationOutput,
@@ -16,7 +16,6 @@ export class CommentsTypeormQueryRepository {
     private readonly commentRepository: Repository<Comment>,
     @InjectRepository(CommentLike)
     private readonly commentLikeRepository: Repository<CommentLike>,
-    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   async getAllPostComments(

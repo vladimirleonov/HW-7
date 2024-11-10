@@ -18,7 +18,7 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
     private readonly blogsTypeormRepository: BlogsTypeormRepository,
   ) {}
 
-  async execute(command: UpdateBlogCommand) {
+  async execute(command: UpdateBlogCommand): Promise<Result> {
     const { id, name, description, websiteUrl } = command;
 
     const blog: Blog | null = await this.blogsTypeormRepository.findById(

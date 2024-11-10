@@ -12,7 +12,7 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
     private readonly blogsTypeormRepository: BlogsTypeormRepository,
   ) {}
 
-  async execute(command: DeleteBlogCommand): Promise<any> {
+  async execute(command: DeleteBlogCommand): Promise<Result> {
     const isDeleted: boolean = await this.blogsTypeormRepository.delete(
       command.id,
     );

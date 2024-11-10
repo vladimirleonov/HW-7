@@ -31,7 +31,6 @@ import { UpdateBlogCommand } from '../application/use-cases/update-blog.usecase'
 import { DeleteBlogCommand } from '../application/use-cases/delete-blog.usecase';
 import { PostForBlogCreateModel } from '../../posts/api/models/input/create-post-for-blog.input.model';
 import { CreatePostCommand } from '../../posts/application/use-cases/create-post.usecase';
-import { PostsTypeormQueryRepository } from '../../posts/infrastructure/typeorm/posts-typeorm.query-repository';
 import { POSTS_SORTING_PROPERTIES } from '../../posts/api/posts.controller';
 import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
 import { UpdateBlogPostCommand } from '../../posts/application/use-cases/update-blog-post.usecase';
@@ -46,6 +45,9 @@ import { GetAllBlogPostsQuery } from '../../posts/api/queries/get-all-blog-posts
 import { GetAllBlogsQuery } from './queries/get-all-blogs.query';
 import { BlogsPaginationQuery } from './models/input/blogs-pagination-query.input.model';
 import { PostsPaginationQuery } from '../../posts/api/models/input/posts-pagination-query.input.model';
+import { GetBlogQuery } from './queries/get-blog.query';
+import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
+import { GetPostQuery } from '../../posts/api/queries/get-post.query';
 
 const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
   'name',
@@ -56,7 +58,6 @@ const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> = [
 export class BlogsSAController {
   constructor(
     private readonly blogsTypeormQueryRepository: BlogsTypeormQueryRepository,
-    private readonly postsTypeormQueryRepository: PostsTypeormQueryRepository,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -85,8 +86,10 @@ export class BlogsSAController {
 
     const createdId: number = result.data;
 
-    const createdBlog: Blog | null =
-      await this.blogsTypeormQueryRepository.findById(createdId);
+    const createdBlog: BlogOutputModel | null = await this.queryBus.execute<
+      GetBlogQuery,
+      BlogOutputModel | null
+    >(new GetBlogQuery(createdId));
 
     return createdBlog;
   }
@@ -99,7 +102,7 @@ export class BlogsSAController {
   ) {
     const { name, description, websiteUrl } = updateModel;
 
-    const result = await this.commandBus.execute<
+    const result: Result = await this.commandBus.execute<
       UpdateBlogCommand,
       Result<any>
     >(new UpdateBlogCommand(id, name, description, websiteUrl));
@@ -112,7 +115,7 @@ export class BlogsSAController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Param('id', new ParseIntPipe()) id: number) {
-    const result = await this.commandBus.execute<
+    const result: Result = await this.commandBus.execute<
       DeleteBlogCommand,
       Result<any>
     >(new DeleteBlogCommand(id));
@@ -128,8 +131,13 @@ export class BlogsSAController {
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
     // TODO: ask if is it ok to check blog is exists in controller here
-    const blog: Blog | null =
+    const blog: BlogOutputModel | null =
       await this.blogsTypeormQueryRepository.findById(blogId);
+
+    // const blog: BlogOutputModel | null = await this.queryBus.execute<
+    //   GetBlogQuery,
+    //   BlogOutputModel | null
+    // >(new GetBlogQuery(blogId));
 
     if (!blog) {
       throw new NotFoundException(`Blog with id ${blogId} not found`);
@@ -166,7 +174,10 @@ export class BlogsSAController {
 
     const createdId: number = result.data;
 
-    const post = await this.postsTypeormQueryRepository.getOne(createdId);
+    const post: PostOutputModel | null = await this.queryBus.execute<
+      GetPostQuery,
+      PostOutputModel | null
+    >(new GetPostQuery(createdId));
 
     return post;
   }
@@ -180,7 +191,7 @@ export class BlogsSAController {
   ) {
     const { title, shortDescription, content } = blogPostUpdateModel;
 
-    const result = await this.commandBus.execute<
+    const result: Result = await this.commandBus.execute<
       UpdateBlogPostCommand,
       Result<any>
     >(
@@ -204,7 +215,7 @@ export class BlogsSAController {
     @Param('blogId', new ParseIntPipe()) blogId: number,
     @Param('postId', new ParseIntPipe()) postId: number,
   ) {
-    const result = await this.commandBus.execute<
+    const result: Result = await this.commandBus.execute<
       DeleteBlogPostCommand,
       Result<any>
     >(new DeleteBlogPostCommand(blogId, postId));

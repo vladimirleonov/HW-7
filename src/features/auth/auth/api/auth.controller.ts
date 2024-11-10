@@ -72,7 +72,7 @@ export class AuthController {
   ) {
     const { code } = confirmRegistrationModel;
 
-    const result: Result<boolean | null> = await this.commandBus.execute(
+    const result: Result = await this.commandBus.execute(
       new ConfirmRegistrationCommand(code),
     );
 

@@ -26,13 +26,6 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
 
     const blogId: number = blog.id;
 
-    // const createdId: number = await this.blogsPostgresRepository.create(
-    //   name,
-    //   description,
-    //   websiteUrl,
-    //   false,
-    // );
-
     return Result.success(blogId);
   }
 }

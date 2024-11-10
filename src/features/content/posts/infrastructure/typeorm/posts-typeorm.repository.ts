@@ -1,53 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { Post } from '../../domain/post.entity';
-import { Blog } from '../../../blogs/domain/blog.entity';
 
 @Injectable()
 export class PostsTypeormRepository {
   constructor(
-    @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
-    @InjectRepository(Blog) private readonly blogsRepository: Repository<Blog>,
   ) {}
 
   async save(post: Post): Promise<void> {
     await this.postsRepository.save(post);
   }
 
-  async findById(id: number): Promise<any> {
+  async findById(id: number): Promise<Post | null> {
     // Post | null
     return await this.postsRepository.findOneBy({
       id,
     });
   }
 
-  async findByPostIdAndBlogId(postId: number, blogId: number) {
+  async findByPostIdAndBlogId(
+    postId: number,
+    blogId: number,
+  ): Promise<Post | null> {
     // Post | null
     return await this.postsRepository.findOneBy({
       id: postId,
       blogId: blogId,
     });
   }
-
-  // async create(
-  //   title: string,
-  //   shortDescription: string,
-  //   content: string,
-  //   blogId: number,
-  // ): Promise<number> {
-  //   const createdPost: Post = await this.postsRepository.save({
-  //     title: title,
-  //     shortDescription: shortDescription,
-  //     content: content,
-  //     blogId: blogId,
-  //   });
-  //
-  //   const postId: number = createdPost.id;
-  //
-  //   return postId;
-  // }
 
   async update(
     title: string,

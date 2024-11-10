@@ -13,7 +13,7 @@ export class DeleteBlogPostCommand {
 export class DeleteBlogPostUseCase {
   constructor(public readonly postsTypeormRepository: PostsTypeormRepository) {}
 
-  async execute(command: DeleteBlogPostCommand) {
+  async execute(command: DeleteBlogPostCommand): Promise<Result> {
     const { blogId, postId } = command;
 
     const isDeleted = await this.postsTypeormRepository.delete(blogId, postId);

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { LikeStatus } from '../../../../../base/types/like-status';
 import { PostLike } from '../../../like/domain/like.entity';
 
@@ -24,26 +24,12 @@ export class PostLikesTypeormRepository {
     return post;
   }
 
-  // async create(postId: number, userId: number, likeStatus: LikeStatus) {
-  //   const query: string = `
-  //     INSERT INTO post_likes (post_id, author_id, status)
-  //     VALUES ($1, $2, $3)
-  //     RETURNING id;
-  //   `;
-  //
-  //   const result = await this.dataSource.query(query, [
-  //     postId,
-  //     userId,
-  //     likeStatus,
-  //   ]);
-  //
-  //   const createdId: number = result[0].id;
-  //
-  //   return createdId;
-  // }
-
-  async update(postId: number, userId: number, likeStatus: LikeStatus) {
-    const result = await this.postLikesRepository.update(
+  async update(
+    postId: number,
+    userId: number,
+    likeStatus: LikeStatus,
+  ): Promise<boolean> {
+    const result: UpdateResult = await this.postLikesRepository.update(
       { postId },
       { authorId: userId, status: likeStatus },
     );
@@ -51,8 +37,8 @@ export class PostLikesTypeormRepository {
     return result.affected === 1;
   }
 
-  async delete(postId: number, userId: number) {
-    const result = await this.postLikesRepository.delete({
+  async delete(postId: number, userId: number): Promise<boolean> {
+    const result: DeleteResult = await this.postLikesRepository.delete({
       postId,
       authorId: userId,
     });

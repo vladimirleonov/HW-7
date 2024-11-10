@@ -3,7 +3,7 @@ import { DevicesTypeormRepository } from '../../../security/infrastructure/typeo
 import { Result } from '../../../../../base/types/object-result';
 import { JwtService } from '@nestjs/jwt';
 import { unixToISOString } from '../../../../../core/utils/convert-unix-to-iso';
-import { UsersTypeormRepository } from '../../../../users/infrastructure/typeorm/users-typeorm.repository';
+import { Device } from '../../../security/domain/device.entity';
 
 export class RefreshTokenCommand {
   constructor(
@@ -17,7 +17,6 @@ export class RefreshTokenCommand {
 export class RefreshTokenUseCase implements ICommandHandler {
   constructor(
     private readonly devicesTypeormRepository: DevicesTypeormRepository,
-    private readonly usersTypeormRepository: UsersTypeormRepository,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -26,10 +25,11 @@ export class RefreshTokenUseCase implements ICommandHandler {
   ): Promise<Result<null | { accessToken: string; refreshToken: string }>> {
     const { deviceId, userId, iat: issuedAt } = command;
 
-    const device = await this.devicesTypeormRepository.findOneByDeviceIdAndIat(
-      deviceId,
-      issuedAt,
-    );
+    const device: Device | null =
+      await this.devicesTypeormRepository.findOneByDeviceIdAndIat(
+        deviceId,
+        issuedAt,
+      );
 
     if (!device) {
       return Result.unauthorized('Invalid refresh token');

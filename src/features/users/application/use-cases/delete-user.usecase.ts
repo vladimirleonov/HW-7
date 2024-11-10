@@ -13,7 +13,6 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    //private usersPostgresRepository: UsersTypeormRepository
   ) {}
 
   async execute(command: DeleteUserCommand) {

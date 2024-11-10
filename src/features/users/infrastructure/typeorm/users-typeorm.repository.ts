@@ -184,10 +184,4 @@ export class UsersTypeormRepository {
 
     return result.affected === 1;
   }
-
-  async delete(id: string): Promise<boolean> {
-    const result: DeleteResult = await this.usersRepository.delete(id);
-
-    return result.affected === 1;
-  }
 }

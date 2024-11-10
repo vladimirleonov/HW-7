@@ -46,12 +46,6 @@ export class CreateCommentUseCase
 
     const commentId: number = comment.id;
 
-    // const commentId = await this.commentsPostgresRepository.create(
-    //   postId,
-    //   content,
-    //   userId,
-    // );
-
     return Result.success(commentId);
   }
 }

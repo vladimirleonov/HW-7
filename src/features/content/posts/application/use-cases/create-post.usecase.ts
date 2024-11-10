@@ -21,7 +21,7 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     private readonly postsTypeormRepository: PostsTypeormRepository,
   ) {}
 
-  async execute(command: CreatePostCommand) {
+  async execute(command: CreatePostCommand): Promise<Result<number | null>> {
     const { title, shortDescription, content, blogId } = command;
 
     const blog: Blog | null = await this.blogsTypeormRepository.findById(
@@ -37,13 +37,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
     await this.postsTypeormRepository.save(post);
 
     const postId: number = post.id;
-
-    // const createdId: number = await this.postsTypeormRepository.create(
-    //   title,
-    //   shortDescription,
-    //   content,
-    //   blogId,
-    // );
 
     return Result.success(postId);
   }

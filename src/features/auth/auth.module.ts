@@ -39,14 +39,11 @@ const authProviders: Provider[] = [
   LoginUseCase,
   RefreshTokenUseCase,
   LogoutUseCase,
-  //
   GetAllDevicesUseCase,
   GetAuthMeUseCase,
 
   // service
   AuthService,
-
-  // repository
 
   // strategies
   LocalStrategy,
@@ -61,11 +58,7 @@ const securityProviders: Provider[] = [
   TerminateAllOtherUserDevicesUseCase,
   TerminateUserDeviceUseCase,
 
-  // service
-
   // repositories
-  // DevicesPostgresRepository,
-  // DevicesPostgresQueryRepository,
   DevicesTypeormRepository,
   DevicesTypeormQueryRepository,
 ];

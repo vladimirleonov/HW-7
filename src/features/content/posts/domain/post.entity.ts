@@ -29,7 +29,6 @@ export class Post {
   id: number;
 
   @Column({ length: 30, collation: 'C' })
-  // @Index('idx_title')
   title: string;
 
   @Column({ length: 100, collation: 'C' })
@@ -47,7 +46,6 @@ export class Post {
   blogId: number;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  // @Index('idx_post_created_at')
   createdAt: Date;
 
   @OneToMany(() => Post, (c) => c.comments, { onDelete: 'CASCADE' })
