@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { initSettings } from '../../utils/init-settings';
 import { BlogsTestManager } from './blogs-test-manager';
-import { deleteAllData } from '../../utils/delete-all-data';
+import { deleteAllData } from '../../../utils/delete-all-data';
 import { BlogCreateModel } from '../../../../src/features/content/blogs/api/models/input/create-blog.input.model';
 
 const TEST_ADMIN_CREDENTIALS = {

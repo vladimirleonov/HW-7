@@ -2,7 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { initSettings } from '../../utils/init-settings';
 import { UsersTestManager } from './users-test-manager';
 import { UserCreateModel } from '../../../../src/features/users/api/models/input/create-user.input.model';
-import { deleteAllData } from '../../utils/delete-all-data';
+import { deleteAllData } from '../../../utils/delete-all-data';
 import { UserOutputModel } from '../../../../src/features/users/api/models/output/user.output.model';
 
 const TEST_ADMIN_CREDENTIALS = {

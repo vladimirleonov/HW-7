@@ -1,11 +1,11 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { initSettings } from '../../utils/init-settings';
-import { deleteAllData } from '../../utils/delete-all-data';
+import { deleteAllData } from '../../../utils/delete-all-data';
 import { AuthTestManager } from './auth-test-manager';
 import { RegistrationModel } from '../../../../src/features/auth/auth/api/models/input/registration.input.model';
 import { NodemailerService } from '../../../../src/core/application/nodemailer.service';
 import { NodemailerServiceMock } from '../../mock/nodemailer.service.mock';
-import { wait } from '../../utils/wait';
+import { wait } from '../../../utils/wait';
 // to use registrationEmailTemplate function as object property
 import * as registrationEmailTemplates from '../../../../src/core/email-templates/registration-email-template';
 import * as recoveryEmailTemplates from '../../../../src/core/email-templates/password-recovery-email-template';

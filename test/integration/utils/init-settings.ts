@@ -2,6 +2,7 @@ import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
 import { INestApplication } from '@nestjs/common';
 import { applyAppSettings } from '../../../src/settings/apply-app-settings';
+import { DataSource } from 'typeorm';
 
 export const initSettings = async (
   addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
@@ -22,10 +23,14 @@ export const initSettings = async (
   // apply all app settings like (pipes, guards, filters, ...)
   applyAppSettings(app);
 
+  // get dataSource to delete tables data in tests
+  const dataSource = app.get<DataSource>(DataSource);
+
   await app.init();
 
   // state
   expect.setState({
     app: app,
+    dataSource: dataSource,
   });
 };

@@ -1,6 +1,6 @@
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
-import { deleteAllData } from './delete-all-data';
+import { deleteAllData } from '../../utils/delete-all-data';
 import { UsersTestManager } from '../features/users/users-test-manager';
 import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import { INestApplication } from '@nestjs/common';
