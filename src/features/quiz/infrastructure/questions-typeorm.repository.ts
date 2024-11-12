@@ -7,4 +7,8 @@ export class QuestionsTypeormRepository {
     @InjectRepository(Question)
     private readonly questionRepository: Repository<Question>,
   ) {}
+
+  async save(question: Question): Promise<void> {
+    await this.questionRepository.save(question);
+  }
 }

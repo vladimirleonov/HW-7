@@ -3,11 +3,15 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
 export class Question {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column({ length: 500 })
   body: string;
 
@@ -31,5 +35,7 @@ export class Question {
 
     newQuestion.body = body;
     newQuestion.correctAnswers = correctAnswers;
+
+    return newQuestion;
   }
 }

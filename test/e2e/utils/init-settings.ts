@@ -35,7 +35,7 @@ export const initSettings = async (
   await app.init();
 
   //const databaseConnection = app.get<Connection>(getConnectionToken());
-  const dataSource = app.get<DataSource>(DataSource);
+  const dataSource: DataSource = app.get<DataSource>(DataSource);
   const httpServer = app.getHttpServer();
 
   // Init userManager, authManager

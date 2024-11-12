@@ -23,6 +23,7 @@ import {
   PostLike,
 } from './features/content/like/domain/like.entity';
 import { QuizModule } from './features/quiz/quiz.module';
+import { Question } from './features/quiz/domain/question.entity';
 
 @Module({
   imports: [
@@ -57,6 +58,8 @@ import { QuizModule } from './features/quiz/quiz.module';
             Comment,
             CommentLike,
             PostLike,
+            // quiz
+            Question,
           ],
           synchronize: false,
           logging: true,

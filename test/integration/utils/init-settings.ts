@@ -24,7 +24,7 @@ export const initSettings = async (
   applyAppSettings(app);
 
   // get dataSource to delete tables data in tests
-  const dataSource = app.get<DataSource>(DataSource);
+  const dataSource: DataSource = app.get<DataSource>(DataSource);
 
   await app.init();
 

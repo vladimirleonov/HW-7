@@ -1,4 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { Question } from '../../domain/question.entity';
+import { QuestionsTypeormRepository } from '../../infrastructure/questions-typeorm.repository';
+import { Result } from '../../../../base/types/object-result';
 
 export class CreateQuestionCommand {
   constructor(
@@ -11,9 +14,17 @@ export class CreateQuestionCommand {
 export class CreateQuestionUseCase
   implements ICommandHandler<CreateQuestionCommand>
 {
-  execute(command: CreateQuestionCommand): any {
+  constructor(
+    public readonly questionsTypeormRepository: QuestionsTypeormRepository,
+  ) {}
+
+  async execute(command: CreateQuestionCommand): Promise<Result<number>> {
     const { body, correctAnswers } = command;
-    console.log('body', body);
-    console.log('correctAnswers', correctAnswers);
+
+    const question: Question = Question.create(body, correctAnswers);
+
+    await this.questionsTypeormRepository.save(question);
+
+    return Result.success(question.id);
   }
 }

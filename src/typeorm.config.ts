@@ -12,6 +12,7 @@ import {
   CommentLike,
   PostLike,
 } from './features/content/like/domain/like.entity';
+import { Question } from './features/quiz/domain/question.entity';
 
 config({ path: ['.env.development', '.env'] });
 
@@ -34,6 +35,8 @@ export default new DataSource({
     Comment,
     CommentLike,
     PostLike,
+    // quiz
+    Question,
   ],
   synchronize: false,
   logging: true,
