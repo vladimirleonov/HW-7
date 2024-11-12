@@ -10,11 +10,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmailConfirmation } from './domain/email-confirmation';
 import { User } from './domain/user.entity';
 import { PasswordRecovery } from './domain/password-recovery';
+import { GetAllUsersUseCase } from './api/queries/get-all-users.query';
 
 const usersProviders: Provider[] = [
   // use cases
   CreateUserUseCase,
   DeleteUserUseCase,
+  GetAllUsersUseCase,
 
   // repositories
   UsersTypeormRepository,

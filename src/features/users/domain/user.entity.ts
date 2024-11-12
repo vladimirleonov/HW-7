@@ -32,6 +32,7 @@ export class User {
   password: string;
 
   @Column({ collation: 'C' })
+  //@Index('idx_user_id_email1', ['email'])
   email: string;
 
   @Column({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
@@ -42,4 +43,6 @@ export class User {
 
   @OneToOne(() => PasswordRecovery, (pr) => pr.user, { onDelete: 'CASCADE' })
   passwordRecovery: PasswordRecovery;
+
+  static create() {}
 }

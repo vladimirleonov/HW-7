@@ -22,6 +22,7 @@ import {
   CommentLike,
   PostLike,
 } from './features/content/like/domain/like.entity';
+import { QuizModule } from './features/quiz/quiz.module';
 
 @Module({
   imports: [
@@ -99,6 +100,7 @@ import {
     AuthModule,
     UsersModule,
     ContentModule,
+    QuizModule,
     TestingModule.register(),
   ],
   providers: [

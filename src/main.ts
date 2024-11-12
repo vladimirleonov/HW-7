@@ -2,7 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { applyAppSettings } from './settings/apply-app-settings';
 import { ConfigService } from '@nestjs/config';
-import { ConfigurationType } from './settings/env/configuration';
+import { Configuration, ConfigurationType } from './settings/env/configuration';
+import { ApiSettings } from './settings/env/api-settings';
+import { EnvironmentSettings } from './settings/env/env-settings';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,12 +12,19 @@ async function bootstrap() {
   // apply all app settings (pipes, guards, filters, ...)
   applyAppSettings(app);
 
-  const configService = app.get(ConfigService<ConfigurationType, true>);
-  const apiSettings = configService.get('apiSettings', { infer: true });
-  const environmentSettings = configService.get('environmentSettings', {
+  const configService: ConfigService<Configuration, true> = app.get(
+    ConfigService<ConfigurationType, true>,
+  );
+  const apiSettings: ApiSettings = configService.get('apiSettings', {
     infer: true,
   });
-  const port = apiSettings.APP_PORT;
+  const environmentSettings: EnvironmentSettings = configService.get(
+    'environmentSettings',
+    {
+      infer: true,
+    },
+  );
+  const port: number = apiSettings.APP_PORT;
 
   await app.listen(port, () => {
     console.log('App starting listen port: ', port);

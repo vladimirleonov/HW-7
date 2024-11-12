@@ -12,7 +12,7 @@ export class GetAuthMeUseCase implements IQueryHandler<GetAuthMeQuery> {
     private readonly usersTypeormQueryRepository: UsersTypeormQueryRepository,
   ) {}
 
-  execute(query: GetAuthMeQuery): Promise<User> {
+  async execute(query: GetAuthMeQuery): Promise<User> {
     const { userId } = query;
     return this.usersTypeormQueryRepository.findAuthenticatedUserById(userId);
   }
