@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Question } from '../domain/question.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { QuestionOutputModel } from '../api/models/output/question.output.model';
 
 export class QuestionTypeormQueryRepository {

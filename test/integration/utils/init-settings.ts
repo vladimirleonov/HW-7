@@ -3,6 +3,7 @@ import { AppModule } from '../../../src/app.module';
 import { INestApplication } from '@nestjs/common';
 import { applyAppSettings } from '../../../src/settings/apply-app-settings';
 import { DataSource } from 'typeorm';
+import { QuestionTestManager } from '../features/quiz/question-test-manager';
 
 export const initSettings = async (
   addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
@@ -23,14 +24,18 @@ export const initSettings = async (
   // apply all app settings like (pipes, guards, filters, ...)
   applyAppSettings(app);
 
+  await app.init();
+
   // get dataSource to delete tables data in tests
   const dataSource: DataSource = app.get<DataSource>(DataSource);
 
-  await app.init();
+  // Init questionTestManger
+  const questionTestManager: QuestionTestManager = new QuestionTestManager(app);
 
   // state
   expect.setState({
     app: app,
     dataSource: dataSource,
+    questionTestManger: questionTestManager,
   });
 };
