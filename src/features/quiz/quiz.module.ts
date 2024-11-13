@@ -8,10 +8,12 @@ import { QuestionsTypeormRepository } from './infrastructure/questions-typeorm.r
 import { GetQuestionUseCase } from './application/queries/get-question.query';
 import { QuestionTypeormQueryRepository } from './infrastructure/question-typeorm.query-repository';
 import { DeleteQuestionUseCase } from './application/commands/delete-question.command';
+import { UpdateQuestionUseCase } from './application/commands/update-question.command';
 
 const providers = [
-  // commands usecases
+  // command usecases
   CreateQuestionUseCase,
+  UpdateQuestionUseCase,
 
   // query usecases
   GetQuestionUseCase,

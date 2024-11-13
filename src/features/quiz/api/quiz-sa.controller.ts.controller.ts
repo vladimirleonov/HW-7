@@ -17,10 +17,10 @@ import { CreateQuestionCommand } from '../application/commands/create-question.c
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { GetQuestionQuery } from '../application/queries/get-question.query';
 import { QuestionOutputModel } from './models/output/question.output.model';
-import { async } from 'rxjs';
 import { DeleteQuestionCommand } from '../application/commands/delete-question.command';
 import { NotFoundException } from '../../../core/exception-filters/http-exception-filter';
 import { QuestionUpdateModel } from './models/input/update-question.input.model';
+import { UpdateQuestionCommand } from '../application/commands/update-question.command';
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/quiz/questions')
@@ -55,7 +55,16 @@ export class QuizSaController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateModel: QuestionUpdateModel,
   ) {
-    const result: Result = await this.queryBus.execute();
+    const { body, correctAnswers } = updateModel;
+
+    const result: Result = await this.queryBus.execute<
+      UpdateQuestionCommand,
+      Result
+    >(new UpdateQuestionCommand(id, body, correctAnswers));
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException();
+    }
   }
 
   @Delete(':id')

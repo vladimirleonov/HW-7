@@ -21,6 +21,10 @@ import {
   DeleteQuestionCommand,
   DeleteQuestionUseCase,
 } from '../../../../src/features/quiz/application/commands/delete-question.command';
+import {
+  UpdateQuestionCommand,
+  UpdateQuestionUseCase,
+} from '../../../../src/features/quiz/application/commands/update-question.command';
 
 export class QuestionTestManager {
   constructor(protected readonly app: INestApplication) {}
@@ -76,7 +80,22 @@ export class QuestionTestManager {
     correctAnswers: string[],
     expectedStatus: ResultStatus,
   ): Promise<void> {
-    const command:
+    const command: UpdateQuestionCommand = new UpdateQuestionCommand(
+      id,
+      body,
+      correctAnswers,
+    );
+
+    const updateQuestionUseCase: UpdateQuestionUseCase =
+      this.app.get<UpdateQuestionUseCase>(UpdateQuestionUseCase);
+
+    const result: Result = await updateQuestionUseCase.execute(command);
+
+    if (result.status !== expectedStatus) {
+      throw new Error(
+        `Failed to update question. Expected status: ${expectedStatus}, but got: ${result.status}`,
+      );
+    }
   }
 
   async delete(id: number, expectedStatus: ResultStatus): Promise<void> {

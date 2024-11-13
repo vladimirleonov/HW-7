@@ -140,4 +140,55 @@ describe('quiz', () => {
       await questionTestManager.delete(id, ResultStatus.NotFound);
     });
   });
+  describe('UpdateQuestionUseCase', () => {
+    it('should update question', async () => {
+      const questionCreateModel = {
+        body: 'bodybodybodybodybody',
+        correctAnswers: ['answ1', '1', '1.1'],
+      };
+
+      const createdId: number = await questionTestManager.create(
+        questionCreateModel.body,
+        questionCreateModel.correctAnswers,
+        ResultStatus.Success,
+      );
+
+      expect(createdId).toBeDefined();
+
+      const questionUpdateModel = {
+        body: 'body111111111',
+        correctAnswers: ['answ1', '1', '1.1'],
+      };
+
+      await questionTestManager.update(
+        createdId,
+        questionUpdateModel.body,
+        questionUpdateModel.correctAnswers,
+        ResultStatus.Success,
+      );
+
+      const updatedQuestion: Question | null = await dataSource
+        .getRepository(Question)
+        .findOneBy({ id: createdId });
+
+      expect(updatedQuestion).not.toBeNull();
+      expect(updatedQuestion?.body).toBe(questionUpdateModel.body);
+    });
+
+    it('should not update question: NOT FOUND', async () => {
+      const id: number = 555;
+
+      const questionUpdateModel = {
+        body: 'body111111111',
+        correctAnswers: ['answ1', '1', '1.1'],
+      };
+
+      await questionTestManager.update(
+        id,
+        questionUpdateModel.body,
+        questionUpdateModel.correctAnswers,
+        ResultStatus.NotFound,
+      );
+    });
+  });
 });
