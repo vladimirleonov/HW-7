@@ -1,9 +1,11 @@
 import { toSnakeCase } from '../../core/utils/camel-case-to-snake-case';
 import {
   PaginationQuery,
+  PaginationWithSearchBodyTermAndPublishedStatusQuery,
   PaginationWithSearchLoginAndEmailTermQuery,
   PaginationWithSearchNameTermQuery,
 } from './pagination-query.input.model';
+import { PublishedStatus } from '../types/published-status';
 
 export class PaginationOutput<D> {
   public readonly pagesCount: number;
@@ -111,6 +113,35 @@ export class PaginationWithSearchNameTerm<
   constructor(query: T, sortProperties: string[]) {
     super(query, sortProperties);
     this.searchNameTerm = query.searchNameTerm?.toString() || null;
+  }
+}
+
+export class PaginationWithBodySearchTermAndPublishedStatus<
+  T extends PaginationWithSearchBodyTermAndPublishedStatusQuery,
+> extends Pagination<T> {
+  public readonly bodySearchTerm: string | null;
+  public readonly publishedStatus: PublishedStatus;
+
+  constructor(query: T, sortProperties: string[]) {
+    super(query, sortProperties);
+    this.bodySearchTerm = query.bodySearchTerm?.toString() || null;
+    this.publishedStatus = this.getPublishedStatus(query);
+  }
+
+  private getPublishedStatus(query: T): PublishedStatus {
+    let publishedStatus: PublishedStatus = PublishedStatus.ALL;
+
+    switch (query.sortDirection?.toUpperCase()) {
+      case PublishedStatus.PUBLISHED: {
+        publishedStatus = PublishedStatus.PUBLISHED;
+        break;
+      }
+      case PublishedStatus.NOT_PUBLISHED: {
+        publishedStatus = PublishedStatus.NOT_PUBLISHED;
+        break;
+      }
+    }
+    return publishedStatus;
   }
 }
 
