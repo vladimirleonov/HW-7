@@ -8,13 +8,13 @@ export const deleteAllData = async (dataSource: DataSource) => {
     -- Start a transaction
     BEGIN;
     
-    -- Truncate all tables in the 'public' schema
+    -- Truncate all tables in the 'public' schema, excluding 'migrations' table
     DO $$ 
     DECLARE
         r RECORD;  -- Declare a RECORD type variable to store table names
     BEGIN
         -- Loop through all tables in the 'public' schema
-        FOR r IN (SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public') LOOP
+        FOR r IN (SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public' AND tablename != 'migrations') LOOP
             -- Execute TRUNCATE command for each table with CASCADE
             EXECUTE 'TRUNCATE TABLE public.' || quote_ident(r.tablename) || ' CASCADE;';
         END LOOP;

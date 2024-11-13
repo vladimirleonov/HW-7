@@ -9,14 +9,17 @@ import {
 
 @Entity()
 export class Question {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ length: 500 })
   body: string;
 
-  @Column('simple-json')
+  @Column({ type: 'text', array: true })
   correctAnswers: string[];
+
+  @Column({ default: false })
+  published: boolean;
 
   // auto set on create
   @CreateDateColumn({ type: 'timestamptz' })
