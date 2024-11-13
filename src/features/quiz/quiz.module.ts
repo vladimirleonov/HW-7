@@ -9,11 +9,13 @@ import { GetQuestionUseCase } from './application/queries/get-question.query';
 import { QuestionTypeormQueryRepository } from './infrastructure/question-typeorm.query-repository';
 import { DeleteQuestionUseCase } from './application/commands/delete-question.command';
 import { UpdateQuestionUseCase } from './application/commands/update-question.command';
+import { UpdatePublishedStatusUseCase } from './application/commands/update-published-status.command';
 
 const providers = [
   // command usecases
   CreateQuestionUseCase,
   UpdateQuestionUseCase,
+  UpdatePublishedStatusUseCase,
 
   // query usecases
   GetQuestionUseCase,

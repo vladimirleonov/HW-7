@@ -25,6 +25,10 @@ import {
   UpdateQuestionCommand,
   UpdateQuestionUseCase,
 } from '../../../../src/features/quiz/application/commands/update-question.command';
+import {
+  UpdatePublishedStatusCommand,
+  UpdatePublishedStatusUseCase,
+} from '../../../../src/features/quiz/application/commands/update-published-status.command';
 
 export class QuestionTestManager {
   constructor(protected readonly app: INestApplication) {}
@@ -90,6 +94,26 @@ export class QuestionTestManager {
       this.app.get<UpdateQuestionUseCase>(UpdateQuestionUseCase);
 
     const result: Result = await updateQuestionUseCase.execute(command);
+
+    if (result.status !== expectedStatus) {
+      throw new Error(
+        `Failed to update question. Expected status: ${expectedStatus}, but got: ${result.status}`,
+      );
+    }
+  }
+
+  async updatePublishedStatus(
+    id: number,
+    published: boolean,
+    expectedStatus: ResultStatus,
+  ): Promise<void> {
+    const command: UpdatePublishedStatusCommand =
+      new UpdatePublishedStatusCommand(id, published);
+
+    const updatePublishedStatusUseCase: UpdatePublishedStatusUseCase =
+      this.app.get<UpdatePublishedStatusUseCase>(UpdatePublishedStatusUseCase);
+
+    const result: Result = await updatePublishedStatusUseCase.execute(command);
 
     if (result.status !== expectedStatus) {
       throw new Error(

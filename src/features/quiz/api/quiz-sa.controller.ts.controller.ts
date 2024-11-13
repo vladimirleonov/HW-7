@@ -1,13 +1,13 @@
 import {
   Body,
   Controller,
-  Delete,
+  Delete, Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseIntPipe,
   Post,
-  Put,
+  Put, Query,
   UseGuards,
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
@@ -21,6 +21,13 @@ import { DeleteQuestionCommand } from '../application/commands/delete-question.c
 import { NotFoundException } from '../../../core/exception-filters/http-exception-filter';
 import { QuestionUpdateModel } from './models/input/update-question.input.model';
 import { UpdateQuestionCommand } from '../application/commands/update-question.command';
+import { PublishedStatusUpdateModel } from './models/input/update-published-status.input.model';
+import { UpdatePublishedStatusCommand } from '../application/commands/update-published-status.command';
+import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
+import { UserOutputModel } from '../../users/api/models/output/user.output.model';
+
+export const QUESTIONS_SORTING_PROPERTIES: SortingPropertiesType<QuestionOutputModel> =
+  ['body'];
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/quiz/questions')
@@ -29,6 +36,12 @@ export class QuizSaController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
+
+  @Get()
+  async getAll(@Query() query: ) {
+
+  }
+
   @Post()
   async create(@Body() questionCreateModel: QuestionCreateModel) {
     const { body, correctAnswers } = questionCreateModel;
@@ -65,6 +78,19 @@ export class QuizSaController {
     if (result.status === ResultStatus.NotFound) {
       throw new NotFoundException();
     }
+  }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePublishedStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() publishedStatusUpdateModel: PublishedStatusUpdateModel,
+  ) {
+    const { published } = publishedStatusUpdateModel;
+
+    await this.queryBus.execute<UpdatePublishedStatusCommand, Result>(
+      new UpdatePublishedStatusCommand(id, published),
+    );
   }
 
   @Delete(':id')
