@@ -62,7 +62,7 @@ import { Question } from './features/quiz/domain/question.entity';
             Question,
           ],
           synchronize: false,
-          logging: true,
+          // logging: true,
           namingStrategy: new SnakeNamingStrategy(),
         };
       },

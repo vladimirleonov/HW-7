@@ -53,12 +53,12 @@ export class UsersController {
         USERS_SORTING_PROPERTIES,
       );
 
-    const users: PaginationOutput<User> = await this.queryBus.execute<
+    const result: PaginationOutput<User> = await this.queryBus.execute<
       GetAllUsersQuery,
       PaginationOutput<User>
     >(new GetAllUsersQuery(pagination));
 
-    return users;
+    return result;
   }
 
   @Post()

@@ -1,13 +1,15 @@
 import {
   Body,
   Controller,
-  Delete, Get,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseIntPipe,
   Post,
-  Put, Query,
+  Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
@@ -24,7 +26,12 @@ import { UpdateQuestionCommand } from '../application/commands/update-question.c
 import { PublishedStatusUpdateModel } from './models/input/update-published-status.input.model';
 import { UpdatePublishedStatusCommand } from '../application/commands/update-published-status.command';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
-import { UserOutputModel } from '../../users/api/models/output/user.output.model';
+import { QuestionsPaginationQuery } from './models/input/questions-pagination-query.input.model';
+import {
+  PaginationOutput,
+  PaginationWithBodySearchTermAndPublishedStatus,
+} from '../../../base/models/pagination.base.model';
+import { GetAllQuestionsQuery } from '../application/queries/get-all-questions.query';
 
 export const QUESTIONS_SORTING_PROPERTIES: SortingPropertiesType<QuestionOutputModel> =
   ['body'];
@@ -38,8 +45,20 @@ export class QuizSaController {
   ) {}
 
   @Get()
-  async getAll(@Query() query: ) {
+  async getAll(@Query() query: QuestionsPaginationQuery) {
+    const pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery> =
+      new PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>(
+        query,
+        QUESTIONS_SORTING_PROPERTIES,
+      );
 
+    const result: Result<PaginationOutput<QuestionOutputModel>> =
+      await this.queryBus.execute<
+        GetAllQuestionsQuery,
+        Result<PaginationOutput<QuestionOutputModel>>
+      >(new GetAllQuestionsQuery(pagination));
+
+    return result.data;
   }
 
   @Post()

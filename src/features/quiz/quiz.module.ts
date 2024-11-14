@@ -10,6 +10,7 @@ import { QuestionTypeormQueryRepository } from './infrastructure/question-typeor
 import { DeleteQuestionUseCase } from './application/commands/delete-question.command';
 import { UpdateQuestionUseCase } from './application/commands/update-question.command';
 import { UpdatePublishedStatusUseCase } from './application/commands/update-published-status.command';
+import { GetAllQuestionsUseCase } from './application/queries/get-all-questions.query';
 
 const providers = [
   // command usecases
@@ -18,6 +19,7 @@ const providers = [
   UpdatePublishedStatusUseCase,
 
   // query usecases
+  GetAllQuestionsUseCase,
   GetQuestionUseCase,
   DeleteQuestionUseCase,
 

@@ -29,9 +29,39 @@ import {
   UpdatePublishedStatusCommand,
   UpdatePublishedStatusUseCase,
 } from '../../../../src/features/quiz/application/commands/update-published-status.command';
+import {
+  PaginationOutput,
+  PaginationWithBodySearchTermAndPublishedStatus,
+} from '../../../../src/base/models/pagination.base.model';
+import { QuestionsPaginationQuery } from '../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
+import {
+  GetAllQuestionsQuery,
+  GetAllQuestionsUseCase,
+} from '../../../../src/features/quiz/application/queries/get-all-questions.query';
 
 export class QuestionTestManager {
   constructor(protected readonly app: INestApplication) {}
+
+  async getAll(
+    pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>,
+    expectedStatus: ResultStatus,
+  ): Promise<PaginationOutput<QuestionOutputModel>> {
+    const query: GetAllQuestionsQuery = new GetAllQuestionsQuery(pagination);
+
+    const getAllQuestionsUseCase: GetAllQuestionsUseCase =
+      this.app.get<GetAllQuestionsUseCase>(GetAllQuestionsUseCase);
+
+    const result: Result<PaginationOutput<QuestionOutputModel>> =
+      await getAllQuestionsUseCase.execute(query);
+
+    if (result.status !== expectedStatus) {
+      throw new Error(
+        `Failed to create question. Expected status: ${expectedStatus}, but got: ${result.status}`,
+      );
+    }
+
+    return result.data;
+  }
 
   async getOne(
     id: number,
