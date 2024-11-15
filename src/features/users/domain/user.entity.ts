@@ -44,5 +44,6 @@ export class User {
   @OneToOne(() => PasswordRecovery, (pr) => pr.user, { onDelete: 'CASCADE' })
   passwordRecovery: PasswordRecovery;
 
-  static create() {}
+  // @OneToMany(() => Player, (p) => p.user)
+  // players: Player[];
 }

@@ -17,7 +17,7 @@ export class QuestionsTypeormRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const result: DeleteResult = await this.questionRepository.delete(id);
+    const result: DeleteResult = await this.questionRepository.softDelete(id);
 
     return result.affected === 1;
   }
