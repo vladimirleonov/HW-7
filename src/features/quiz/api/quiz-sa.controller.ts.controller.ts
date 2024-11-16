@@ -99,7 +99,7 @@ export class QuizSaController {
     }
   }
 
-  @Put(':id')
+  @Put(':id/publish')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePublishedStatus(
     @Param('id', ParseIntPipe) id: number,
@@ -107,7 +107,7 @@ export class QuizSaController {
   ) {
     const { published } = publishedStatusUpdateModel;
 
-    await this.queryBus.execute<UpdatePublishedStatusCommand, Result>(
+    await this.commandBus.execute<UpdatePublishedStatusCommand, Result>(
       new UpdatePublishedStatusCommand(id, published),
     );
   }
