@@ -24,6 +24,10 @@ import {
 } from './features/content/like/domain/like.entity';
 import { QuizModule } from './features/quiz/quiz.module';
 import { Question } from './features/quiz/domain/question.entity';
+import { Player } from './features/quiz/domain/player.entity';
+import { Game } from './features/quiz/domain/game.entity';
+import { Answer } from './features/quiz/domain/answer.entity';
+import { GameQuestion } from './features/quiz/domain/game-questions.entity';
 
 @Module({
   imports: [
@@ -59,6 +63,10 @@ import { Question } from './features/quiz/domain/question.entity';
             CommentLike,
             PostLike,
             // quiz
+            Player,
+            Game,
+            GameQuestion,
+            Answer,
             Question,
           ],
           synchronize: false,

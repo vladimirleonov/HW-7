@@ -12,8 +12,18 @@ export class QuestionsTypeormRepository {
     await this.questionRepository.save(question);
   }
 
-  async findOne(id: number): Promise<Question | null> {
+  async getOne(id: number): Promise<Question | null> {
     return this.questionRepository.findOneBy({ id });
+  }
+
+  async getFiveRandomQuestionIds(): Promise<number[]> {
+    const questions = await this.questionRepository
+      .createQueryBuilder('q')
+      .orderBy('RANDOM()')
+      .limit(5)
+      .getMany();
+
+    return questions.map((question) => question.id);
   }
 
   async delete(id: number): Promise<boolean> {

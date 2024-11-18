@@ -22,7 +22,7 @@ export class UpdatePublishedStatusUseCase
     const { id, published } = command;
 
     const question: Question | null =
-      await this.questionsTypeormRepository.findOne(id);
+      await this.questionsTypeormRepository.getOne(id);
 
     if (!question) {
       return Result.notFound();

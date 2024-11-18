@@ -15,7 +15,7 @@ import {
 import { Question } from './features/quiz/domain/question.entity';
 import { Player } from './features/quiz/domain/player.entity';
 import { Game } from './features/quiz/domain/game.entity';
-import { GameQuestions } from './features/quiz/domain/game-questions.entity';
+import { GameQuestion } from './features/quiz/domain/game-questions.entity';
 import { Answer } from './features/quiz/domain/answer.entity';
 
 config({ path: ['.env.development', '.env'] });
@@ -42,7 +42,7 @@ export default new DataSource({
     // quiz
     Player,
     Game,
-    GameQuestions,
+    GameQuestion,
     Question,
     Answer,
   ],

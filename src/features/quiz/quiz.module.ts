@@ -11,12 +11,23 @@ import { DeleteQuestionUseCase } from './application/commands/delete-question.co
 import { UpdateQuestionUseCase } from './application/commands/update-question.command';
 import { UpdatePublishedStatusUseCase } from './application/commands/update-published-status.command';
 import { GetAllQuestionsUseCase } from './application/queries/get-all-questions.query';
+import { QuizController } from './api/quiz.controller';
+import { CreateConnectionUseCase } from './application/commands/create-connection.command';
+import { PlayerTypeormRepository } from './infrastructure/player-typeorm.repository';
+import { GameTypeormRepository } from './infrastructure/game-typeorm.repository';
+import { Player } from './domain/player.entity';
+import { GameQuestion } from './domain/game-questions.entity';
+import { Answer } from './domain/answer.entity';
+import { Game } from './domain/game.entity';
+import { GameQuestionTypeormRepository } from './infrastructure/game-question-typeorm.tepository';
 
 const providers = [
   // command usecases
   CreateQuestionUseCase,
   UpdateQuestionUseCase,
   UpdatePublishedStatusUseCase,
+
+  CreateConnectionUseCase,
 
   // query usecases
   GetAllQuestionsUseCase,
@@ -26,11 +37,17 @@ const providers = [
   // repos
   QuestionsTypeormRepository,
   QuestionTypeormQueryRepository,
+  PlayerTypeormRepository,
+  GameTypeormRepository,
+  GameQuestionTypeormRepository,
 ];
 
 @Module({
-  imports: [CqrsModule, TypeOrmModule.forFeature([Question])],
-  controllers: [QuizSaController],
+  imports: [
+    CqrsModule,
+    TypeOrmModule.forFeature([Player, Game, GameQuestion, Answer, Question]),
+  ],
+  controllers: [QuizController, QuizSaController],
   providers: [...providers],
 })
 export class QuizModule {}

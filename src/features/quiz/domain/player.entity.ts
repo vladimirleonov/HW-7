@@ -1,21 +1,20 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../users/domain/user.entity';
 import { Answer } from './answer.entity';
-import { Game } from './game.entity';
 
 enum PlayerStatus {
   Win = 'Win',
   Los = 'Los',
-  Draft = 'Draft',
+  InProgress = 'InProgress',
 }
 
 @Entity()
@@ -31,23 +30,38 @@ export class Player {
   @Column()
   userId: number;
 
-  @OneToOne(() => Game)
-  @JoinColumn()
-  game: Game;
+  // @OneToOne(() => Game)
+  // @JoinColumn()
+  // game: Game;
+  //
+  // @Column()
+  // gameId: number;
 
-  @Column()
-  gameId: number;
-
+  // by default not
   @OneToMany(() => Answer, (a) => a.player)
   answers: Answer[];
 
-  @Column()
+  @Column({ default: 0 })
   score: number;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: PlayerStatus,
+    default: PlayerStatus.InProgress,
+  })
   status: PlayerStatus;
 
   // auto set on create
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
+
+  // auto set when soft delete
+  // @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  // deletedAt: Date | null;
+
+  static create(userId: number) {
+    const newPlayer: Player = new this();
+    newPlayer.userId = userId;
+    return newPlayer;
+  }
 }
