@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { QuizSaController } from './api/quiz-sa.controller.ts.controller';
+import { QuizSaController } from './api/quiz-sa.controller';
 import { CreateQuestionUseCase } from './application/commands/create-question.command';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from './domain/question.entity';
@@ -20,6 +20,9 @@ import { GameQuestion } from './domain/game-questions.entity';
 import { Answer } from './domain/answer.entity';
 import { Game } from './domain/game.entity';
 import { GameQuestionTypeormRepository } from './infrastructure/game-question-typeorm.tepository';
+import { GetUserPendingOrJoinedGameUseCase } from './application/queries/get-user-pending-or-joined-game.query';
+import { GameTypeormQueryRepository } from './infrastructure/game-typeorm.query-repository';
+import { PlayerTypeormQueryRepository } from './infrastructure/player-typeorm.query-repository';
 
 const providers = [
   // command usecases
@@ -34,11 +37,15 @@ const providers = [
   GetQuestionUseCase,
   DeleteQuestionUseCase,
 
+  GetUserPendingOrJoinedGameUseCase,
+
   // repos
   QuestionsTypeormRepository,
   QuestionTypeormQueryRepository,
   PlayerTypeormRepository,
+  PlayerTypeormQueryRepository,
   GameTypeormRepository,
+  GameTypeormQueryRepository,
   GameQuestionTypeormRepository,
 ];
 

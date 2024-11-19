@@ -23,7 +23,7 @@ export class Player {
   id: number;
 
   // @ManyToOne(() => User, (u) => u.players)
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
 

@@ -107,9 +107,14 @@ export class QuizSaController {
   ) {
     const { published } = publishedStatusUpdateModel;
 
-    await this.commandBus.execute<UpdatePublishedStatusCommand, Result>(
-      new UpdatePublishedStatusCommand(id, published),
-    );
+    const result: Result = await this.commandBus.execute<
+      UpdatePublishedStatusCommand,
+      Result
+    >(new UpdatePublishedStatusCommand(id, published));
+
+    if (result.status === ResultStatus.NotFound) {
+      throw new NotFoundException();
+    }
   }
 
   @Delete(':id')

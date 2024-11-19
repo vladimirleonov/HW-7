@@ -10,7 +10,7 @@ import { Player } from './player.entity';
 import { GameQuestion } from './game-questions.entity';
 
 export enum GameStatus {
-  Pending = 'Pending',
+  Pending = 'PendingSecondPlayer',
   Active = 'Active',
   Finished = 'Finished',
 }
@@ -20,11 +20,11 @@ export class Game {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => Player, { nullable: false })
+  @OneToOne(() => Player, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn()
   firstPlayer: Player;
 
-  @OneToOne(() => Player, { nullable: true })
+  @OneToOne(() => Player, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn()
   secondPlayer: Player | null;
 
@@ -34,7 +34,11 @@ export class Game {
   })
   questions: GameQuestion[] | null;
 
-  @Column({ type: 'enum', enum: GameStatus, default: GameStatus.Pending })
+  @Column({
+    type: 'enum',
+    enum: GameStatus,
+    default: GameStatus.Pending,
+  })
   status: GameStatus | null;
 
   // nullable: true - allows to save empty value

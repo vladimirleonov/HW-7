@@ -12,7 +12,7 @@ import {
 } from '../../../../src/base/models/pagination.base.model';
 import { QuestionsPaginationQuery } from '../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
 import { PublishedStatus } from '../../../../src/base/types/published-status';
-import { QUESTIONS_SORTING_PROPERTIES } from '../../../../src/features/quiz/api/quiz-sa.controller.ts.controller';
+import { QUESTIONS_SORTING_PROPERTIES } from '../../../../src/features/quiz/api/quiz-sa.controller';
 import { UserOutputModel } from '../../../../src/features/users/api/models/output/user.output.model';
 
 describe('quiz', () => {

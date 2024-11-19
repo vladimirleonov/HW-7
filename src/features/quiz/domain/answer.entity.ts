@@ -20,7 +20,7 @@ export class Answer {
   player: Player;
 
   @Column()
-  PlayerId: number;
+  playerId: number;
 
   @OneToOne(() => Question)
   @JoinColumn()

@@ -16,6 +16,11 @@ export class TestingRepository {
       'device',
       'password_recovery',
       'email_confirmation',
+      'player',
+      'game',
+      'answer',
+      'question',
+      'game_question',
     ];
 
     for (const table of tables) {

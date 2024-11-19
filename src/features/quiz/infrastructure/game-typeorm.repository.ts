@@ -13,6 +13,8 @@ export class GameTypeormRepository {
   }
 
   async findPendingGame(): Promise<Game | null> {
-    return this.gameRepository.findOneBy({ status: GameStatus.Pending });
+    return this.gameRepository.findOneBy({
+      status: GameStatus.Pending,
+    });
   }
 }

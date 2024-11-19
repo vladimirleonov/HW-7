@@ -3,7 +3,9 @@ import { JwtAuthGuard } from '../../../core/guards/passport/jwt-auth.guard';
 import { CurrentUserId } from '../../../core/decorators/param-decorators/current-user-id.param.decorator';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateConnectionCommand } from '../application/commands/create-connection.command';
-import { ResultStatus } from '../../../base/types/object-result';
+import { Result, ResultStatus } from '../../../base/types/object-result';
+import { GetUserPendingOrJoinedGameQuery } from '../application/queries/get-user-pending-or-joined-game.query';
+import { Game } from '../domain/game.entity';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -20,7 +22,14 @@ export class QuizController {
     );
 
     if (result.status === ResultStatus.Success) {
-      // const userActivePair = await this.queryBus.execute();
+      const playerId: number = result.data;
+
+      const userPendingOrJoinedGame: Result<Game> = await this.queryBus.execute<
+        GetUserPendingOrJoinedGameQuery,
+        Result<Game>
+      >(new GetUserPendingOrJoinedGameQuery(playerId));
+
+      return userPendingOrJoinedGame.data;
     }
   }
 }
