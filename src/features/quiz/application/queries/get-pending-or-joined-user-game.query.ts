@@ -4,24 +4,24 @@ import { Game } from '../../domain/game.entity';
 import { PlayerTypeormQueryRepository } from '../../infrastructure/player-typeorm.query-repository';
 import { Result } from '../../../../base/types/object-result';
 
-export class GetUserPendingOrJoinedGameQuery {
+export class GetPendingOrJoinedUserGameQuery {
   constructor(public readonly playerId: number) {}
 }
 
-@QueryHandler(GetUserPendingOrJoinedGameQuery)
+@QueryHandler(GetPendingOrJoinedUserGameQuery)
 export class GetUserPendingOrJoinedGameUseCase
-  implements IQueryHandler<GetUserPendingOrJoinedGameQuery>
+  implements IQueryHandler<GetPendingOrJoinedUserGameQuery>
 {
   constructor(
     private readonly gameTypeormQueryRepository: GameTypeormQueryRepository,
     private readonly playerTypeormQueryRepository: PlayerTypeormQueryRepository,
   ) {}
 
-  async execute(query: GetUserPendingOrJoinedGameQuery): Promise<Result<Game>> {
+  async execute(query: GetPendingOrJoinedUserGameQuery): Promise<Result<Game>> {
     const { playerId } = query;
 
     const player: boolean =
-      await this.playerTypeormQueryRepository.checkPlayerExists(playerId);
+      await this.playerTypeormQueryRepository.checkPlayerExistsById(playerId);
 
     // TODO: if !player
     if (!player) {
