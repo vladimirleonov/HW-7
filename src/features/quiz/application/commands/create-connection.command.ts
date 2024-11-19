@@ -28,6 +28,7 @@ export class CreateConnectionUseCase
 
     const player: Player = Player.create(userId);
     // console.log(player);
+    // console.log(player.id);
     // Player { userId: 1 }
 
     await this.playerTypeormRepository.save(player);
@@ -43,8 +44,6 @@ export class CreateConnectionUseCase
       console.log(game1);
 
       await this.gameTypeormRepository.save(game1);
-
-      return Result.success();
     } else {
       console.log('game exists');
       game.secondPlayer = player;
@@ -61,16 +60,16 @@ export class CreateConnectionUseCase
       } catch (err) {
         console.log('createRandomGameQuestions err', err);
       }
-
-      return Result.success();
     }
+
+    return Result.success(player.id);
   }
 
   async createRandomGameQuestions(gameId: number) {
     const questionsIds: number[] =
       await this.questionsTypeormRepository.getFiveRandomQuestionIds();
 
-    // console.log('questionsIds', questionsIds);
+    console.log('questionsIds', questionsIds);
     // [ 1084, 1082, 1085, 1079, 1083 ]
 
     questionsIds.forEach((questionId) => {

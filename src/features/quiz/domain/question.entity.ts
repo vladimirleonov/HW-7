@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -26,8 +27,15 @@ export class Question {
   createdAt: Date;
 
   // auto set on update
-  @UpdateDateColumn({ type: 'timestamptz' })
-  updatedAt: Date;
+  @UpdateDateColumn({ type: 'timestamptz', nullable: true })
+  updatedAt: Date | null;
+
+  //This hook prevents updatedAt from being installed when creating
+  @BeforeInsert()
+  setUpdatedAt() {
+    // We do not set the value for updatedAt when creating
+    this.updatedAt = null;
+  }
 
   // auto set when soft delete
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
