@@ -17,4 +17,18 @@ export class GameTypeormRepository {
       status: GameStatus.Pending,
     });
   }
+
+  async checkUserInActiveGame(userId: number): Promise<Game | null> {
+    const game: Game | null = await this.gameRepository
+      .createQueryBuilder('g')
+      .leftJoin('g.firstPlayer', 'fp')
+      .leftJoin('g.secondPlayer', 'sp')
+      .where('fp.userId = :userId OR sp.userId = :userId', { userId: userId })
+      .andWhere('g.status IN (:...statuses)', {
+        statuses: [GameStatus.Active, GameStatus.Pending],
+      })
+      .getOne();
+
+    return game;
+  }
 }

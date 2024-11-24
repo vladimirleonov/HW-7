@@ -3,7 +3,6 @@ import { Game } from '../domain/game.entity';
 import { Repository } from 'typeorm';
 import { Player } from '../domain/player.entity';
 import { Answer } from '../domain/answer.entity';
-import { Question } from '../domain/question.entity';
 import { GameQuestion } from '../domain/game-questions.entity';
 
 export class GameTypeormQueryRepository {

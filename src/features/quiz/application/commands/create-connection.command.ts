@@ -26,6 +26,13 @@ export class CreateConnectionUseCase
   async execute(command: CreateConnectionCommand) {
     const { userId } = command;
 
+    const activeGame: Game | null =
+      await this.gameTypeormRepository.checkUserInActiveGame(userId);
+
+    if (activeGame) {
+      return Result.forbidden();
+    }
+
     const player: Player = Player.create(userId);
     // console.log(player);
     // console.log(player.id);

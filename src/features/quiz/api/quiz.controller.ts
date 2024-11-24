@@ -7,7 +7,10 @@ import { Result, ResultStatus } from '../../../base/types/object-result';
 import { GetPendingOrJoinedUserGameQuery } from '../application/queries/get-pending-or-joined-user-game.query';
 import { Game } from '../domain/game.entity';
 import { GetCurrentUnfinishedUserGameQuery } from '../application/queries/get-current-unfinished-user-game.query';
-import { NotFoundException } from '../../../core/exception-filters/http-exception-filter';
+import {
+  ForbiddenException,
+  NotFoundException,
+} from '../../../core/exception-filters/http-exception-filter';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -36,6 +39,10 @@ export class QuizController {
     const result = await this.commandBus.execute<CreateConnectionCommand, any>(
       new CreateConnectionCommand(userId),
     );
+
+    if (result.status === ResultStatus.Forbidden) {
+      throw new ForbiddenException();
+    }
 
     if (result.status === ResultStatus.Success) {
       const playerId: number = result.data;
