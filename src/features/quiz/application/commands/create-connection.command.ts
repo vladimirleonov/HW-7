@@ -48,6 +48,7 @@ export class CreateConnectionUseCase
       const game1: Game = Game.create(player);
       game1.firstPlayer = player;
       game1.status = GameStatus.Pending;
+      game1.pairCreatedDate = new Date();
       console.log(game1);
 
       await this.gameTypeormRepository.save(game1);
@@ -55,7 +56,7 @@ export class CreateConnectionUseCase
       console.log('game exists');
       game.secondPlayer = player;
       game.status = GameStatus.Active;
-      game.pairCreatedDate = new Date();
+      // game.pairCreatedDate = new Date();
       game.startGameDate = new Date();
 
       console.log(game);

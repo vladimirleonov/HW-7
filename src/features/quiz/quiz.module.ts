@@ -24,6 +24,7 @@ import { GetUserPendingOrJoinedGameUseCase } from './application/queries/get-pen
 import { GameTypeormQueryRepository } from './infrastructure/game-typeorm.query-repository';
 import { PlayerTypeormQueryRepository } from './infrastructure/player-typeorm.query-repository';
 import { GetCurrentUnfinishedUserGameUseCase } from './application/queries/get-current-unfinished-user-game.query';
+import { GetGameUseCase } from './application/queries/get-game.query';
 
 const providers = [
   // command usecases
@@ -40,6 +41,7 @@ const providers = [
   DeleteQuestionUseCase,
 
   GetUserPendingOrJoinedGameUseCase,
+  GetGameUseCase,
 
   // repos
   QuestionsTypeormRepository,

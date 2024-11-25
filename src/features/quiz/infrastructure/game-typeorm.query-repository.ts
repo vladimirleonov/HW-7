@@ -17,6 +17,94 @@ export class GameTypeormQueryRepository {
     private readonly gameQuestionRepository: Repository<GameQuestion>,
   ) {}
 
+  async getOne(gameId: number): Promise<Game | null> {
+    const game = await this.gameQueryRepository
+      .createQueryBuilder('g')
+      .select([
+        'g.id as id',
+        'g.status as status',
+        'g.pairCreatedDate as "pairCreatedDate"',
+        'g.startGameDate as "startGameDate"',
+        'g.finishGameDate as "finishGameDate"',
+      ])
+      .addSelect(
+        `
+        json_build_object (
+          'player', json_build_object(
+            'id', CAST(fp.id as text),
+            'login', fpu.login
+          ),
+          -- join not used
+          'answers', COALESCE(
+            (
+              SELECT json_agg(
+                json_build_object(
+                  'questionId', fpa.question_id,
+                  'answerStatus', fpa.status,
+                  'addedAt', fpa.created_at
+                )
+              )
+              FROM answer fpa
+              WHERE fpa.player_id = fp.id
+            ),
+            '[]'
+          ),
+          'score', fp.score
+        ) as "firstPlayerProgress"
+      `,
+      )
+      .addSelect(
+        `
+        json_build_object (
+          'player', json_build_object(
+            'id', CAST(sp.id as text),
+            'login', spu.login
+          ),
+          -- join not used
+          'answers', COALESCE(
+            (
+              SELECT json_agg(
+                json_build_object(
+                  'questionId', spa.question_id,
+                  'answerStatus', spa.status,
+                  'addedAt', spa.created_at
+                )
+              )
+              FROM answer spa
+              WHERE spa.player_id = sp.id
+            ),
+            '[]'
+          ),
+          'score', sp.score
+        ) as "secondPlayerProgress"
+      `,
+      )
+      .addSelect(
+        `
+        json_agg(
+          json_build_object(
+            'id', CAST(q.id as text),
+            'body', q.body
+          )
+        )
+      `,
+        'questions',
+      )
+      .leftJoin('g.firstPlayer', 'fp')
+      .leftJoin('g.secondPlayer', 'sp')
+      .leftJoin('fp.user', 'fpu')
+      .leftJoin('sp.user', 'spu')
+      .leftJoin('g.questions', 'gq')
+      .leftJoin('gq.question', 'q')
+      .where('g.id = :gameId', { gameId: gameId })
+      .groupBy(
+        'g.id, g.status, g.pairCreatedDate, g.startGameDate, g.finishGameDate, fp.id, fpu.login, sp.id, spu.login',
+      ) // add GROUP BY as use json_agg (all except used in json_agg)
+      .getRawOne();
+
+    return game;
+  }
+
   async getCurrentUnfinishedUserGame(userId: number): Promise<Game | null> {
     // rewrite using .leftJoin('g.questions', 'q')
     const questions = this.gameQuestionRepository
@@ -24,7 +112,7 @@ export class GameTypeormQueryRepository {
       .select(
         `
           json_agg(
-            json_build_object('id', q.id, 'body', q.body)
+            json_build_object('id', CAST(q.id as text), 'body', q.body)
           )
           `,
       )
@@ -48,17 +136,21 @@ export class GameTypeormQueryRepository {
               'login', fpu.login
             ),
             -- join not used
-            'answers', (
-              SELECT json_agg(
-                json_build_object(
-                  'questionId', fpa.question_id,
-                  'answerStatus', fpa.status,
-                  'addedAt', fpa.created_at
+            'answers', COALESCE(
+              (
+                SELECT json_agg(
+                  json_build_object(
+                    'questionId', fpa.question_id,
+                    'answerStatus', fpa.status,
+                    'addedAt', fpa.created_at
+                  )
                 )
-              )
-              FROM answer fpa
-              WHERE fpa.player_id = fp.id
-            )
+                FROM answer fpa
+                WHERE fpa.player_id = fp.id
+              ),
+              '[]'
+            ),
+            'score', fp.score
           ) as "firstPlayerProgress"
         `,
       )
@@ -71,7 +163,8 @@ export class GameTypeormQueryRepository {
                 'login', spu.login
               ),
               -- join not used
-              'answers', (
+              'answers', COALESCE(
+              (
                 SELECT json_agg(
                   json_build_object(
                     'questionId', spa.question_id,
@@ -81,7 +174,10 @@ export class GameTypeormQueryRepository {
                 )
                 FROM answer spa
                 WHERE spa.player_id = sp.id
-              )
+              ),
+              '[]'
+            ),
+            'score', sp.score
             )
             ELSE NULL
           END as "secondPlayerProgress" 
@@ -103,8 +199,6 @@ export class GameTypeormQueryRepository {
       .andWhere('fpu.id = :userId OR spu.id = :userId', { userId: userId })
       .getRawOne();
 
-    console.log('game in getCurrentUnfinishedUserGame', game);
-
     return game;
   }
 
@@ -114,7 +208,7 @@ export class GameTypeormQueryRepository {
       .select(
         `
           json_agg(
-            json_build_object('id', q.id, 'body', q.body)
+            json_build_object('id', CAST(q.id as text), 'body', q.body)
           )
           `,
       )
@@ -138,17 +232,21 @@ export class GameTypeormQueryRepository {
               'login', fpu.login
             ),
             -- join not used
-            'answers', (
-              SELECT json_agg(
-                json_build_object(
-                  'questionId', fpa.question_id,
-                  'answerStatus', fpa.status,
-                  'addedAt', fpa.created_at
+            'answers', COALESCE(
+              (
+                SELECT json_agg(
+                  json_build_object(
+                    'questionId', fpa.question_id,
+                    'answerStatus', fpa.status,
+                    'addedAt', fpa.created_at
+                  )
                 )
-              )
-              FROM answer fpa
-              WHERE fpa.player_id = fp.id
-            )
+                FROM answer fpa
+                WHERE fpa.player_id = fp.id
+              ),
+              '[]'
+            ),
+            'score', fp.score
           ) as "firstPlayerProgress"
         `,
       )
@@ -161,7 +259,8 @@ export class GameTypeormQueryRepository {
                 'login', spu.login
               ),
               -- join not used
-              'answers', (
+              'answers', COALESCE(
+              (
                 SELECT json_agg(
                   json_build_object(
                     'questionId', spa.question_id,
@@ -171,7 +270,10 @@ export class GameTypeormQueryRepository {
                 )
                 FROM answer spa
                 WHERE spa.player_id = sp.id
-              )
+              ),
+              '[]'
+            ),
+            'score', sp.score
             )
             ELSE NULL
           END as "secondPlayerProgress" 
@@ -190,8 +292,29 @@ export class GameTypeormQueryRepository {
       .where('fp.id = :playerId OR sp.id = :playerId', { playerId: playerId })
       .getRawOne();
 
-    // console.log('game in GameTypeormQueryRepository', game);
-
     return game;
+  }
+
+  async checkUserParticipation(gameId, userId) {
+    const game: Game | null = await this.gameQueryRepository
+      .createQueryBuilder('g')
+      .leftJoin('g.firstPlayer', 'fp')
+      .leftJoin('g.secondPlayer', 'sp')
+      .where('g.id = :gameId', { gameId: gameId })
+      .andWhere('fp.userId = :userId OR sp.userId = :userId', {
+        userId: userId,
+      })
+      .getOne();
+
+    return !!game;
+  }
+
+  async gameExists(gameId: number): Promise<boolean> {
+    const game: Game | null = await this.gameQueryRepository
+      .createQueryBuilder('g')
+      .where('g.id = :gameId', { gameId: gameId })
+      .getOne();
+
+    return !!game;
   }
 }
