@@ -22,10 +22,11 @@ export class GetCurrentUnfinishedUserGameUseCase
   ): Promise<Result<Game | null>> {
     const { userId } = query;
 
-    const player: boolean =
-      await this.playerTypeormQueryRepository.checkPlayerExistsByUserId(userId);
-    // TODO: if !player
-    if (!player) {
+    const activePlayer: boolean =
+      await this.playerTypeormQueryRepository.checkActivePlayerExistsByUserId(
+        userId,
+      );
+    if (!activePlayer) {
       return Result.notFound('Player for user does not exists');
     }
 
@@ -33,8 +34,6 @@ export class GetCurrentUnfinishedUserGameUseCase
       await this.gameTypeormQueryRepository.getCurrentUnfinishedUserGame(
         userId,
       );
-
-    // TODO: if !game
     if (!currentUnfinishedUserGame) {
       return Result.notFound('Player is not in a game');
     }

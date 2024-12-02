@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Player } from '../domain/player.entity';
+import { Player, PlayerStatus } from '../domain/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 export class PlayerTypeormRepository {
@@ -10,5 +10,12 @@ export class PlayerTypeormRepository {
 
   async save(player: Player): Promise<void> {
     await this.playerRepository.save(player);
+  }
+
+  async getOne(userId: number): Promise<Player | null> {
+    return this.playerRepository.findOneBy({
+      userId: userId,
+      status: PlayerStatus.InProgress,
+    });
   }
 }

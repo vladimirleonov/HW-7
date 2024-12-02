@@ -19,12 +19,16 @@ import { Player } from './domain/player.entity';
 import { GameQuestion } from './domain/game-questions.entity';
 import { Answer } from './domain/answer.entity';
 import { Game } from './domain/game.entity';
-import { GameQuestionTypeormRepository } from './infrastructure/game-question-typeorm.tepository';
+import { GameQuestionTypeormRepository } from './infrastructure/game-question-typeorm.repository';
 import { GetUserPendingOrJoinedGameUseCase } from './application/queries/get-pending-or-joined-user-game.query';
 import { GameTypeormQueryRepository } from './infrastructure/game-typeorm.query-repository';
 import { PlayerTypeormQueryRepository } from './infrastructure/player-typeorm.query-repository';
 import { GetCurrentUnfinishedUserGameUseCase } from './application/queries/get-current-unfinished-user-game.query';
 import { GetGameUseCase } from './application/queries/get-game.query';
+import { CreateAnswerUseCase } from './application/commands/create-answer.command';
+import { AnswerTypeormRepository } from './infrastructure/answer-typeorm.repository';
+import { AnswerTypeormQueryRepository } from './infrastructure/answer-typeorm.query-repository';
+import { GetAnswerUseCase } from './application/queries/get-answer.query';
 
 const providers = [
   // command usecases
@@ -42,6 +46,8 @@ const providers = [
 
   GetUserPendingOrJoinedGameUseCase,
   GetGameUseCase,
+  CreateAnswerUseCase,
+  GetAnswerUseCase,
 
   // repos
   QuestionsTypeormRepository,
@@ -51,6 +57,8 @@ const providers = [
   GameTypeormRepository,
   GameTypeormQueryRepository,
   GameQuestionTypeormRepository,
+  AnswerTypeormRepository,
+  AnswerTypeormQueryRepository,
 ];
 
 @Module({

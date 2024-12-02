@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Player } from '../domain/player.entity';
+import { Player, PlayerStatus } from '../domain/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 export class PlayerTypeormQueryRepository {
@@ -16,9 +16,10 @@ export class PlayerTypeormQueryRepository {
     return !!player;
   }
 
-  async checkPlayerExistsByUserId(userId: number): Promise<boolean> {
+  async checkActivePlayerExistsByUserId(userId: number): Promise<boolean> {
     const player: Player | null = await this.playerQueryRepository.findOneBy({
       userId: userId,
+      status: PlayerStatus.InProgress,
     });
 
     return !!player;

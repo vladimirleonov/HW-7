@@ -1,7 +1,6 @@
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -11,7 +10,7 @@ import {
 import { User } from '../../users/domain/user.entity';
 import { Answer } from './answer.entity';
 
-enum PlayerStatus {
+export enum PlayerStatus {
   Win = 'Win',
   Los = 'Los',
   InProgress = 'InProgress',
@@ -22,7 +21,6 @@ export class Player {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // @ManyToOne(() => User, (u) => u.players)
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
@@ -60,7 +58,10 @@ export class Player {
   // deletedAt: Date | null;
 
   static create(userId: number) {
+    console.log(userId);
     const newPlayer: Player = new this();
+    //newPlayer.id = userId;
+    console.log('newPlayer', newPlayer);
     newPlayer.userId = userId;
     return newPlayer;
   }

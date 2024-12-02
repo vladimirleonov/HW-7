@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -21,6 +22,10 @@ import {
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
 import { GetGameQuery } from '../application/queries/get-game.query';
+import { AnswerCreateModel } from './models/input/create-answer.input.model';
+import { CreateAnswerCommand } from '../application/commands/create-answer.command';
+import { GetAnswerQuery } from '../application/queries/get-answer.query';
+import { AnswerOutputModel } from './models/output/answer.output.model';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -83,5 +88,32 @@ export class QuizController {
 
       return userPendingOrJoinedGame.data;
     }
+  }
+
+  @Post('my-current/answers')
+  @HttpCode(HttpStatus.OK)
+  async createAnswer(
+    @CurrentUserId() userId: number,
+    @Body() answerCreateModel: AnswerCreateModel,
+  ) {
+    const { answer } = answerCreateModel;
+
+    const createResult: Result<number> = await this.commandBus.execute<
+      CreateAnswerCommand,
+      Result<number>
+    >(new CreateAnswerCommand(userId, answer));
+
+    if (createResult.status === ResultStatus.Forbidden) {
+      throw new ForbiddenException();
+    }
+
+    const answerId: number = createResult.data;
+
+    const getResult: Result<AnswerOutputModel> = await this.queryBus.execute<
+      GetAnswerQuery,
+      Result<AnswerOutputModel>
+    >(new GetAnswerQuery(answerId));
+
+    return getResult.data;
   }
 }

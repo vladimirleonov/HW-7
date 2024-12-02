@@ -1,9 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game } from '../domain/game.entity';
+import { Game, GameStatus } from '../domain/game.entity';
 import { Repository } from 'typeorm';
 import { Player } from '../domain/player.entity';
 import { Answer } from '../domain/answer.entity';
 import { GameQuestion } from '../domain/game-questions.entity';
+import { query } from 'express';
 
 export class GameTypeormQueryRepository {
   constructor(
@@ -21,7 +22,7 @@ export class GameTypeormQueryRepository {
     const game = await this.gameQueryRepository
       .createQueryBuilder('g')
       .select([
-        'g.id as id',
+        'CAST(g.id as text) as id',
         'g.status as status',
         'g.pairCreatedDate as "pairCreatedDate"',
         'g.startGameDate as "startGameDate"',
@@ -31,7 +32,7 @@ export class GameTypeormQueryRepository {
         `
         json_build_object (
           'player', json_build_object(
-            'id', CAST(fp.id as text),
+            'id', CAST(fp.userId as text),
             'login', fpu.login
           ),
           -- join not used
@@ -39,9 +40,9 @@ export class GameTypeormQueryRepository {
             (
               SELECT json_agg(
                 json_build_object(
-                  'questionId', fpa.question_id,
+                  'questionId', CAST(fpa.question_id as text),
                   'answerStatus', fpa.status,
-                  'addedAt', fpa.created_at
+                  'addedAt', fpa.created_at AT TIME ZONE 'UTC'
                 )
               )
               FROM answer fpa
@@ -55,38 +56,45 @@ export class GameTypeormQueryRepository {
       )
       .addSelect(
         `
-        json_build_object (
-          'player', json_build_object(
-            'id', CAST(sp.id as text),
-            'login', spu.login
-          ),
-          -- join not used
-          'answers', COALESCE(
-            (
-              SELECT json_agg(
-                json_build_object(
-                  'questionId', spa.question_id,
-                  'answerStatus', spa.status,
-                  'addedAt', spa.created_at
-                )
-              )
-              FROM answer spa
-              WHERE spa.player_id = sp.id
+        CASE 
+          WHEN sp.id IS NOT NULL THEN json_build_object (
+            'player', json_build_object(
+              'id', CAST(sp.userId as text),
+              'login', spu.login
             ),
-            '[]'
-          ),
-          'score', sp.score
-        ) as "secondPlayerProgress"
+            -- join not used
+            'answers', COALESCE(
+              (
+                SELECT json_agg(
+                  json_build_object(
+                    'questionId', CAST(spa.question_id as text),
+                    'answerStatus', spa.status,
+                    'addedAt', spa.created_at AT TIME ZONE 'UTC'
+                  )
+                )
+                FROM answer spa
+                WHERE spa.player_id = sp.id
+              ),
+              '[]'
+            ),
+            'score', sp.score
+          )
+          ELSE NULL
+        END as "secondPlayerProgress"
       `,
       )
       .addSelect(
         `
-        json_agg(
-          json_build_object(
-            'id', CAST(q.id as text),
-            'body', q.body
-          )
-        )
+        CASE 
+          WHEN COUNT(q.id) > 0 THEN 
+            json_agg(
+              json_build_object(
+                'id', CAST(q.id as text),
+                'body', q.body
+              ) ORDER BY q.id
+            )
+          ELSE null
+        END
       `,
         'questions',
       )
@@ -112,9 +120,12 @@ export class GameTypeormQueryRepository {
       .select(
         `
           json_agg(
-            json_build_object('id', CAST(q.id as text), 'body', q.body)
+            json_build_object(
+              'id', CAST(q.id as text), 
+              'body', q.body
+            ) ORDER BY q.id
           )
-          `,
+        `,
       )
       .leftJoin('gq.question', 'q')
       .where('gq.gameId = g.id'); // connect with game query
@@ -132,7 +143,7 @@ export class GameTypeormQueryRepository {
         `
           json_build_object(
             'player', json_build_object(
-              'id', CAST(fp.id as text),
+              'id', CAST(fp.userId as text),
               'login', fpu.login
             ),
             -- join not used
@@ -140,9 +151,9 @@ export class GameTypeormQueryRepository {
               (
                 SELECT json_agg(
                   json_build_object(
-                    'questionId', fpa.question_id,
+                    'questionId', CAST(fpa.question_id as text),
                     'answerStatus', fpa.status,
-                    'addedAt', fpa.created_at
+                    'addedAt', fpa.created_at AT TIME ZONE 'UTC'
                   )
                 )
                 FROM answer fpa
@@ -156,10 +167,10 @@ export class GameTypeormQueryRepository {
       )
       .addSelect(
         `
-          CASE 
+          CASE
             WHEN sp.id IS NOT NULL THEN json_build_object(
               'player', json_build_object(
-                'id', CAST(sp.id as text),
+                'id', CAST(sp.userId as text),
                 'login', spu.login
               ),
               -- join not used
@@ -167,9 +178,9 @@ export class GameTypeormQueryRepository {
               (
                 SELECT json_agg(
                   json_build_object(
-                    'questionId', spa.question_id,
+                    'questionId', CAST(spa.question_id as text),
                     'answerStatus', spa.status,
-                    'addedAt', spa.created_at
+                    'addedAt', spa.created_at AT TIME ZONE 'UTC'
                   )
                 )
                 FROM answer spa
@@ -180,7 +191,7 @@ export class GameTypeormQueryRepository {
             'score', sp.score
             )
             ELSE NULL
-          END as "secondPlayerProgress" 
+          END as "secondPlayerProgress"
         `,
       )
       .addSelect(
@@ -193,10 +204,14 @@ export class GameTypeormQueryRepository {
       .leftJoin('g.secondPlayer', 'sp')
       .leftJoin('fp.user', 'fpu')
       .leftJoin('sp.user', 'spu')
-      .where('g.status IN (:...statuses)', {
-        statuses: ['PendingSecondPlayer', 'Active'],
-      })
-      .andWhere('fpu.id = :userId OR spu.id = :userId', { userId: userId })
+      .where(
+        'g.status IN (:...statuses)  AND (fpu.id = :userId OR spu.id = :userId)',
+        {
+          statuses: [GameStatus.Pending, GameStatus.Active],
+          userId: userId,
+        },
+      )
+      // .andWhere('fpu.id = :userId OR spu.id = :userId ', { userId: userId })
       .getRawOne();
 
     return game;
@@ -208,7 +223,10 @@ export class GameTypeormQueryRepository {
       .select(
         `
           json_agg(
-            json_build_object('id', CAST(q.id as text), 'body', q.body)
+            json_build_object(
+              'id', CAST(q.id as text),
+             'body', q.body
+            ) ORDER BY q.id
           )
           `,
       )
@@ -228,7 +246,7 @@ export class GameTypeormQueryRepository {
         `
           json_build_object(
             'player', json_build_object(
-              'id', CAST(fp.id as text),
+              'id', CAST(fp.userId as text),
               'login', fpu.login
             ),
             -- join not used
@@ -236,9 +254,9 @@ export class GameTypeormQueryRepository {
               (
                 SELECT json_agg(
                   json_build_object(
-                    'questionId', fpa.question_id,
+                    'questionId', CAST(fpa.question_id as text),
                     'answerStatus', fpa.status,
-                    'addedAt', fpa.created_at
+                    'addedAt', fpa.created_at AT TIME ZONE 'UTC'
                   )
                 )
                 FROM answer fpa
@@ -255,7 +273,7 @@ export class GameTypeormQueryRepository {
           CASE 
             WHEN sp.id IS NOT NULL THEN json_build_object(
               'player', json_build_object(
-                'id', CAST(sp.id as text),
+                'id', CAST(sp.userId as text),
                 'login', spu.login
               ),
               -- join not used
@@ -263,9 +281,9 @@ export class GameTypeormQueryRepository {
               (
                 SELECT json_agg(
                   json_build_object(
-                    'questionId', spa.question_id,
+                    'questionId', CAST(spa.question_id as text),
                     'answerStatus', spa.status,
-                    'addedAt', spa.created_at
+                    'addedAt', spa.created_at AT TIME ZONE 'UTC'
                   )
                 )
                 FROM answer spa
@@ -296,15 +314,15 @@ export class GameTypeormQueryRepository {
   }
 
   async checkUserParticipation(gameId, userId) {
-    const game: Game | null = await this.gameQueryRepository
+    const game = await this.gameQueryRepository
       .createQueryBuilder('g')
       .leftJoin('g.firstPlayer', 'fp')
       .leftJoin('g.secondPlayer', 'sp')
       .where('g.id = :gameId', { gameId: gameId })
-      .andWhere('fp.userId = :userId OR sp.userId = :userId', {
+      .andWhere('(fp.userId = :userId OR sp.userId = :userId)', {
         userId: userId,
       })
-      .getOne();
+      .getRawOne();
 
     return !!game;
   }

@@ -4,35 +4,52 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Player } from './player.entity';
 import { Question } from './question.entity';
+
+export enum AnswerStatus {
+  Correct = 'Correct',
+  Incorrect = 'Incorrect',
+}
 
 @Entity()
 export class Answer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Player, (p) => p.answers)
+  @ManyToOne(() => Player, (p) => p.answers, { onDelete: 'CASCADE' })
   @JoinColumn()
   player: Player;
 
   @Column()
   playerId: number;
 
-  @OneToOne(() => Question)
+  @ManyToOne(() => Question)
   @JoinColumn()
   question: Question;
 
   @Column()
   questionId: number;
 
-  @Column({ nullable: true })
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: AnswerStatus,
+    default: AnswerStatus.Incorrect,
+  })
+  status: AnswerStatus;
 
   // auto set on create
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
+
+  static create(playerId: number, questionId: number, status: AnswerStatus) {
+    const newAnswer: Answer = new this();
+    newAnswer.playerId = playerId;
+    newAnswer.questionId = questionId;
+    newAnswer.status = status;
+
+    return newAnswer;
+  }
 }

@@ -5,7 +5,7 @@ import { PlayerTypeormRepository } from '../../infrastructure/player-typeorm.rep
 import { Game, GameStatus } from '../../domain/game.entity';
 import { QuestionsTypeormRepository } from '../../infrastructure/questions-typeorm.repository';
 import { GameQuestion } from '../../domain/game-questions.entity';
-import { GameQuestionTypeormRepository } from '../../infrastructure/game-question-typeorm.tepository';
+import { GameQuestionTypeormRepository } from '../../infrastructure/game-question-typeorm.repository';
 import { Result } from '../../../../base/types/object-result';
 
 export class CreateConnectionCommand {
@@ -49,7 +49,7 @@ export class CreateConnectionUseCase
       game1.firstPlayer = player;
       game1.status = GameStatus.Pending;
       game1.pairCreatedDate = new Date();
-      console.log(game1);
+      // console.log(game1);
 
       await this.gameTypeormRepository.save(game1);
     } else {
@@ -59,7 +59,7 @@ export class CreateConnectionUseCase
       // game.pairCreatedDate = new Date();
       game.startGameDate = new Date();
 
-      console.log(game);
+      // console.log(game);
 
       await this.gameTypeormRepository.save(game);
 
@@ -85,7 +85,7 @@ export class CreateConnectionUseCase
         gameId,
         questionId,
       );
-      console.log(gameQuestion);
+      // console.log(gameQuestion);
 
       this.gameQuestionTypeormRepository.save(gameQuestion);
     });
