@@ -1,13 +1,16 @@
-import { Entity, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Game } from './game.entity';
 import { Question } from './question.entity';
 
 @Entity()
 export class GameQuestion {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
   gameId: number;
 
-  @PrimaryColumn()
+  @Column()
   questionId: number;
 
   @ManyToOne(() => Game, { onDelete: 'CASCADE' })

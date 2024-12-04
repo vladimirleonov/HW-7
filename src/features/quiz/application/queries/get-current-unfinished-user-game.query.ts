@@ -27,7 +27,7 @@ export class GetCurrentUnfinishedUserGameUseCase
         userId,
       );
     if (!activePlayer) {
-      return Result.notFound('Player for user does not exists');
+      return Result.notFound(`Player for user does not exist`);
     }
 
     const currentUnfinishedUserGame: Game | null =
@@ -35,7 +35,7 @@ export class GetCurrentUnfinishedUserGameUseCase
         userId,
       );
     if (!currentUnfinishedUserGame) {
-      return Result.notFound('Player is not in a game');
+      return Result.notFound(`There is no active pair for current user`);
     }
 
     return Result.success(currentUnfinishedUserGame);

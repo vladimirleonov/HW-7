@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { Player } from '../domain/player.entity';
 import { Answer } from '../domain/answer.entity';
 import { GameQuestion } from '../domain/game-questions.entity';
-import { query } from 'express';
 
 export class GameTypeormQueryRepository {
   constructor(
@@ -42,8 +41,11 @@ export class GameTypeormQueryRepository {
                 json_build_object(
                   'questionId', CAST(fpa.question_id as text),
                   'answerStatus', fpa.status,
-                  'addedAt', fpa.created_at AT TIME ZONE 'UTC'
-                )
+                  'addedAt', CONCAT(
+                    TO_CHAR(fpa.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS'),
+                    'Z'
+                  )
+                ) ORDER BY fpa.created_at ASC
               )
               FROM answer fpa
               WHERE fpa.player_id = fp.id
@@ -69,8 +71,11 @@ export class GameTypeormQueryRepository {
                   json_build_object(
                     'questionId', CAST(spa.question_id as text),
                     'answerStatus', spa.status,
-                    'addedAt', spa.created_at AT TIME ZONE 'UTC'
-                  )
+                    'addedAt', CONCAT(
+                      TO_CHAR(spa.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS'),
+                      'Z'
+                    )
+                  ) ORDER BY spa.created_at ASC
                 )
                 FROM answer spa
                 WHERE spa.player_id = sp.id
@@ -91,7 +96,7 @@ export class GameTypeormQueryRepository {
               json_build_object(
                 'id', CAST(q.id as text),
                 'body', q.body
-              ) ORDER BY q.id
+              ) ORDER BY gq.id
             )
           ELSE null
         END
@@ -114,7 +119,7 @@ export class GameTypeormQueryRepository {
   }
 
   async getCurrentUnfinishedUserGame(userId: number): Promise<Game | null> {
-    // rewrite using .leftJoin('g.questions', 'q')
+    // can rewrite using .leftJoin('g.questions', 'q')
     const questions = this.gameQuestionRepository
       .createQueryBuilder('gq')
       .select(
@@ -123,7 +128,7 @@ export class GameTypeormQueryRepository {
             json_build_object(
               'id', CAST(q.id as text), 
               'body', q.body
-            ) ORDER BY q.id
+            ) ORDER BY gq.id
           )
         `,
       )
@@ -153,8 +158,11 @@ export class GameTypeormQueryRepository {
                   json_build_object(
                     'questionId', CAST(fpa.question_id as text),
                     'answerStatus', fpa.status,
-                    'addedAt', fpa.created_at AT TIME ZONE 'UTC'
-                  )
+                    'addedAt', CONCAT(
+                      TO_CHAR(fpa.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS'),
+                      'Z'
+                    )
+                  ) ORDER BY fpa.created_at ASC
                 )
                 FROM answer fpa
                 WHERE fpa.player_id = fp.id
@@ -180,8 +188,11 @@ export class GameTypeormQueryRepository {
                   json_build_object(
                     'questionId', CAST(spa.question_id as text),
                     'answerStatus', spa.status,
-                    'addedAt', spa.created_at AT TIME ZONE 'UTC'
-                  )
+                    'addedAt', CONCAT(
+                      TO_CHAR(spa.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS'),
+                      'Z'
+                    )
+                  ) ORDER BY spa.created_at ASC
                 )
                 FROM answer spa
                 WHERE spa.player_id = sp.id
@@ -211,7 +222,6 @@ export class GameTypeormQueryRepository {
           userId: userId,
         },
       )
-      // .andWhere('fpu.id = :userId OR spu.id = :userId ', { userId: userId })
       .getRawOne();
 
     return game;
@@ -226,9 +236,9 @@ export class GameTypeormQueryRepository {
             json_build_object(
               'id', CAST(q.id as text),
              'body', q.body
-            ) ORDER BY q.id
+            ) ORDER BY gq.id
           )
-          `,
+        `,
       )
       .leftJoin('gq.question', 'q')
       .where('gq.gameId = g.id'); // connect with game query
@@ -256,8 +266,11 @@ export class GameTypeormQueryRepository {
                   json_build_object(
                     'questionId', CAST(fpa.question_id as text),
                     'answerStatus', fpa.status,
-                    'addedAt', fpa.created_at AT TIME ZONE 'UTC'
-                  )
+                    'addedAt', CONCAT(
+                      TO_CHAR(fpa.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS'),
+                      'Z'
+                    )
+                  ) ORDER BY fpa.created_at ASC
                 )
                 FROM answer fpa
                 WHERE fpa.player_id = fp.id
@@ -283,8 +296,11 @@ export class GameTypeormQueryRepository {
                   json_build_object(
                     'questionId', CAST(spa.question_id as text),
                     'answerStatus', spa.status,
-                    'addedAt', spa.created_at AT TIME ZONE 'UTC'
-                  )
+                    'addedAt', CONCAT(
+                      TO_CHAR(spa.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS'),
+                      'Z'
+                    )
+                  ) ORDER BY spa.created_at ASC
                 )
                 FROM answer spa
                 WHERE spa.player_id = sp.id

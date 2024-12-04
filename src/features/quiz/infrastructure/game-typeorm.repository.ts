@@ -73,7 +73,7 @@ export class GameTypeormRepository {
       .andWhere('(fp.userId = :userId OR sp.userId = :userId)', {
         userId: userId,
       })
-      .orderBy('gq.questionId')
+      .orderBy('gq.id')
       .getOne();
 
     return game;

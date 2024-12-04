@@ -80,14 +80,24 @@ export class CreateConnectionUseCase
     console.log('questionsIds', questionsIds);
     // [ 1084, 1082, 1085, 1079, 1083 ]
 
-    questionsIds.forEach((questionId) => {
+    // questionsIds.forEach((questionId) => {
+    //   const gameQuestion: GameQuestion = GameQuestion.create(
+    //     gameId,
+    //     questionId,
+    //   );
+    //   // console.log(gameQuestion);
+    //
+    //   this.gameQuestionTypeormRepository.save(gameQuestion);
+    // });
+
+    for (const questionId of questionsIds) {
       const gameQuestion: GameQuestion = GameQuestion.create(
         gameId,
         questionId,
       );
       // console.log(gameQuestion);
 
-      this.gameQuestionTypeormRepository.save(gameQuestion);
-    });
+      await this.gameQuestionTypeormRepository.save(gameQuestion);
+    }
   }
 }

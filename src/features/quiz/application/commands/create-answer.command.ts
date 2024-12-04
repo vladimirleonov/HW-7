@@ -198,11 +198,12 @@ export class CreateAnswerUseCase
     player: Player,
     isCorrect: boolean,
   ) {
-    const playerId: number = player.id;
     const questionId: number = nextGameQuestion.questionId;
     const isAnswerCorrect: AnswerStatus = isCorrect
       ? AnswerStatus.Correct
       : AnswerStatus.Incorrect;
+
+    const playerId: number = player.id;
 
     console.log('questionId', questionId);
     const answer: Answer = Answer.create(playerId, questionId, isAnswerCorrect);
@@ -219,18 +220,26 @@ export class CreateAnswerUseCase
     questionNumber: number,
     activeGame: Game,
   ) {
-    console.log('player score 1', player.score);
+    const currentPlayer: Player | null =
+      activeGame.firstPlayer.id === player.id
+        ? activeGame.firstPlayer
+        : activeGame.secondPlayer;
+
+    console.log('currentPlayer', currentPlayer);
+    console.log('activeGame', activeGame);
+    console.log('player score 1', currentPlayer!.score);
     if (isCorrect) {
-      player.score += 1;
+      console.log(isCorrect);
+      currentPlayer!.score += 1;
     }
-    console.log('player score 2', player.score);
+    console.log('player score 2', currentPlayer!.score);
 
     /**
      * if last answer - add 1 score if observed conditions
      */
 
     if (questionNumber === 5) {
-      console.log('> 5');
+      console.log('=== 5');
       console.log('questionNumber', questionNumber);
       /**
        * get first player correct answers
@@ -238,7 +247,7 @@ export class CreateAnswerUseCase
 
       const playerCorrectAnswers: Answer[] | null =
         (await this.answerTypeormRepository.getAllCorrectByPlayerId(
-          player.id,
+          currentPlayer!.id,
         )) || [];
       console.log('playerCorrectAnswers', playerCorrectAnswers);
 
@@ -247,7 +256,7 @@ export class CreateAnswerUseCase
        */
 
       const secondPlayer =
-        activeGame.firstPlayer.userId === player.userId
+        activeGame.firstPlayer.userId === currentPlayer!.userId
           ? activeGame.secondPlayer
           : activeGame.firstPlayer;
       console.log('secondPlayer', secondPlayer);
@@ -262,21 +271,44 @@ export class CreateAnswerUseCase
         )) || [];
       console.log('secondPlayerAnswers', secondPlayerAnswers);
 
+      // /**
+      //  * check there is at list one first player correct answer and less than five second player answers
+      //  */
+      //
+      // if (playerCorrectAnswers.length > 0 && secondPlayerAnswers.length < 5) {
+      //   console.log('user first answered +1 score!!!');
+      //   player.score += 1;
+      // }
+
       /**
        * check there is at list one first player correct answer and less than five second player answers
        */
 
-      if (playerCorrectAnswers.length > 0 && secondPlayerAnswers.length < 5) {
-        console.log('user first answered +1 score!!!');
-        player.score += 1;
+      const secondPlayerCorrectAnswers: Answer[] =
+        (await this.answerTypeormRepository.getAllCorrectByPlayerId(
+          secondPlayer!.id,
+        )) || [];
+      console.log('secondPlayerCorrectAnswers', secondPlayerCorrectAnswers);
+
+      if (
+        secondPlayerAnswers.length === 5 &&
+        secondPlayerCorrectAnswers.length > 0
+      ) {
+        console.log('secondPlayer.score 1', secondPlayer!.score);
+        secondPlayer!.score += 1;
+        console.log('secondPlayer.score 2', secondPlayer!.score);
       }
+
+      await this.playerTypeormRepository.save(secondPlayer!);
     }
 
-    console.log('player score 3', player.score);
+    console.log('player score 3', currentPlayer!.score);
 
-    await this.playerTypeormRepository.save(player);
+    await this.playerTypeormRepository.save(currentPlayer!);
 
-    console.log('player score 4', player.score);
+    console.log('player score 4', currentPlayer!.score);
+
+    console.log('end activeGame', activeGame);
   }
 
   async changePayerAndGameStatus(activeGame: Game) {
@@ -313,9 +345,12 @@ export class CreateAnswerUseCase
     if (firstPlayer.score > secondPlayer.score) {
       firstPlayer.status = PlayerStatus.Win;
       secondPlayer.status = PlayerStatus.Los;
-    } else {
+    } else if (firstPlayer.score < secondPlayer.score) {
       firstPlayer.status = PlayerStatus.Los;
       secondPlayer.status = PlayerStatus.Win;
+    } else {
+      firstPlayer.status = PlayerStatus.Draw;
+      secondPlayer.status = PlayerStatus.Draw;
     }
 
     activeGame.finishGameDate = new Date();

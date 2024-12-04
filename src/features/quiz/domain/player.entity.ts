@@ -14,6 +14,7 @@ export enum PlayerStatus {
   Win = 'Win',
   Los = 'Los',
   InProgress = 'InProgress',
+  Draw = 'Draw',
 }
 
 @Entity()
