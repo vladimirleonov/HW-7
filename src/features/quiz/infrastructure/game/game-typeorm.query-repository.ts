@@ -1,9 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game, GameStatus } from '../domain/game.entity';
+import { Game, GameStatus } from '../../domain/game.entity';
 import { Repository } from 'typeorm';
-import { Player } from '../domain/player.entity';
-import { Answer } from '../domain/answer.entity';
-import { GameQuestion } from '../domain/game-questions.entity';
+import { Player } from '../../domain/player.entity';
+import { Answer } from '../../domain/answer.entity';
+import { GameQuestion } from '../../domain/game-questions.entity';
+import { GameOutputModel } from '../../api/models/output/game.output.model';
 
 export class GameTypeormQueryRepository {
   constructor(
@@ -17,8 +18,8 @@ export class GameTypeormQueryRepository {
     private readonly gameQuestionRepository: Repository<GameQuestion>,
   ) {}
 
-  async getOne(gameId: number): Promise<Game | null> {
-    const game = await this.gameQueryRepository
+  async getOne(gameId: number): Promise<GameOutputModel | null> {
+    const game: GameOutputModel | undefined = await this.gameQueryRepository
       .createQueryBuilder('g')
       .select([
         'CAST(g.id as text) as id',
@@ -115,10 +116,12 @@ export class GameTypeormQueryRepository {
       ) // add GROUP BY as use json_agg (all except used in json_agg)
       .getRawOne();
 
-    return game;
+    return game ?? null;
   }
 
-  async getCurrentUnfinishedUserGame(userId: number): Promise<Game | null> {
+  async getCurrentUnfinishedUserGame(
+    userId: number,
+  ): Promise<GameOutputModel | null> {
     // can rewrite using .leftJoin('g.questions', 'q')
     const questions = this.gameQuestionRepository
       .createQueryBuilder('gq')
@@ -135,7 +138,7 @@ export class GameTypeormQueryRepository {
       .leftJoin('gq.question', 'q')
       .where('gq.gameId = g.id'); // connect with game query
 
-    const game = await this.gameQueryRepository
+    const game: GameOutputModel | undefined = await this.gameQueryRepository
       .createQueryBuilder('g')
       .select([
         'CAST(g.id as text) as id',
@@ -224,10 +227,12 @@ export class GameTypeormQueryRepository {
       )
       .getRawOne();
 
-    return game;
+    return game ?? null;
   }
 
-  async getPlayerPendingOrJoinedGame(playerId: number): Promise<Game | null> {
+  async getPlayerPendingOrJoinedGame(
+    playerId: number,
+  ): Promise<GameOutputModel | null> {
     const questions = this.gameQuestionRepository
       .createQueryBuilder('gq')
       .select(
@@ -243,7 +248,7 @@ export class GameTypeormQueryRepository {
       .leftJoin('gq.question', 'q')
       .where('gq.gameId = g.id'); // connect with game query
 
-    const game = await this.gameQueryRepository
+    const game: GameOutputModel | undefined = await this.gameQueryRepository
       .createQueryBuilder('g')
       .select([
         'CAST(g.id as text) as id',
@@ -326,11 +331,11 @@ export class GameTypeormQueryRepository {
       .where('fp.id = :playerId OR sp.id = :playerId', { playerId: playerId })
       .getRawOne();
 
-    return game;
+    return game ?? null;
   }
 
-  async checkUserParticipation(gameId, userId) {
-    const game = await this.gameQueryRepository
+  async checkUserParticipation(gameId, userId): Promise<boolean> {
+    const game: Game | undefined = await this.gameQueryRepository
       .createQueryBuilder('g')
       .leftJoin('g.firstPlayer', 'fp')
       .leftJoin('g.secondPlayer', 'sp')

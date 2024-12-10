@@ -1,5 +1,5 @@
 import { ICommandHandler, QueryHandler } from '@nestjs/cqrs';
-import { QuestionsTypeormRepository } from '../../infrastructure/questions-typeorm.repository';
+import { QuestionsTypeormRepository } from '../../infrastructure/question/questions-typeorm.repository';
 import { Result } from '../../../../base/types/object-result';
 import { Question } from '../../domain/question.entity';
 

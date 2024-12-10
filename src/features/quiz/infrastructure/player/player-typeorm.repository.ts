@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { Player, PlayerStatus } from '../domain/player.entity';
+import { Player, PlayerStatus } from '../../domain/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 export class PlayerTypeormRepository {

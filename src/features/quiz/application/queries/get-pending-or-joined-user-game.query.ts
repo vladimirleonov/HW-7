@@ -1,8 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { GameTypeormQueryRepository } from '../../infrastructure/game-typeorm.query-repository';
-import { Game } from '../../domain/game.entity';
-import { PlayerTypeormQueryRepository } from '../../infrastructure/player-typeorm.query-repository';
+import { GameTypeormQueryRepository } from '../../infrastructure/game/game-typeorm.query-repository';
 import { Result } from '../../../../base/types/object-result';
+import { GameOutputModel } from '../../api/models/output/game.output.model';
 
 export class GetPendingOrJoinedUserGameQuery {
   constructor(public readonly playerId: number) {}
@@ -14,26 +13,18 @@ export class GetUserPendingOrJoinedGameUseCase
 {
   constructor(
     private readonly gameTypeormQueryRepository: GameTypeormQueryRepository,
-    private readonly playerTypeormQueryRepository: PlayerTypeormQueryRepository,
   ) {}
 
-  async execute(query: GetPendingOrJoinedUserGameQuery): Promise<Result<Game>> {
+  async execute(
+    query: GetPendingOrJoinedUserGameQuery,
+  ): Promise<Result<GameOutputModel | null>> {
     const { playerId } = query;
 
-    const player: boolean =
-      await this.playerTypeormQueryRepository.checkPlayerExistsById(playerId);
-
-    // TODO: if !player
-    if (!player) {
-      return Result.notFound('Player not found');
-    }
-
-    const playerPendingOrJoinedGame: Game | null =
+    const playerPendingOrJoinedGame: GameOutputModel | null =
       await this.gameTypeormQueryRepository.getPlayerPendingOrJoinedGame(
         playerId,
       );
 
-    // TODO: if !game
     if (!playerPendingOrJoinedGame) {
       return Result.notFound('Player is not in a game');
     }

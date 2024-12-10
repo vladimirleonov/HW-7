@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
-import { Question } from '../domain/question.entity';
+import { Question } from '../../domain/question.entity';
 
 export class QuestionsTypeormRepository {
   constructor(

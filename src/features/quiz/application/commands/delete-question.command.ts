@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { QuestionsTypeormRepository } from '../../infrastructure/questions-typeorm.repository';
+import { QuestionsTypeormRepository } from '../../infrastructure/question/questions-typeorm.repository';
 import { Result } from '../../../../base/types/object-result';
 
 export class DeleteQuestionCommand {

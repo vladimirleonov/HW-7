@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Answer, AnswerStatus } from '../domain/answer.entity';
+import { Answer, AnswerStatus } from '../../domain/answer.entity';
 
 export class AnswerTypeormRepository {
   constructor(

@@ -1,13 +1,13 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Question } from '../domain/question.entity';
+import { Question } from '../../domain/question.entity';
 import { Repository } from 'typeorm';
-import { QuestionOutputModel } from '../api/models/output/question.output.model';
+import { QuestionOutputModel } from '../../api/models/output/question.output.model';
 import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
-} from '../../../base/models/pagination.base.model';
-import { QuestionsPaginationQuery } from '../api/models/input/questions-pagination-query.input.model';
-import { PublishedStatus } from '../../../base/types/published-status';
+} from '../../../../base/models/pagination.base.model';
+import { QuestionsPaginationQuery } from '../../api/models/input/questions-pagination-query.input.model';
+import { PublishedStatus } from '../../../../base/types/published-status';
 
 export class QuestionTypeormQueryRepository {
   constructor(

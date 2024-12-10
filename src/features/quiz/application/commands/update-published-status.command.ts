@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { QuestionsTypeormRepository } from '../../infrastructure/questions-typeorm.repository';
+import { QuestionsTypeormRepository } from '../../infrastructure/question/questions-typeorm.repository';
 import { Question } from '../../domain/question.entity';
 import { Result } from '../../../../base/types/object-result';
 
@@ -18,7 +18,7 @@ export class UpdatePublishedStatusUseCase
     private readonly questionsTypeormRepository: QuestionsTypeormRepository,
   ) {}
 
-  async execute(command: UpdatePublishedStatusCommand) {
+  async execute(command: UpdatePublishedStatusCommand): Promise<Result> {
     const { id, published } = command;
 
     const question: Question | null =

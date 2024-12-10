@@ -24,7 +24,9 @@ export class CreateUserUseCase implements ICommandHandler<CreateUserCommand> {
     private configService: ConfigService<ConfigurationType, true>,
   ) {}
 
-  async execute(command: CreateUserCommand) {
+  async execute(
+    command: CreateUserCommand,
+  ): Promise<Result<null> | Result<number>> {
     const { login, password, email } = command;
 
     const apiSettings: ApiSettings = this.configService.get('apiSettings', {

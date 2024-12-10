@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../base/types/object-result';
 import { AnswerOutputModel } from '../../api/models/output/answer.output.model';
-import { AnswerTypeormQueryRepository } from '../../infrastructure/answer-typeorm.query-repository';
+import { AnswerTypeormQueryRepository } from '../../infrastructure/answer/answer-typeorm.query-repository';
 
 export class GetAnswerQuery {
   constructor(public readonly id: number) {}
@@ -13,10 +13,12 @@ export class GetAnswerUseCase implements IQueryHandler<GetAnswerQuery> {
     private readonly answerTypeormQueryRepository: AnswerTypeormQueryRepository,
   ) {}
 
-  async execute(query: GetAnswerQuery) {
+  async execute(
+    query: GetAnswerQuery,
+  ): Promise<Result<AnswerOutputModel | null>> {
     const { id } = query;
 
-    const answer: AnswerOutputModel =
+    const answer: AnswerOutputModel | null =
       await this.answerTypeormQueryRepository.getOne(id);
 
     return Result.success(answer);

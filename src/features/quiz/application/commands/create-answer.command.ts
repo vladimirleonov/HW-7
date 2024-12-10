@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PlayerTypeormRepository } from '../../infrastructure/player-typeorm.repository';
+import { PlayerTypeormRepository } from '../../infrastructure/player/player-typeorm.repository';
 import { Result } from '../../../../base/types/object-result';
-import { GameTypeormRepository } from '../../infrastructure/game-typeorm.repository';
+import { GameTypeormRepository } from '../../infrastructure/game/game-typeorm.repository';
 import { Game, GameStatus } from '../../domain/game.entity';
 import { Player, PlayerStatus } from '../../domain/player.entity';
-import { AnswerTypeormRepository } from '../../infrastructure/answer-typeorm.repository';
+import { AnswerTypeormRepository } from '../../infrastructure/answer/answer-typeorm.repository';
 import { Answer, AnswerStatus } from '../../domain/answer.entity';
 import { GameQuestion } from '../../domain/game-questions.entity';
 import { Question } from '../../domain/question.entity';
-import { QuestionsTypeormRepository } from '../../infrastructure/questions-typeorm.repository';
+import { QuestionsTypeormRepository } from '../../infrastructure/question/questions-typeorm.repository';
 
 export class CreateAnswerCommand {
   constructor(
@@ -28,7 +28,7 @@ export class CreateAnswerUseCase
     private readonly answerTypeormRepository: AnswerTypeormRepository,
   ) {}
 
-  async execute(command: CreateAnswerCommand): Promise<Result<number>> {
+  async execute(command: CreateAnswerCommand): Promise<Result<number | null>> {
     const { userId, answer } = command;
 
     /**
@@ -37,7 +37,6 @@ export class CreateAnswerUseCase
 
     const activeGame: Game | null =
       await this.gameTypeormRepository.getUserActiveGame(userId);
-    // console.log('activeGame', activeGame);
 
     if (!activeGame) {
       return Result.forbidden();
@@ -49,20 +48,23 @@ export class CreateAnswerUseCase
 
     const player: Player | null =
       await this.playerTypeormRepository.getOne(userId);
-    // console.log('player', player);
 
-    /**
-     * check player in activeGame
-     */
-
-    if (
-      !player ||
-      (activeGame.firstPlayer.userId !== player.userId &&
-        activeGame.secondPlayer &&
-        activeGame.secondPlayer.userId !== player.userId)
-    ) {
+    if (!player) {
       return Result.forbidden();
     }
+
+    // /**
+    //  * check player in activeGame
+    //  */
+
+    // if (
+    //   !player ||
+    //   (activeGame.firstPlayer.userId !== player.userId &&
+    //     activeGame.secondPlayer &&
+    //     activeGame.secondPlayer.userId !== player.userId)
+    // ) {
+    //   return Result.forbidden();
+    // }
 
     /**
      * next not answered question and its number
@@ -72,16 +74,8 @@ export class CreateAnswerUseCase
       GameQuestion | null,
       number | null,
     ] = await this.findNextQuestion(activeGame, player);
-    // console.log(
-    //   'nextGameQuestion',
-    //   nextGameQuestion,
-    //   'questionNumber',
-    //   questionNumber,
-    // );
-    // GameQuestion { gameId: 1, questionId: 3 } 2
 
     if (!nextGameQuestion || questionNumber === null) {
-      console.log('!next question');
       return Result.forbidden();
     }
 
@@ -93,7 +87,6 @@ export class CreateAnswerUseCase
       nextGameQuestion,
       answer,
     );
-    console.log('isCorrect', isCorrect);
 
     /**
      * create answer
@@ -125,33 +118,14 @@ export class CreateAnswerUseCase
     activeGame: Game,
     player: Player,
   ): Promise<[GameQuestion | null, number | null]> {
-    // const gameQuestions: GameQuestion[] = activeGame.questions || [];
-    // const questionNumber: number = 0;
-
-    // for (const gq of gameQuestions) {
-    //   questionNumber++;
-    //   const existingAnswer: Answer | null =
-    //     await this.answerTypeormRepository.getOne(player.id, gq.questionId);
-    //
-    //   if (!existingAnswer) {
-    //     return [gq, questionNumber];
-    //   }
-    // }
-
     const gameQuestions: GameQuestion[] = activeGame.questions || [];
-    // const questionNumber: number = 0;
 
     const existingAnswers: Answer[] | null =
       await this.answerTypeormRepository.getAllByPlayerId(player.id);
 
-    // console.log('existingAnswers', existingAnswers);
-    // existingAnswers [ Answer { questionId: 1 }, Answer { questionId: 3 } ]
-
     const answeredQuestionIds = new Set(
       (existingAnswers || []).map((a) => a.questionId),
     );
-    // console.log('gameQuestions', gameQuestions);
-    // console.log('answeredQuestionIds', answeredQuestionIds);
 
     let questionNumber: number = 0;
 
@@ -174,15 +148,11 @@ export class CreateAnswerUseCase
     const question: Question | null =
       await this.questionsTypeormRepository.getOne(questionId);
 
-    // TODO
     if (!question) {
-      // return Result.forbidden();
       return false;
     }
 
     const correctAnswers: string[] = question.correctAnswers;
-    console.log('correctAnswers', correctAnswers);
-    console.log('answer', answer);
 
     for (const element of correctAnswers) {
       if (element === answer) {
@@ -205,9 +175,7 @@ export class CreateAnswerUseCase
 
     const playerId: number = player.id;
 
-    console.log('questionId', questionId);
     const answer: Answer = Answer.create(playerId, questionId, isAnswerCorrect);
-    // console.log(answer);
 
     await this.answerTypeormRepository.save(answer);
 
@@ -225,22 +193,16 @@ export class CreateAnswerUseCase
         ? activeGame.firstPlayer
         : activeGame.secondPlayer;
 
-    console.log('currentPlayer', currentPlayer);
-    console.log('activeGame', activeGame);
-    console.log('player score 1', currentPlayer!.score);
     if (isCorrect) {
       console.log(isCorrect);
       currentPlayer!.score += 1;
     }
-    console.log('player score 2', currentPlayer!.score);
 
     /**
      * if last answer - add 1 score if observed conditions
      */
 
     if (questionNumber === 5) {
-      console.log('=== 5');
-      console.log('questionNumber', questionNumber);
       /**
        * get first player correct answers
        */
@@ -249,7 +211,6 @@ export class CreateAnswerUseCase
         (await this.answerTypeormRepository.getAllCorrectByPlayerId(
           currentPlayer!.id,
         )) || [];
-      console.log('playerCorrectAnswers', playerCorrectAnswers);
 
       /**
        * get second player to get then his answers
@@ -259,7 +220,6 @@ export class CreateAnswerUseCase
         activeGame.firstPlayer.userId === currentPlayer!.userId
           ? activeGame.secondPlayer
           : activeGame.firstPlayer;
-      console.log('secondPlayer', secondPlayer);
 
       /**
        * get second player answers
@@ -269,16 +229,6 @@ export class CreateAnswerUseCase
         (await this.answerTypeormRepository.getAllByPlayerId(
           secondPlayer!.id,
         )) || [];
-      console.log('secondPlayerAnswers', secondPlayerAnswers);
-
-      // /**
-      //  * check there is at list one first player correct answer and less than five second player answers
-      //  */
-      //
-      // if (playerCorrectAnswers.length > 0 && secondPlayerAnswers.length < 5) {
-      //   console.log('user first answered +1 score!!!');
-      //   player.score += 1;
-      // }
 
       /**
        * check there is at list one first player correct answer and less than five second player answers
@@ -288,27 +238,18 @@ export class CreateAnswerUseCase
         (await this.answerTypeormRepository.getAllCorrectByPlayerId(
           secondPlayer!.id,
         )) || [];
-      console.log('secondPlayerCorrectAnswers', secondPlayerCorrectAnswers);
 
       if (
         secondPlayerAnswers.length === 5 &&
         secondPlayerCorrectAnswers.length > 0
       ) {
-        console.log('secondPlayer.score 1', secondPlayer!.score);
         secondPlayer!.score += 1;
-        console.log('secondPlayer.score 2', secondPlayer!.score);
       }
 
       await this.playerTypeormRepository.save(secondPlayer!);
     }
 
-    console.log('player score 3', currentPlayer!.score);
-
     await this.playerTypeormRepository.save(currentPlayer!);
-
-    console.log('player score 4', currentPlayer!.score);
-
-    console.log('end activeGame', activeGame);
   }
 
   async changePayerAndGameStatus(activeGame: Game) {

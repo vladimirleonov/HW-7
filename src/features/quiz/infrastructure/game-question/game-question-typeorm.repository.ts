@@ -1,4 +1,4 @@
-import { GameQuestion } from '../domain/game-questions.entity';
+import { GameQuestion } from '../../domain/game-questions.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 

@@ -15,10 +15,10 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateConnectionCommand } from '../application/commands/create-connection.command';
 import { Result, ResultStatus } from '../../../base/types/object-result';
 import { GetPendingOrJoinedUserGameQuery } from '../application/queries/get-pending-or-joined-user-game.query';
-import { Game } from '../domain/game.entity';
 import { GetCurrentUnfinishedUserGameQuery } from '../application/queries/get-current-unfinished-user-game.query';
 import {
   ForbiddenException,
+  InternalServerErrorException,
   NotFoundException,
 } from '../../../core/exception-filters/http-exception-filter';
 import { GetGameQuery } from '../application/queries/get-game.query';
@@ -26,6 +26,7 @@ import { AnswerCreateModel } from './models/input/create-answer.input.model';
 import { CreateAnswerCommand } from '../application/commands/create-answer.command';
 import { GetAnswerQuery } from '../application/queries/get-answer.query';
 import { AnswerOutputModel } from './models/output/answer.output.model';
+import { GameOutputModel } from './models/output/game.output.model';
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')
@@ -37,9 +38,9 @@ export class QuizController {
 
   @Get('my-current')
   async getCurrentUnfinishedUserGame(@CurrentUserId() userId: number) {
-    const result: Result = await this.queryBus.execute<
+    const result: Result<GameOutputModel | null> = await this.queryBus.execute<
       GetCurrentUnfinishedUserGameQuery,
-      Result
+      Result<GameOutputModel>
     >(new GetCurrentUnfinishedUserGameQuery(userId));
 
     if (result.status === ResultStatus.NotFound) {
@@ -54,37 +55,47 @@ export class QuizController {
     @Param('id', ParseIntPipe) id: number,
     @CurrentUserId() userId: number,
   ) {
-    const result: Result = await this.queryBus.execute<GetGameQuery, Result>(
-      new GetGameQuery(id, userId),
-    );
+    const result: Result<GameOutputModel | null> = await this.queryBus.execute<
+      GetGameQuery,
+      Result<GameOutputModel>
+    >(new GetGameQuery(id, userId));
 
-    if (result.status === ResultStatus.NotFound) {
-      throw new NotFoundException();
-    } else if (result.status === ResultStatus.Forbidden) {
-      throw new ForbiddenException();
-    } else if (result.status === ResultStatus.Success) {
-      return result.data;
+    switch (result.status) {
+      case ResultStatus.NotFound:
+        throw new NotFoundException();
+      case ResultStatus.Forbidden:
+        throw new ForbiddenException();
+      case ResultStatus.Success:
+        return result.data;
+      default:
+        throw new InternalServerErrorException();
     }
   }
 
   @Post('connection')
   @HttpCode(HttpStatus.OK)
   async createConnection(@CurrentUserId() userId: number) {
-    const result = await this.commandBus.execute<CreateConnectionCommand, any>(
-      new CreateConnectionCommand(userId),
-    );
+    const result: Result<number | null> = await this.commandBus.execute<
+      CreateConnectionCommand,
+      Result<number | null>
+    >(new CreateConnectionCommand(userId));
 
     if (result.status === ResultStatus.Forbidden) {
       throw new ForbiddenException();
     }
 
     if (result.status === ResultStatus.Success) {
+      if (!result.data) {
+        throw new InternalServerErrorException();
+      }
+
       const playerId: number = result.data;
 
-      const userPendingOrJoinedGame: Result<Game> = await this.queryBus.execute<
-        GetPendingOrJoinedUserGameQuery,
-        Result<Game>
-      >(new GetPendingOrJoinedUserGameQuery(playerId));
+      const userPendingOrJoinedGame: Result<GameOutputModel> =
+        await this.queryBus.execute<
+          GetPendingOrJoinedUserGameQuery,
+          Result<GameOutputModel>
+        >(new GetPendingOrJoinedUserGameQuery(playerId));
 
       return userPendingOrJoinedGame.data;
     }
@@ -98,13 +109,17 @@ export class QuizController {
   ) {
     const { answer } = answerCreateModel;
 
-    const createResult: Result<number> = await this.commandBus.execute<
+    const createResult: Result<number | null> = await this.commandBus.execute<
       CreateAnswerCommand,
-      Result<number>
+      Result<number | null>
     >(new CreateAnswerCommand(userId, answer));
 
     if (createResult.status === ResultStatus.Forbidden) {
       throw new ForbiddenException();
+    }
+
+    if (!createResult.data) {
+      throw new InternalServerErrorException();
     }
 
     const answerId: number = createResult.data;

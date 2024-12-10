@@ -41,7 +41,7 @@ export class Question {
   @DeleteDateColumn({ type: 'timestamptz', nullable: true })
   deletedAt: Date | null;
 
-  static create(body: string, correctAnswers: string[]) {
+  static create(body: string, correctAnswers: string[]): Question {
     const newQuestion: Question = new this();
 
     newQuestion.body = body;

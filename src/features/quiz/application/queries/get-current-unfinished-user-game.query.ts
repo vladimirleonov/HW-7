@@ -1,8 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Game } from '../../domain/game.entity';
-import { GameTypeormQueryRepository } from '../../infrastructure/game-typeorm.query-repository';
-import { PlayerTypeormQueryRepository } from '../../infrastructure/player-typeorm.query-repository';
+import { GameTypeormQueryRepository } from '../../infrastructure/game/game-typeorm.query-repository';
 import { Result } from '../../../../base/types/object-result';
+import { GameOutputModel } from '../../api/models/output/game.output.model';
 
 export class GetCurrentUnfinishedUserGameQuery {
   constructor(public readonly userId: number) {}
@@ -14,23 +13,14 @@ export class GetCurrentUnfinishedUserGameUseCase
 {
   constructor(
     private readonly gameTypeormQueryRepository: GameTypeormQueryRepository,
-    private readonly playerTypeormQueryRepository: PlayerTypeormQueryRepository,
   ) {}
 
   async execute(
     query: GetCurrentUnfinishedUserGameQuery,
-  ): Promise<Result<Game | null>> {
+  ): Promise<Result<GameOutputModel | null>> {
     const { userId } = query;
 
-    const activePlayer: boolean =
-      await this.playerTypeormQueryRepository.checkActivePlayerExistsByUserId(
-        userId,
-      );
-    if (!activePlayer) {
-      return Result.notFound(`Player for user does not exist`);
-    }
-
-    const currentUnfinishedUserGame: Game | null =
+    const currentUnfinishedUserGame: GameOutputModel | null =
       await this.gameTypeormQueryRepository.getCurrentUnfinishedUserGame(
         userId,
       );

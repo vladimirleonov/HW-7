@@ -20,7 +20,10 @@ import { Result, ResultStatus } from '../../../base/types/object-result';
 import { GetQuestionQuery } from '../application/queries/get-question.query';
 import { QuestionOutputModel } from './models/output/question.output.model';
 import { DeleteQuestionCommand } from '../application/commands/delete-question.command';
-import { NotFoundException } from '../../../core/exception-filters/http-exception-filter';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '../../../core/exception-filters/http-exception-filter';
 import { QuestionUpdateModel } from './models/input/update-question.input.model';
 import { UpdateQuestionCommand } from '../application/commands/update-question.command';
 import { PublishedStatusUpdateModel } from './models/input/update-published-status.input.model';
@@ -77,6 +80,10 @@ export class QuizSaController {
         GetQuestionQuery,
         Result<QuestionOutputModel | null>
       >(new GetQuestionQuery(createdId));
+
+    if (!getResult.data) {
+      throw new InternalServerErrorException();
+    }
 
     return getResult.data;
   }

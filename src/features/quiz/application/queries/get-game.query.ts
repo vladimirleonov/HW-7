@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Result } from '../../../../base/types/object-result';
-import { Game } from '../../domain/game.entity';
-import { GameTypeormQueryRepository } from '../../infrastructure/game-typeorm.query-repository';
+import { GameTypeormQueryRepository } from '../../infrastructure/game/game-typeorm.query-repository';
+import { GameOutputModel } from '../../api/models/output/game.output.model';
 
 export class GetGameQuery {
   constructor(
@@ -16,7 +16,7 @@ export class GetGameUseCase implements IQueryHandler<GetGameQuery> {
     private readonly gameTypeormQueryRepository: GameTypeormQueryRepository,
   ) {}
 
-  async execute(query: GetGameQuery): Promise<Result<Game>> {
+  async execute(query: GetGameQuery): Promise<Result<GameOutputModel | null>> {
     const { gameId, userId } = query;
 
     const gameExists: boolean =
@@ -34,10 +34,9 @@ export class GetGameUseCase implements IQueryHandler<GetGameQuery> {
       return Result.forbidden();
     }
 
-    const game: Game | null =
+    const game: GameOutputModel | null =
       await this.gameTypeormQueryRepository.getOne(gameId);
 
-    // TODO: not have logic (above the same)
     if (!game) {
       return Result.notFound();
     }

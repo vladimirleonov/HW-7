@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Question } from '../../domain/question.entity';
-import { QuestionsTypeormRepository } from '../../infrastructure/questions-typeorm.repository';
+import { QuestionsTypeormRepository } from '../../infrastructure/question/questions-typeorm.repository';
 import { Result } from '../../../../base/types/object-result';
 
 export class CreateQuestionCommand {

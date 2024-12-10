@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game, GameStatus } from '../domain/game.entity';
+import { Game, GameStatus } from '../../domain/game.entity';
 import { Repository } from 'typeorm';
 
 export class GameTypeormRepository {
@@ -35,31 +35,6 @@ export class GameTypeormRepository {
   }
 
   async getUserActiveGame(userId: number): Promise<Game | null> {
-    // const game = await this.gameRepository
-    //   .createQueryBuilder('g')
-    //   .select(
-    //     `
-    //     json_agg(
-    //       json_build_object(
-    //         'id', q.id,
-    //         'body', q.body
-    //       ) ORDER BY q.id
-    //     )
-    //   `,
-    //     'questions',
-    //   )
-    //   .leftJoin('g.firstPlayer', 'fp')
-    //   .leftJoin('g.secondPlayer', 'sp')
-    //   .leftJoin('fp.user', 'fpu')
-    //   .leftJoin('sp.user', 'spu')
-    //   .leftJoin('g.questions', 'gq')
-    //   .leftJoin('gq.question', 'q')
-    //   .where('fp.userId = :userId OR sp.userId = :userId', { userId: userId })
-    //   .andWhere('g.status IN (:...statuses)', {
-    //     statuses: [GameStatus.Active, GameStatus.Pending],
-    //   })
-    //   .getRawOne();
-
     const game: Game | null = await this.gameRepository
       .createQueryBuilder('g')
       .leftJoinAndSelect('g.firstPlayer', 'fp')

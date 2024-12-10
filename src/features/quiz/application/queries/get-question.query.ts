@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { QuestionOutputModel } from '../../api/models/output/question.output.model';
-import { QuestionTypeormQueryRepository } from '../../infrastructure/question-typeorm.query-repository';
+import { QuestionTypeormQueryRepository } from '../../infrastructure/question/question-typeorm.query-repository';
 import { Result } from '../../../../base/types/object-result';
 
 export class GetQuestionQuery {
