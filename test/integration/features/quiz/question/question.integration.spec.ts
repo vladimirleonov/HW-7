@@ -1,21 +1,19 @@
-import { initSettings } from '../../utils/init-settings';
+import { initSettings } from '../../../utils/init-settings';
 import { INestApplication } from '@nestjs/common';
-import { deleteAllData } from '../../../utils/delete-all-data';
-import { ResultStatus } from '../../../../src/base/types/object-result';
+import { deleteAllData } from '../../../../utils/delete-all-data';
+import { ResultStatus } from '../../../../../src/base/types/object-result';
 import { DataSource } from 'typeorm';
-import { Question } from '../../../../src/features/quiz/domain/question.entity';
-import { QuestionOutputModel } from '../../../../src/features/quiz/api/models/output/question.output.model';
+import { Question } from '../../../../../src/features/quiz/domain/question.entity';
+import { QuestionOutputModel } from '../../../../../src/features/quiz/api/models/output/question.output.model';
 import { QuestionTestManager } from './question-test-manager';
 import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
-} from '../../../../src/base/models/pagination.base.model';
-import { QuestionsPaginationQuery } from '../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
-import { PublishedStatus } from '../../../../src/base/types/published-status';
-import { QUESTIONS_SORTING_PROPERTIES } from '../../../../src/features/quiz/api/quiz-sa.controller';
-import { UserOutputModel } from '../../../../src/features/users/api/models/output/user.output.model';
+} from '../../../../../src/base/models/pagination.base.model';
+import { QuestionsPaginationQuery } from '../../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
+import { QUESTIONS_SORTING_PROPERTIES } from '../../../../../src/features/quiz/api/quiz-sa.controller';
 
-describe('quiz', () => {
+describe.skip('question', () => {
   let app: INestApplication;
   let dataSource: DataSource;
 

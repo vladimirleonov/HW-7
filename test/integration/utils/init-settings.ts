@@ -1,4 +1,4 @@
-import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
+import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '../../../src/app.module';
 import { INestApplication } from '@nestjs/common';
 import { applyAppSettings } from '../../../src/settings/apply-app-settings';
@@ -44,7 +44,7 @@ export const initSettings = async (
   expect.setState({
     app: app,
     dataSource: dataSource,
-    questionTestManger: questionTestManager,
+    questionTestManager: questionTestManager,
     usersTestManager: usersTestManager,
     pairsTestManager: pairsTestManager,
   });

@@ -1,43 +1,38 @@
 import { INestApplication } from '@nestjs/common';
-import { RegistrationModel } from '../../../../src/features/auth/auth/api/models/input/registration.input.model';
-import request from 'supertest';
-import { ConfirmRegistrationModel } from '../../../../src/features/auth/auth/api/models/input/confirm-registration.model';
-import { RegistrationEmailResendingModel } from '../../../../src/features/auth/auth/api/models/input/registration-email-resending.model';
-import { PasswordRecoveryModel } from '../../../../src/features/auth/auth/api/models/input/password-recovery.model';
-import { NewPasswordModel } from '../../../../src/features/auth/auth/api/models/input/new-password.model';
-import { LoginModel } from '../../../../src/features/auth/auth/api/models/input/login.input.model';
 import {
   CreateQuestionCommand,
   CreateQuestionUseCase,
-} from '../../../../src/features/quiz/application/commands/create-question.command';
-import { QuestionCreateModel } from '../../../../src/features/quiz/api/models/input/create-question.input.model';
-import { Result, ResultStatus } from '../../../../src/base/types/object-result';
+} from '../../../../../src/features/quiz/application/commands/create-question.command';
+import {
+  Result,
+  ResultStatus,
+} from '../../../../../src/base/types/object-result';
 import {
   GetQuestionQuery,
   GetQuestionUseCase,
-} from '../../../../src/features/quiz/application/queries/get-question.query';
-import { QuestionOutputModel } from '../../../../src/features/quiz/api/models/output/question.output.model';
+} from '../../../../../src/features/quiz/application/queries/get-question.query';
+import { QuestionOutputModel } from '../../../../../src/features/quiz/api/models/output/question.output.model';
 import {
   DeleteQuestionCommand,
   DeleteQuestionUseCase,
-} from '../../../../src/features/quiz/application/commands/delete-question.command';
+} from '../../../../../src/features/quiz/application/commands/delete-question.command';
 import {
   UpdateQuestionCommand,
   UpdateQuestionUseCase,
-} from '../../../../src/features/quiz/application/commands/update-question.command';
+} from '../../../../../src/features/quiz/application/commands/update-question.command';
 import {
   UpdatePublishedStatusCommand,
   UpdatePublishedStatusUseCase,
-} from '../../../../src/features/quiz/application/commands/update-published-status.command';
+} from '../../../../../src/features/quiz/application/commands/update-published-status.command';
 import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
-} from '../../../../src/base/models/pagination.base.model';
-import { QuestionsPaginationQuery } from '../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
+} from '../../../../../src/base/models/pagination.base.model';
+import { QuestionsPaginationQuery } from '../../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
 import {
   GetAllQuestionsQuery,
   GetAllQuestionsUseCase,
-} from '../../../../src/features/quiz/application/queries/get-all-questions.query';
+} from '../../../../../src/features/quiz/application/queries/get-all-questions.query';
 
 export class QuestionTestManager {
   constructor(protected readonly app: INestApplication) {}
@@ -167,26 +162,27 @@ export class QuestionTestManager {
     }
   }
 
-  // async loginWithRefreshToken(
-  //   loginModel: LoginModel,
-  //   statusCode: number = 200,
-  //   refreshToken = null,
-  // ) {
-  //   const requestBuilder = request(this.app.getHttpServer())
-  //     .post('/api/auth/login')
-  //     .expect(statusCode);
-  //
-  //   if (refreshToken) {
-  //     requestBuilder.set('Cookie', `refreshToken=${refreshToken}`);
-  //   }
-  //
-  //   return requestBuilder;
-  // }
-  //
-  // async refreshToken(refreshToken: string, statusCode: number = 200) {
-  //   return request(this.app.getHttpServer())
-  //     .post('/api/auth/refresh-token')
-  //     .set('Cookie', `refreshToken=${refreshToken}`)
-  //     .expect(statusCode);
-  // }
+  async createAndPublishQuestions(
+    questions: { body: string; correctAnswers: string[] }[],
+    expectedStatus: ResultStatus,
+  ): Promise<number[]> {
+    const createdQuestionIds: number[] = [];
+
+    for (const question of questions) {
+      const createdQuestionId = await this.create(
+        question.body,
+        question.correctAnswers,
+        expectedStatus,
+      );
+      if (!createdQuestionId) {
+        throw new Error('Failed to create question');
+      }
+      createdQuestionIds.push(createdQuestionId);
+
+      // Publish the question
+      await this.updatePublishedStatus(createdQuestionId, true, expectedStatus);
+    }
+
+    return createdQuestionIds;
+  }
 }
