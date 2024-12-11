@@ -21,7 +21,7 @@ import {
 } from '../../../../../src/features/quiz/application/commands/create-answer.command';
 import {
   GetPendingOrJoinedUserGameQuery,
-  GetUserPendingOrJoinedGameUseCase,
+  GetPendingOrJoinedUserGameUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-pending-or-joined-user-game.query';
 import { GameOutputModel } from '../../../../../src/features/quiz/api/models/output/game.output.model';
 
@@ -81,13 +81,13 @@ export class PairsTestManager {
     const query: GetPendingOrJoinedUserGameQuery =
       new GetPendingOrJoinedUserGameQuery(playerId);
 
-    const getUserPendingOrJoinedGameUseCase: GetUserPendingOrJoinedGameUseCase =
-      this.app.get<GetUserPendingOrJoinedGameUseCase>(
-        GetUserPendingOrJoinedGameUseCase,
+    const getPendingOrJoinedUserGameUseCase: GetPendingOrJoinedUserGameUseCase =
+      this.app.get<GetPendingOrJoinedUserGameUseCase>(
+        GetPendingOrJoinedUserGameUseCase,
       );
 
     const result: Result<GameOutputModel | null> =
-      await getUserPendingOrJoinedGameUseCase.execute(query);
+      await getPendingOrJoinedUserGameUseCase.execute(query);
 
     if (result.status !== expectedStatus) {
       throw new Error(
