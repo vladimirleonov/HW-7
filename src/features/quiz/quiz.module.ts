@@ -20,7 +20,7 @@ import { GameQuestion } from './domain/game-questions.entity';
 import { Answer } from './domain/answer.entity';
 import { Game } from './domain/game.entity';
 import { GameQuestionTypeormRepository } from './infrastructure/game-question/game-question-typeorm.repository';
-import { GetUserPendingOrJoinedGameUseCase } from './application/queries/get-pending-or-joined-user-game.query';
+import { GetPendingOrJoinedUserGameUseCase } from './application/queries/get-pending-or-joined-user-game.query';
 import { GameTypeormQueryRepository } from './infrastructure/game/game-typeorm.query-repository';
 import { PlayerTypeormQueryRepository } from './infrastructure/player/player-typeorm.query-repository';
 import { GetCurrentUnfinishedUserGameUseCase } from './application/queries/get-current-unfinished-user-game.query';
@@ -44,7 +44,7 @@ const providers = [
   GetQuestionUseCase,
   DeleteQuestionUseCase,
 
-  GetUserPendingOrJoinedGameUseCase,
+  GetPendingOrJoinedUserGameUseCase,
   GetGameUseCase,
   CreateAnswerUseCase,
   GetAnswerUseCase,

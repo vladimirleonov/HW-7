@@ -32,7 +32,7 @@ export class CreateAnswerUseCase
     const { userId, answer } = command;
 
     /**
-     * active or pending game with player by userId
+     * get user active game
      */
 
     const activeGame: Game | null =
@@ -43,31 +43,18 @@ export class CreateAnswerUseCase
     }
 
     /**
-     * player in progress by userId
+     * validate player in progress by userId
      */
 
     const player: Player | null =
-      await this.playerTypeormRepository.getOne(userId);
+      await this.playerTypeormRepository.getOneInProgress(userId);
 
     if (!player) {
       return Result.forbidden();
     }
 
-    // /**
-    //  * check player in activeGame
-    //  */
-
-    // if (
-    //   !player ||
-    //   (activeGame.firstPlayer.userId !== player.userId &&
-    //     activeGame.secondPlayer &&
-    //     activeGame.secondPlayer.userId !== player.userId)
-    // ) {
-    //   return Result.forbidden();
-    // }
-
     /**
-     * next not answered question and its number
+     * get next not answered question and its number
      */
 
     const [nextGameQuestion, questionNumber]: [
@@ -123,9 +110,18 @@ export class CreateAnswerUseCase
     const existingAnswers: Answer[] | null =
       await this.answerTypeormRepository.getAllByPlayerId(player.id);
 
-    const answeredQuestionIds = new Set(
+    /**
+     * get answered question ids from existingAnswers
+     */
+
+    const answeredQuestionIds: Set<number> = new Set(
       (existingAnswers || []).map((a) => a.questionId),
     );
+
+    /**
+     * check in queue if there is an answer in answeredQuestionIds by gq.questionId
+     * if no - this number of question is next
+     */
 
     let questionNumber: number = 0;
 
@@ -143,6 +139,13 @@ export class CreateAnswerUseCase
     gameQuestion: GameQuestion,
     answer: string,
   ): Promise<boolean> {
+    /**
+     * 1) get question from db by gameQuestion.questionId
+     * 2) get correctAnswers from question
+     * 3) compare with passed answer
+     * 4) return bool result
+     */
+
     const questionId: number = gameQuestion.questionId;
 
     const question: Question | null =
@@ -167,7 +170,14 @@ export class CreateAnswerUseCase
     nextGameQuestion: GameQuestion,
     player: Player,
     isCorrect: boolean,
-  ) {
+  ): Promise<number> {
+    /**
+     * 1) get questionId from nextGameQuestion.questionId
+     * 2) create isAnswerCorrect with status from AnswerStatus using AnswerStatus enum
+     * 3) create answer
+     * 4) return answerId
+     */
+
     const questionId: number = nextGameQuestion.questionId;
     const isAnswerCorrect: AnswerStatus = isCorrect
       ? AnswerStatus.Correct
@@ -187,14 +197,18 @@ export class CreateAnswerUseCase
     isCorrect: boolean,
     questionNumber: number,
     activeGame: Game,
-  ) {
+  ): Promise<void> {
+    /**
+     * get current player from activeGame by playerId
+     * change its score
+     */
+
     const currentPlayer: Player | null =
       activeGame.firstPlayer.id === player.id
         ? activeGame.firstPlayer
         : activeGame.secondPlayer;
 
     if (isCorrect) {
-      console.log(isCorrect);
       currentPlayer!.score += 1;
     }
 
@@ -207,10 +221,10 @@ export class CreateAnswerUseCase
        * get first player correct answers
        */
 
-      const playerCorrectAnswers: Answer[] | null =
-        (await this.answerTypeormRepository.getAllCorrectByPlayerId(
-          currentPlayer!.id,
-        )) || [];
+      // const playerCorrectAnswers: Answer[] | null =
+      //   (await this.answerTypeormRepository.getAllCorrectByPlayerId(
+      //     currentPlayer!.id,
+      //   )) || [];
 
       /**
        * get second player to get then his answers
@@ -231,7 +245,9 @@ export class CreateAnswerUseCase
         )) || [];
 
       /**
-       * check there is at list one first player correct answer and less than five second player answers
+       * check there if second player answered 5 questions until now (already answered 5)
+       * and there is at least one correct
+       * then score += 1
        */
 
       const secondPlayerCorrectAnswers: Answer[] =
@@ -281,8 +297,6 @@ export class CreateAnswerUseCase
       return;
     }
 
-    console.log('activeGame: users answered 5 questions', activeGame);
-
     if (firstPlayer.score > secondPlayer.score) {
       firstPlayer.status = PlayerStatus.Win;
       secondPlayer.status = PlayerStatus.Los;
@@ -296,10 +310,6 @@ export class CreateAnswerUseCase
 
     activeGame.finishGameDate = new Date();
     activeGame.status = GameStatus.Finished;
-
-    console.log('firstPlayer.status', firstPlayer.status);
-    console.log('secondPlayer.status', secondPlayer.status);
-    console.log('activeGame.finishGameDate', activeGame.finishGameDate);
 
     await this.playerTypeormRepository.save(firstPlayer);
     await this.playerTypeormRepository.save(secondPlayer);

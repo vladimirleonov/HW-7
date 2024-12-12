@@ -12,7 +12,7 @@ export class PlayerTypeormRepository {
     await this.playerRepository.save(player);
   }
 
-  async getOne(userId: number): Promise<Player | null> {
+  async getOneInProgress(userId: number): Promise<Player | null> {
     return this.playerRepository.findOneBy({
       userId: userId,
       status: PlayerStatus.InProgress,

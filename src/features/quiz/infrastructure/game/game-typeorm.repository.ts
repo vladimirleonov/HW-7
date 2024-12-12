@@ -43,7 +43,8 @@ export class GameTypeormRepository {
       .leftJoin('sp.user', 'spu')
       .leftJoinAndMapMany('g.questions', 'g.questions', 'gq')
       .where('g.status IN (:...statuses)', {
-        statuses: [GameStatus.Active, GameStatus.Pending],
+        statuses: [GameStatus.Active],
+        //statuses: [GameStatus.Active, GameStatus.Pending],
       })
       .andWhere('(fp.userId = :userId OR sp.userId = :userId)', {
         userId: userId,

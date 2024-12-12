@@ -8,7 +8,7 @@ export class GetPendingOrJoinedUserGameQuery {
 }
 
 @QueryHandler(GetPendingOrJoinedUserGameQuery)
-export class GetUserPendingOrJoinedGameUseCase
+export class GetPendingOrJoinedUserGameUseCase
   implements IQueryHandler<GetPendingOrJoinedUserGameQuery>
 {
   constructor(
