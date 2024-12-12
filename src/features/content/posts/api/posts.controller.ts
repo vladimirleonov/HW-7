@@ -38,7 +38,6 @@ import { PostsPaginationQuery } from './models/input/posts-pagination-query.inpu
 import { Post as PostEntity } from './../domain/post.entity';
 import { GetAllPostsQuery } from './queries/get-all-posts.query';
 import { GetPostQuery } from './queries/get-post.query';
-import { CommentsTypeormQueryRepository } from '../../comments/infrastructure/typeorm/comments-typeorm.query-repository';
 import { GetCommentQuery } from '../../comments/api/queries/get-comment.query';
 import { Comment } from '../../comments/domain/comment.entity';
 import { GetPostCommentsQuery } from '../../comments/api/queries/get-post-comments.query';

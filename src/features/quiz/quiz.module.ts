@@ -29,6 +29,7 @@ import { CreateAnswerUseCase } from './application/commands/create-answer.comman
 import { AnswerTypeormRepository } from './infrastructure/answer/answer-typeorm.repository';
 import { AnswerTypeormQueryRepository } from './infrastructure/answer/answer-typeorm.query-repository';
 import { GetAnswerUseCase } from './application/queries/get-answer.query';
+import { GetAllUserGamesUseCase } from './application/queries/get-all-user-games.query';
 
 const providers = [
   // command usecases
@@ -48,6 +49,7 @@ const providers = [
   GetGameUseCase,
   CreateAnswerUseCase,
   GetAnswerUseCase,
+  GetAllUserGamesUseCase,
 
   // repos
   QuestionsTypeormRepository,

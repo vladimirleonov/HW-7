@@ -24,9 +24,43 @@ import {
   GetPendingOrJoinedUserGameUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-pending-or-joined-user-game.query';
 import { GameOutputModel } from '../../../../../src/features/quiz/api/models/output/game.output.model';
+import {
+  Pagination,
+  PaginationOutput,
+} from '../../../../../src/base/models/pagination.base.model';
+import { PaginationQuery } from '../../../../../src/base/models/pagination-query.input.model';
+import {
+  GetAllUserGamesQuery,
+  GetAllUserGamesUseCase,
+} from '../../../../../src/features/quiz/application/queries/get-all-user-games.query';
 
 export class PairsTestManager {
   constructor(protected readonly app: INestApplication) {}
+
+  async getAllMy(
+    pagination: Pagination<PaginationQuery>,
+    userId: number,
+    expectedStatus: ResultStatus,
+  ): Promise<PaginationOutput<GameOutputModel>> {
+    const query: GetAllUserGamesQuery = new GetAllUserGamesQuery(
+      pagination,
+      userId,
+    );
+
+    const getAllUserGamesUseCase: GetAllUserGamesUseCase =
+      this.app.get<GetAllUserGamesUseCase>(GetAllUserGamesUseCase);
+
+    const result: Result<PaginationOutput<GameOutputModel>> =
+      await getAllUserGamesUseCase.execute(query);
+
+    if (result.status !== expectedStatus) {
+      throw new Error(
+        `Failed to get all user games. Expected status: ${expectedStatus}, but got: ${result.status}`,
+      );
+    }
+
+    return result.data;
+  }
 
   async getGame(
     gameId: number,
