@@ -12,7 +12,7 @@ import { Answer } from './answer.entity';
 
 export enum PlayerStatus {
   Win = 'Win',
-  Los = 'Los',
+  Lose = 'Lose',
   InProgress = 'InProgress',
   Draw = 'Draw',
 }

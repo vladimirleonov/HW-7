@@ -299,9 +299,9 @@ export class CreateAnswerUseCase
 
     if (firstPlayer.score > secondPlayer.score) {
       firstPlayer.status = PlayerStatus.Win;
-      secondPlayer.status = PlayerStatus.Los;
+      secondPlayer.status = PlayerStatus.Lose;
     } else if (firstPlayer.score < secondPlayer.score) {
-      firstPlayer.status = PlayerStatus.Los;
+      firstPlayer.status = PlayerStatus.Lose;
       secondPlayer.status = PlayerStatus.Win;
     } else {
       firstPlayer.status = PlayerStatus.Draw;

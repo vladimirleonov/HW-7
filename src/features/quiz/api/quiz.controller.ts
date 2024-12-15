@@ -37,6 +37,8 @@ import {
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { GetAllUserGamesQuery } from '../application/queries/get-all-user-games.query';
 import { GamePaginationQuery } from './models/input/game-pagination-query.input.model';
+import { MyStatisticOutputModel } from './models/output/my-statistic.output.model';
+import { GetMyStatisticQuery } from '../application/queries/get-my-statistic.query';
 
 export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
   'status',
@@ -70,6 +72,15 @@ export class QuizController {
       >(new GetAllUserGamesQuery(pagination, userId));
 
     return result;
+  }
+
+  async myStatistic(@CurrentUserId() userId: number) {
+    const result: Result<MyStatisticOutputModel> = await this.queryBus.execute<
+      GetMyStatisticQuery,
+      Result<MyStatisticOutputModel>
+    >(new GetMyStatisticQuery(userId));
+
+    return result.data;
   }
 
   @Get('my-current')
