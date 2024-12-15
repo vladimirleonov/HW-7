@@ -29,8 +29,12 @@ export class Pagination<T extends PaginationQuery> {
   public readonly pageNumber: number;
   public readonly pageSize: number;
 
-  constructor(query: T, sortProperties: string[]) {
-    this.sortBy = this.getSortBy(query, sortProperties);
+  constructor(
+    query: T,
+    sortProperties: string[],
+    defaultSortBy: string = 'created_at',
+  ) {
+    this.sortBy = this.getSortBy(query, sortProperties, defaultSortBy);
     this.sortDirection = this.getSortDirection(query);
     this.pageNumber = Number(query.pageNumber ?? 1);
     this.pageSize = Number(query.pageSize ?? 10);
@@ -60,8 +64,12 @@ export class Pagination<T extends PaginationQuery> {
     return sortDirection;
   }
 
-  private getSortBy(query: T, sortProperties: string[]): string {
-    let result = 'created_at';
+  private getSortBy(
+    query: T,
+    sortProperties: string[],
+    defaultSortBy: string,
+  ): string {
+    let result = defaultSortBy;
 
     const querySortBy = query.sortBy;
 
@@ -88,6 +96,12 @@ export class Pagination<T extends PaginationQuery> {
     }
 
     return result;
+  }
+}
+
+export class GamePagination<T extends PaginationQuery> extends Pagination<T> {
+  constructor(query, sortProperties) {
+    super(query, sortProperties, 'pair_created_date');
   }
 }
 

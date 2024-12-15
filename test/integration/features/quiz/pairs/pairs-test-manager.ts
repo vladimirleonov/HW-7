@@ -25,23 +25,24 @@ import {
 } from '../../../../../src/features/quiz/application/queries/get-pending-or-joined-user-game.query';
 import { GameOutputModel } from '../../../../../src/features/quiz/api/models/output/game.output.model';
 import {
+  GamePagination,
   Pagination,
   PaginationOutput,
 } from '../../../../../src/base/models/pagination.base.model';
-import { PaginationQuery } from '../../../../../src/base/models/pagination-query.input.model';
 import {
   GetAllUserGamesQuery,
   GetAllUserGamesUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-all-user-games.query';
+import { GamePaginationQuery } from '../../../../../src/features/quiz/api/models/input/game-pagination-query.input.model';
 
 export class PairsTestManager {
   constructor(protected readonly app: INestApplication) {}
 
   async getAllMy(
-    pagination: Pagination<PaginationQuery>,
+    pagination: GamePagination<GamePaginationQuery>,
     userId: number,
     expectedStatus: ResultStatus,
-  ): Promise<PaginationOutput<GameOutputModel>> {
+  ): Promise<any> {
     const query: GetAllUserGamesQuery = new GetAllUserGamesQuery(
       pagination,
       userId,
@@ -52,6 +53,8 @@ export class PairsTestManager {
 
     const result: Result<PaginationOutput<GameOutputModel>> =
       await getAllUserGamesUseCase.execute(query);
+
+    console.log('result', result);
 
     if (result.status !== expectedStatus) {
       throw new Error(

@@ -30,11 +30,13 @@ import { GameOutputModel } from './models/output/game.output.model';
 import { myGamesPaginationQuery } from './models/input/my-games-pagination-query.input.model';
 import { PaginationQuery } from '../../../base/models/pagination-query.input.model';
 import {
+  GamePagination,
   Pagination,
   PaginationOutput,
 } from '../../../base/models/pagination.base.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { GetAllUserGamesQuery } from '../application/queries/get-all-user-games.query';
+import { GamePaginationQuery } from './models/input/game-pagination-query.input.model';
 
 export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
   'status',
@@ -56,7 +58,7 @@ export class QuizController {
     @Param() query: myGamesPaginationQuery,
     @CurrentUserId() userId: number,
   ) {
-    const pagination: Pagination<PaginationQuery> = new Pagination(
+    const pagination: GamePagination<GamePaginationQuery> = new GamePagination(
       query,
       GAME_SORTING_PROPERTIES,
     );
