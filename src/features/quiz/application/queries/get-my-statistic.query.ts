@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PlayerTypeormQueryRepository } from '../../infrastructure/player/player-typeorm.query-repository';
-import { MyStatisticOutputModel } from '../../api/models/output/my-statistic.output.model';
+import { UserStatisticOutputModel } from '../../api/models/output/my-statistic.output.model';
 import { Result } from '../../../../base/types/object-result';
 
 export class GetMyStatisticQuery {
@@ -17,10 +17,10 @@ export class GetMyStatisticUseCase
 
   async execute(
     query: GetMyStatisticQuery,
-  ): Promise<Result<MyStatisticOutputModel>> {
+  ): Promise<Result<UserStatisticOutputModel>> {
     const { userId } = query;
 
-    const result: MyStatisticOutputModel =
+    const result: UserStatisticOutputModel =
       await this.playerTypeormQueryRepository.getMyStatistic(userId);
 
     return Result.success(result);

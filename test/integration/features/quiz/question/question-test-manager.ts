@@ -185,4 +185,21 @@ export class QuestionTestManager {
 
     return createdQuestionIds;
   }
+
+  async generateQuestions(
+    count: number,
+  ): Promise<{ body: string; correctAnswers: string[] }[]> {
+    const questions: { body: string; correctAnswers: string[] }[] = [];
+
+    for (let i = 0; i < count; i++) {
+      const question: { body: string; correctAnswers: string[] } = {
+        body: `question${i}`,
+        correctAnswers: [`${i}`, `${i}.${i}`],
+      };
+
+      questions.push(question);
+    }
+
+    return questions;
+  }
 }

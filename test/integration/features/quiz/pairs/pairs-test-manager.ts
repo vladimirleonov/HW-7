@@ -23,10 +23,12 @@ import {
   GetPendingOrJoinedUserGameQuery,
   GetPendingOrJoinedUserGameUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-pending-or-joined-user-game.query';
-import { GameOutputModel } from '../../../../../src/features/quiz/api/models/output/game.output.model';
+import {
+  GameOutputModel,
+  QuestionModel,
+} from '../../../../../src/features/quiz/api/models/output/game.output.model';
 import {
   GamePagination,
-  Pagination,
   PaginationOutput,
 } from '../../../../../src/base/models/pagination.base.model';
 import {
@@ -34,6 +36,12 @@ import {
   GetAllUserGamesUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-all-user-games.query';
 import { GamePaginationQuery } from '../../../../../src/features/quiz/api/models/input/game-pagination-query.input.model';
+import {
+  GetMyStatisticQuery,
+  GetMyStatisticUseCase,
+} from '../../../../../src/features/quiz/application/queries/get-my-statistic.query';
+import { UserStatisticOutputModel } from '../../../../../src/features/quiz/api/models/output/my-statistic.output.model';
+import { GameStatus } from '../../../../../src/features/quiz/domain/game.entity';
 
 export class PairsTestManager {
   constructor(protected readonly app: INestApplication) {}
@@ -54,11 +62,30 @@ export class PairsTestManager {
     const result: Result<PaginationOutput<GameOutputModel>> =
       await getAllUserGamesUseCase.execute(query);
 
-    console.log('result', result);
-
     if (result.status !== expectedStatus) {
       throw new Error(
         `Failed to get all user games. Expected status: ${expectedStatus}, but got: ${result.status}`,
+      );
+    }
+
+    return result.data;
+  }
+
+  async getUserStatistic(
+    userId: number,
+    expectedStatus: ResultStatus,
+  ): Promise<UserStatisticOutputModel> {
+    const query: GetMyStatisticQuery = new GetMyStatisticQuery(userId);
+
+    const getMyStatisticUseCase: GetMyStatisticUseCase =
+      this.app.get<GetMyStatisticUseCase>(GetMyStatisticUseCase);
+
+    const result: Result<UserStatisticOutputModel> =
+      await getMyStatisticUseCase.execute(query);
+
+    if (result.status !== expectedStatus) {
+      throw new Error(
+        `Failed to get user statistic. Expected status: ${expectedStatus}, but got: ${result.status}`,
       );
     }
 
@@ -135,6 +162,79 @@ export class PairsTestManager {
     return result.data;
   }
 
+  async validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+    questions: { body: string; correctAnswers: string[] }[],
+    userId: number,
+    createdQuestionIds: number[],
+  ): Promise<
+    {
+      id: string;
+      answers: string[];
+    }[]
+  > {
+    /**
+     * Get the current game
+     */
+
+    const currentUserGame: GameOutputModel | null =
+      await this.getCurrentUnfinishedUserGame(userId, ResultStatus.Success);
+    expect(currentUserGame).not.toBeNull();
+
+    if (currentUserGame === null) {
+      throw new Error('game is null, cannot proceed with the test');
+    }
+
+    expect(currentUserGame.status).toBe(GameStatus.Active);
+    expect(currentUserGame.pairCreatedDate).not.toBeNull();
+    expect(currentUserGame.startGameDate).not.toBeNull();
+    expect(currentUserGame.finishGameDate).toBeNull();
+
+    /**
+     * Verify 5 random questions are added to the game
+     */
+
+    const currentGameQuestions: QuestionModel[] | null =
+      currentUserGame.questions;
+
+    expect(currentGameQuestions).toHaveLength(5);
+
+    if (currentGameQuestions === null) {
+      throw new Error('gameQuestions is null, cannot proceed with the test');
+    }
+
+    const questionIdsInGame: string[] = currentGameQuestions.map((q) => q.id);
+    console.log('createdQuestionIds', createdQuestionIds);
+    console.log('questionIdsInGame', questionIdsInGame);
+
+    // Ensure all questions in the game are among the created ones
+    questionIdsInGame.forEach((id) => {
+      expect(createdQuestionIds).toContain(Number(id));
+    });
+
+    /**
+     * get game question ids in order with answers
+     */
+
+    const gameQuestionIdsInOrderWithCorrectAnswers: {
+      id: string;
+      answers: string[];
+    }[] = [];
+
+    currentGameQuestions.forEach((gq) => {
+      for (let i = 0; i < questions.length; i++) {
+        if (gq.body === questions[i].body) {
+          gameQuestionIdsInOrderWithCorrectAnswers.push({
+            id: gq.id,
+            answers: questions[i].correctAnswers,
+          });
+          break;
+        }
+      }
+    });
+
+    return gameQuestionIdsInOrderWithCorrectAnswers;
+  }
+
   async createConnection(
     userId: number,
     expectedStatus: ResultStatus,
@@ -182,5 +282,15 @@ export class PairsTestManager {
     }
 
     return result.data;
+  }
+
+  async answerAndCheckSuccess(userId: number, answer: string) {
+    const answerResult: number | null = await this.createAnswer(
+      userId,
+      answer,
+      ResultStatus.Success,
+    );
+
+    expect(answerResult).not.toBeNull();
   }
 }

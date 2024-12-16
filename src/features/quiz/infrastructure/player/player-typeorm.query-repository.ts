@@ -1,7 +1,8 @@
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Player, PlayerStatus } from '../../domain/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MyStatisticOutputModel } from '../../api/models/output/my-statistic.output.model';
+import { UserStatisticOutputModel } from '../../api/models/output/my-statistic.output.model';
+import customRound from '../../../../core/utils/custom-round';
 
 export class PlayerTypeormQueryRepository {
   constructor(
@@ -9,9 +10,9 @@ export class PlayerTypeormQueryRepository {
     private readonly playerQueryRepository: Repository<Player>,
   ) {}
 
-  async getMyStatistic(userId: number): Promise<MyStatisticOutputModel> {
+  async getMyStatistic(userId: number): Promise<UserStatisticOutputModel> {
     const players: Player[] = await this.playerQueryRepository.find({
-      where: { userId },
+      where: { userId, status: Not(PlayerStatus.InProgress) },
     });
 
     const sumScore: number = players.reduce(
@@ -31,12 +32,12 @@ export class PlayerTypeormQueryRepository {
     ).length;
 
     return {
-      sumScore,
-      avgScore,
-      gamesCount,
-      winsCount,
-      lossesCount,
-      drawsCount,
+      sumScore: customRound(sumScore),
+      avgScore: customRound(avgScore),
+      gamesCount: customRound(gamesCount),
+      winsCount: customRound(winsCount),
+      lossesCount: customRound(lossesCount),
+      drawsCount: customRound(drawsCount),
     };
   }
 

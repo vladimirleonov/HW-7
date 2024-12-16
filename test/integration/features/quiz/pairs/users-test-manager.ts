@@ -69,4 +69,30 @@ export class UsersTestManager {
 
     return result.data;
   }
+
+  async generateUsers(count: number): Promise<
+    {
+      login: string;
+      email: string;
+      password: string;
+    }[]
+  > {
+    const users: {
+      login: string;
+      email: string;
+      password: string;
+    }[] = [];
+
+    for (let i: number = 0; i < count; i++) {
+      const user = {
+        login: `name${i}`,
+        password: `qwerty${i}`,
+        email: `email${i}@email.com`,
+      };
+
+      users.push(user);
+    }
+
+    return users;
+  }
 }

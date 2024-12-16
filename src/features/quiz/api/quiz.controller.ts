@@ -28,16 +28,14 @@ import { GetAnswerQuery } from '../application/queries/get-answer.query';
 import { AnswerOutputModel } from './models/output/answer.output.model';
 import { GameOutputModel } from './models/output/game.output.model';
 import { myGamesPaginationQuery } from './models/input/my-games-pagination-query.input.model';
-import { PaginationQuery } from '../../../base/models/pagination-query.input.model';
 import {
   GamePagination,
-  Pagination,
   PaginationOutput,
 } from '../../../base/models/pagination.base.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { GetAllUserGamesQuery } from '../application/queries/get-all-user-games.query';
 import { GamePaginationQuery } from './models/input/game-pagination-query.input.model';
-import { MyStatisticOutputModel } from './models/output/my-statistic.output.model';
+import { UserStatisticOutputModel } from './models/output/my-statistic.output.model';
 import { GetMyStatisticQuery } from '../application/queries/get-my-statistic.query';
 
 export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
@@ -74,11 +72,13 @@ export class QuizController {
     return result;
   }
 
+  @Get('my-statistic')
   async myStatistic(@CurrentUserId() userId: number) {
-    const result: Result<MyStatisticOutputModel> = await this.queryBus.execute<
-      GetMyStatisticQuery,
-      Result<MyStatisticOutputModel>
-    >(new GetMyStatisticQuery(userId));
+    const result: Result<UserStatisticOutputModel> =
+      await this.queryBus.execute<
+        GetMyStatisticQuery,
+        Result<UserStatisticOutputModel>
+      >(new GetMyStatisticQuery(userId));
 
     return result.data;
   }

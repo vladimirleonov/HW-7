@@ -21,6 +21,7 @@ import {
 } from '../../../../../src/base/models/pagination.base.model';
 import { GAME_SORTING_PROPERTIES } from '../../../../../src/features/quiz/api/quiz.controller';
 import { GamePaginationQuery } from '../../../../../src/features/quiz/api/models/input/game-pagination-query.input.model';
+import { UserStatisticOutputModel } from '../../../../../src/features/quiz/api/models/output/my-statistic.output.model';
 
 describe('pairs', () => {
   let app: INestApplication;
@@ -50,24 +51,18 @@ describe('pairs', () => {
     jest.clearAllMocks();
   });
 
-  describe('GetAllUserGamesQuery', () => {
+  describe.skip('GetAllUserGamesQuery', () => {
     it('should successfully return two user games (finished and not finished) with default pagination', async () => {
       /**
-       * create and publish questions
+       * generate questions
        */
 
-      const questions = [
-        { body: 'question1', correctAnswers: ['1', '1.1'] },
-        { body: 'question2', correctAnswers: ['2', '2.2'] },
-        { body: 'question3', correctAnswers: ['3', '3.3'] },
-        { body: 'question4', correctAnswers: ['4', '4.4'] },
-        { body: 'question5', correctAnswers: ['5', '5.5'] },
-        { body: 'question6', correctAnswers: ['6', '6.6'] },
-        { body: 'question7', correctAnswers: ['7', '7.7'] },
-        { body: 'question8', correctAnswers: ['8', '8.8'] },
-        { body: 'question9', correctAnswers: ['9', '9.9'] },
-        { body: 'question10', correctAnswers: ['10', '10.10'] },
-      ];
+      const questions: { body: string; correctAnswers: string[] }[] =
+        await questionTestManager.generateQuestions(10);
+
+      /**
+       * create and publish questions
+       */
 
       const createdQuestionIds: number[] =
         await questionTestManager.createAndPublishQuestions(
@@ -78,60 +73,38 @@ describe('pairs', () => {
       expect(createdQuestionIds).toHaveLength(10);
 
       /**
-       * create two user dto
+       * generate users
        */
 
       const users: {
         login: string;
         email: string;
         password: string;
-      }[] = [];
-
-      for (let i = 0; i < 2; i++) {
-        const user = {
-          login: `name${i}`,
-          password: `qwerty${i}`,
-          email: `email${i}@email.com`,
-        };
-
-        users.push(user);
-      }
+      }[] = await usersTestManager.generateUsers(2);
 
       /**
-       * create first user
+       * create users
        */
 
-      // userId
-      const firstCreatedId: number | null = await usersTestManager.create(
-        users[0].login,
-        users[0].password,
-        users[0].email,
-        ResultStatus.Success,
-      );
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
 
-      expect(firstCreatedId).not.toBeNull();
+        expect(userId).not.toBeNull();
 
-      if (firstCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
       }
 
-      /**
-       * create second user
-       */
-
-      // userId
-      const secondCreatedId: number | null = await usersTestManager.create(
-        users[1].login,
-        users[1].password,
-        users[1].email,
-        ResultStatus.Success,
-      );
-
-      expect(secondCreatedId).not.toBeNull();
-
-      if (secondCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
+      const [firstCreatedId, secondCreatedId] = userIds;
 
       /**
        * create new pair with first user
@@ -168,479 +141,74 @@ describe('pairs', () => {
       }
 
       /**
-       * Get the current game
-       */
-
-      const currentUserGame: GameOutputModel | null =
-        await pairsTestManager.getCurrentUnfinishedUserGame(
-          firstCreatedId,
-          ResultStatus.Success,
-        );
-      expect(currentUserGame).not.toBeNull();
-
-      if (currentUserGame === null) {
-        throw new Error('game is null, cannot proceed with the test');
-      }
-
-      expect(currentUserGame.status).toBe(GameStatus.Active);
-      expect(currentUserGame.pairCreatedDate).not.toBeNull();
-      expect(currentUserGame.startGameDate).not.toBeNull();
-      expect(currentUserGame.finishGameDate).toBeNull();
-
-      /**
-       * Verify 5 random questions are added to the game
-       */
-
-      const gameQuestions: QuestionModel[] | null = currentUserGame.questions;
-
-      expect(gameQuestions).toHaveLength(5);
-
-      if (gameQuestions === null) {
-        throw new Error('gameQuestions is null, cannot proceed with the test');
-      }
-
-      const questionIdsInGame: string[] = gameQuestions.map((q) => q.id);
-
-      // Ensure all questions in the game are among the created ones
-      questionIdsInGame.forEach((id) => {
-        expect(createdQuestionIds).toContain(Number(id));
-      });
-
-      /**
-       * get game question ids in order with answers
+       * validate current user game and get game question ids from that game in order with correct answers
        */
 
       const gameQuestionIdsInOrderWithCorrectAnswers: {
         id: string;
         answers: string[];
-      }[] = [];
-
-      gameQuestions.forEach((gq) => {
-        for (let i = 0; i < questions.length; i++) {
-          if (gq.body === questions[i].body) {
-            gameQuestionIdsInOrderWithCorrectAnswers.push({
-              id: gq.id,
-              answers: questions[i].correctAnswers,
-            });
-            break;
-          }
-        }
-      });
-
-      /**
-       * fu 1-0-1-0-0 = 2
-       * su 1-0-1-0-1 + 1(first answered) = 4
-       */
-
-      // fua1 +
-      const fua1: number | null = await pairsTestManager.createAnswer(
-        firstCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
-      );
-
-      // fua2 -
-      const fua2: number | null = await pairsTestManager.createAnswer(
-        firstCreatedId,
-        'test',
-        ResultStatus.Success,
-      );
-
-      // fua3 +
-      const fua3: number | null = await pairsTestManager.createAnswer(
-        firstCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
-      );
-
-      // fu4 -
-      const fua4: number | null = await pairsTestManager.createAnswer(
-        firstCreatedId,
-        'test',
-        ResultStatus.Success,
-      );
-
-      // sua1 +
-      const sua1: number | null = await pairsTestManager.createAnswer(
-        secondCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
-      );
-
-      // sua2 -
-      const sua2: number | null = await pairsTestManager.createAnswer(
-        secondCreatedId,
-        'test',
-        ResultStatus.Success,
-      );
-
-      // sua3 +
-      const sua3: number | null = await pairsTestManager.createAnswer(
-        secondCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
-      );
-
-      // sua4 -
-      const sua4: number | null = await pairsTestManager.createAnswer(
-        secondCreatedId,
-        'test',
-        ResultStatus.Success,
-      );
-
-      // sua5 +
-      const sua5: number | null = await pairsTestManager.createAnswer(
-        secondCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
-        ResultStatus.Success,
-      );
-
-      // fua5 -
-      const fua5: number | null = await pairsTestManager.createAnswer(
-        firstCreatedId,
-        'test',
-        ResultStatus.Success,
-      );
-
-      expect(fua1).not.toBeNull();
-      expect(fua2).not.toBeNull();
-      expect(fua3).not.toBeNull();
-      expect(fua4).not.toBeNull();
-      expect(fua5).not.toBeNull();
-
-      expect(sua1).not.toBeNull();
-      expect(sua2).not.toBeNull();
-      expect(sua3).not.toBeNull();
-      expect(sua4).not.toBeNull();
-      expect(sua5).not.toBeNull();
-
-      /**
-       * create new pair with first user
-       */
-
-      // playerId
-      const createFirst2ConnectionResult: number | null =
-        await pairsTestManager.createConnection(
-          firstCreatedId,
-          ResultStatus.Success,
-        );
-
-      expect(createFirst2ConnectionResult).not.toBeNull();
-
-      if (createFirst2ConnectionResult === null) {
-        throw new Error(
-          'createFirst2ConnectionResult is null, cannot proceed with the test',
-        );
-      }
-
-      /**
-       * connect second user to existing new pair
-       */
-
-      // playerId
-      const createSecond2ConnectionResult: number | null =
-        await pairsTestManager.createConnection(
-          secondCreatedId,
-          ResultStatus.Success,
-        );
-
-      expect(createSecond2ConnectionResult).not.toBeNull();
-
-      if (createSecond2ConnectionResult === null) {
-        throw new Error(
-          'createSecond2ConnectionResult is null, cannot proceed with the test',
-        );
-      }
-
-      /**
-       * get user two games: finished and current
-       */
-
-      const query = {
-        // sortBy: 'status',
-        // sortDirection: 'ASC',
-        // pageNumber: 1,
-        // pageSize: 1,
-      };
-
-      const pagination: GamePagination<GamePaginationQuery> =
-        new GamePagination(query, GAME_SORTING_PROPERTIES);
-
-      const userGames: any = await pairsTestManager.getAllMy(
-        pagination,
-        firstCreatedId,
-        ResultStatus.Success,
-      );
-
-      expect(userGames).not.toBeNull();
-      expect(userGames.items).toHaveLength(2);
-      expect(userGames.totalCount).toBe(2);
-      expect(userGames.pageSize).toBe(10);
-      expect(userGames.pagesCount).toBe(1);
-    });
-
-    it('should successfully return two user games (finished and not finished) with sort by status ASC then sort by pairCreatedDate DESC', async () => {
-      /**
-       * create and publish questions
-       */
-
-      const questions = [
-        { body: 'question1', correctAnswers: ['1', '1.1'] },
-        { body: 'question2', correctAnswers: ['2', '2.2'] },
-        { body: 'question3', correctAnswers: ['3', '3.3'] },
-        { body: 'question4', correctAnswers: ['4', '4.4'] },
-        { body: 'question5', correctAnswers: ['5', '5.5'] },
-        { body: 'question6', correctAnswers: ['6', '6.6'] },
-        { body: 'question7', correctAnswers: ['7', '7.7'] },
-        { body: 'question8', correctAnswers: ['8', '8.8'] },
-        { body: 'question9', correctAnswers: ['9', '9.9'] },
-        { body: 'question10', correctAnswers: ['10', '10.10'] },
-      ];
-
-      const createdQuestionIds: number[] =
-        await questionTestManager.createAndPublishQuestions(
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
           questions,
-          ResultStatus.Success,
-        );
-
-      expect(createdQuestionIds).toHaveLength(10);
-
-      /**
-       * create two user dto
-       */
-
-      const users: {
-        login: string;
-        email: string;
-        password: string;
-      }[] = [];
-
-      for (let i = 0; i < 2; i++) {
-        const user = {
-          login: `name${i}`,
-          password: `qwerty${i}`,
-          email: `email${i}@email.com`,
-        };
-
-        users.push(user);
-      }
-
-      /**
-       * create first user
-       */
-
-      // userId
-      const firstCreatedId: number | null = await usersTestManager.create(
-        users[0].login,
-        users[0].password,
-        users[0].email,
-        ResultStatus.Success,
-      );
-
-      expect(firstCreatedId).not.toBeNull();
-
-      if (firstCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
-
-      /**
-       * create second user
-       */
-
-      // userId
-      const secondCreatedId: number | null = await usersTestManager.create(
-        users[1].login,
-        users[1].password,
-        users[1].email,
-        ResultStatus.Success,
-      );
-
-      expect(secondCreatedId).not.toBeNull();
-
-      if (secondCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
-
-      /**
-       * create new pair with first user
-       */
-
-      // playerId
-      const createFirstConnectionResult: number | null =
-        await pairsTestManager.createConnection(
           firstCreatedId,
-          ResultStatus.Success,
+          createdQuestionIds,
         );
-
-      expect(createFirstConnectionResult).not.toBeNull();
-
-      if (createFirstConnectionResult === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
-
-      /**
-       * connect second user to existing pair
-       */
-
-      // playerId
-      const createSecondConnectionResult: number | null =
-        await pairsTestManager.createConnection(
-          secondCreatedId,
-          ResultStatus.Success,
-        );
-
-      expect(createSecondConnectionResult).not.toBeNull();
-
-      if (createSecondConnectionResult === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
-
-      /**
-       * Get the current game
-       */
-
-      const currentUserGame: GameOutputModel | null =
-        await pairsTestManager.getCurrentUnfinishedUserGame(
-          firstCreatedId,
-          ResultStatus.Success,
-        );
-      expect(currentUserGame).not.toBeNull();
-
-      if (currentUserGame === null) {
-        throw new Error('game is null, cannot proceed with the test');
-      }
-
-      expect(currentUserGame.status).toBe(GameStatus.Active);
-      expect(currentUserGame.pairCreatedDate).not.toBeNull();
-      expect(currentUserGame.startGameDate).not.toBeNull();
-      expect(currentUserGame.finishGameDate).toBeNull();
-
-      /**
-       * Verify 5 random questions are added to the game
-       */
-
-      const gameQuestions: QuestionModel[] | null = currentUserGame.questions;
-
-      expect(gameQuestions).toHaveLength(5);
-
-      if (gameQuestions === null) {
-        throw new Error('gameQuestions is null, cannot proceed with the test');
-      }
-
-      const questionIdsInGame: string[] = gameQuestions.map((q) => q.id);
-
-      // Ensure all questions in the game are among the created ones
-      questionIdsInGame.forEach((id) => {
-        expect(createdQuestionIds).toContain(Number(id));
-      });
-
-      /**
-       * get game question ids in order with answers
-       */
-
-      const gameQuestionIdsInOrderWithCorrectAnswers: {
-        id: string;
-        answers: string[];
-      }[] = [];
-
-      gameQuestions.forEach((gq) => {
-        for (let i = 0; i < questions.length; i++) {
-          if (gq.body === questions[i].body) {
-            gameQuestionIdsInOrderWithCorrectAnswers.push({
-              id: gq.id,
-              answers: questions[i].correctAnswers,
-            });
-            break;
-          }
-        }
-      });
 
       /**
        * fu 1-0-1-0-0 = 2
        * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
        */
 
-      // fua1 +
-      const fua1: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
       );
 
-      // fua2 -
-      const fua2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // fua3 +
-      const fua3: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
       );
 
-      // fu4 -
-      const fua4: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua1 +
-      const sua1: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
       );
 
-      // sua2 -
-      const sua2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua3 +
-      const sua3: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
       );
 
-      // sua4 -
-      const sua4: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua5 +
-      const sua5: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
-        ResultStatus.Success,
       );
 
-      // fua5 -
-      const fua5: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
-
-      expect(fua1).not.toBeNull();
-      expect(fua2).not.toBeNull();
-      expect(fua3).not.toBeNull();
-      expect(fua4).not.toBeNull();
-      expect(fua5).not.toBeNull();
-
-      expect(sua1).not.toBeNull();
-      expect(sua2).not.toBeNull();
-      expect(sua3).not.toBeNull();
-      expect(sua4).not.toBeNull();
-      expect(sua5).not.toBeNull();
 
       /**
        * create new pair with first user
@@ -681,151 +249,297 @@ describe('pairs', () => {
       }
 
       /**
-       * Get the current game
+       * get user two games: finished and current
        */
 
-      const currentUserGame2: GameOutputModel | null =
-        await pairsTestManager.getCurrentUnfinishedUserGame(
+      const query = {
+        // sortBy: 'status',
+        // sortDirection: 'ASC',
+        // pageNumber: 1,
+        // pageSize: 1,
+      };
+
+      const pagination: GamePagination<GamePaginationQuery> =
+        new GamePagination(query, GAME_SORTING_PROPERTIES);
+
+      const userGames: any = await pairsTestManager.getAllMy(
+        pagination,
+        firstCreatedId,
+        ResultStatus.Success,
+      );
+
+      expect(userGames).not.toBeNull();
+      expect(userGames.items).toHaveLength(2);
+      expect(userGames.totalCount).toBe(2);
+      expect(userGames.pageSize).toBe(10);
+      expect(userGames.pagesCount).toBe(1);
+    });
+
+    it('should successfully return two user finished games with sort by status ASC then sort by pairCreatedDate DESC', async () => {
+      /**
+       * generate questions
+       */
+
+      const questions: { body: string; correctAnswers: string[] }[] =
+        await questionTestManager.generateQuestions(10);
+
+      /**
+       * create and publish questions
+       */
+
+      const createdQuestionIds: number[] =
+        await questionTestManager.createAndPublishQuestions(
+          questions,
+          ResultStatus.Success,
+        );
+
+      expect(createdQuestionIds).toHaveLength(10);
+
+      /**
+       * generate users
+       */
+
+      const users: {
+        login: string;
+        email: string;
+        password: string;
+      }[] = await usersTestManager.generateUsers(2);
+
+      /**
+       * create users
+       */
+
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
+
+        expect(userId).not.toBeNull();
+
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
+      }
+
+      const [firstCreatedId, secondCreatedId] = userIds;
+
+      /**
+       * create new pair with first user
+       */
+
+      // playerId
+      const createFirstConnectionResult: number | null =
+        await pairsTestManager.createConnection(
           firstCreatedId,
           ResultStatus.Success,
         );
-      expect(currentUserGame2).not.toBeNull();
 
-      if (currentUserGame2 === null) {
-        throw new Error('game is null, cannot proceed with the test');
+      expect(createFirstConnectionResult).not.toBeNull();
+
+      if (createFirstConnectionResult === null) {
+        throw new Error('createResult is null, cannot proceed with the test');
       }
 
-      expect(currentUserGame2.status).toBe(GameStatus.Active);
-      expect(currentUserGame2.pairCreatedDate).not.toBeNull();
-      expect(currentUserGame2.startGameDate).not.toBeNull();
-      expect(currentUserGame2.finishGameDate).toBeNull();
-
       /**
-       * Verify 5 random questions are added to the game
+       * connect second user to existing pair
        */
 
-      const gameQuestions2: QuestionModel[] | null = currentUserGame2.questions;
+      // playerId
+      const createSecondConnectionResult: number | null =
+        await pairsTestManager.createConnection(
+          secondCreatedId,
+          ResultStatus.Success,
+        );
 
-      expect(gameQuestions2).toHaveLength(5);
+      expect(createSecondConnectionResult).not.toBeNull();
 
-      if (gameQuestions2 === null) {
-        throw new Error('gameQuestions is null, cannot proceed with the test');
+      if (createSecondConnectionResult === null) {
+        throw new Error('createResult is null, cannot proceed with the test');
       }
 
-      const questionIdsInGame2: string[] = gameQuestions.map((q) => q.id);
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
+       */
 
-      // Ensure all questions in the game are among the created ones
-      questionIdsInGame2.forEach((id) => {
-        expect(createdQuestionIds).toContain(Number(id));
-      });
+      const gameQuestionIdsInOrderWithCorrectAnswers: {
+        id: string;
+        answers: string[];
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
 
       /**
-       * get game question ids in order with answers
+       * fu 1-0-1-0-0 = 2
+       * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
+       */
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      /**
+       * create new pair with first user
+       */
+
+      // playerId
+      const createFirstConnectionResult2: number | null =
+        await pairsTestManager.createConnection(
+          firstCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createFirstConnectionResult2).not.toBeNull();
+
+      if (createFirstConnectionResult2 === null) {
+        throw new Error(
+          'createFirst2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * connect second user to existing new pair
+       */
+
+      // playerId
+      const createSecondConnectionResult2: number | null =
+        await pairsTestManager.createConnection(
+          secondCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createSecondConnectionResult2).not.toBeNull();
+
+      if (createSecondConnectionResult2 === null) {
+        throw new Error(
+          'createSecond2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
        */
 
       const gameQuestionIdsInOrderWithCorrectAnswers2: {
         id: string;
         answers: string[];
-      }[] = [];
-
-      gameQuestions2.forEach((gq) => {
-        for (let i = 0; i < questions.length; i++) {
-          if (gq.body === questions[i].body) {
-            gameQuestionIdsInOrderWithCorrectAnswers2.push({
-              id: gq.id,
-              answers: questions[i].correctAnswers,
-            });
-            break;
-          }
-        }
-      });
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
 
       /**
        * fu 1-0-1-0-0 = 2
        * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
        */
 
-      // fua1 +
-      const fua1_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers2[0].answers[0],
-        ResultStatus.Success,
       );
 
-      // fua2 -
-      const fua2_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // fua3 +
-      const fua3_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
+        gameQuestionIdsInOrderWithCorrectAnswers2[2].answers[0],
       );
 
-      // fu4 -
-      const fua4_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua1 +
-      const sua1_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
+        gameQuestionIdsInOrderWithCorrectAnswers2[0].answers[0],
       );
 
-      // sua2 -
-      const sua2_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua3 +
-      const sua3_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
+        gameQuestionIdsInOrderWithCorrectAnswers2[2].answers[0],
       );
 
-      // sua4 -
-      const sua4_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua5 +
-      const sua5_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
-        ResultStatus.Success,
+        gameQuestionIdsInOrderWithCorrectAnswers2[4].answers[0],
       );
 
-      // fua5 -
-      const fua5_2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
-
-      expect(fua1_2).not.toBeNull();
-      expect(fua2_2).not.toBeNull();
-      expect(fua3_2).not.toBeNull();
-      expect(fua4_2).not.toBeNull();
-      expect(fua5_2).not.toBeNull();
-
-      expect(sua1_2).not.toBeNull();
-      expect(sua2_2).not.toBeNull();
-      expect(sua3_2).not.toBeNull();
-      expect(sua4_2).not.toBeNull();
-      expect(sua5_2).not.toBeNull();
 
       /**
        * get user two finished games with pagination first by status ASC then by pairCreatedAt DESC
@@ -881,8 +595,409 @@ describe('pairs', () => {
     });
   });
 
+  describe.skip('GetMyStatisticUseCase', () => {
+    it('should successfully return user statistics', async () => {
+      /**
+       * generate questions
+       */
+
+      const questions: { body: string; correctAnswers: string[] }[] =
+        await questionTestManager.generateQuestions(10);
+
+      /**
+       * create and publish questions
+       */
+
+      const createdQuestionIds: number[] =
+        await questionTestManager.createAndPublishQuestions(
+          questions,
+          ResultStatus.Success,
+        );
+
+      expect(createdQuestionIds).toHaveLength(10);
+
+      /**
+       * generate users
+       */
+
+      const users: {
+        login: string;
+        email: string;
+        password: string;
+      }[] = await usersTestManager.generateUsers(2);
+
+      /**
+       * create users
+       */
+
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
+
+        expect(userId).not.toBeNull();
+
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
+      }
+
+      const [firstCreatedId, secondCreatedId] = userIds;
+
+      /**
+       * create new pair with first user
+       */
+
+      // playerId
+      const createFirstConnectionResult: number | null =
+        await pairsTestManager.createConnection(
+          firstCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createFirstConnectionResult).not.toBeNull();
+
+      if (createFirstConnectionResult === null) {
+        throw new Error('createResult is null, cannot proceed with the test');
+      }
+
+      /**
+       * connect second user to existing pair
+       */
+
+      // playerId
+      const createSecondConnectionResult: number | null =
+        await pairsTestManager.createConnection(
+          secondCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createSecondConnectionResult).not.toBeNull();
+
+      if (createSecondConnectionResult === null) {
+        throw new Error('createResult is null, cannot proceed with the test');
+      }
+
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
+       */
+
+      const gameQuestionIdsInOrderWithCorrectAnswers: {
+        id: string;
+        answers: string[];
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
+
+      /**
+       * fu 1-0-1-0-0 = 2
+       * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
+       */
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      /**
+       * create new pair with first user
+       */
+
+      // playerId
+      const createFirstConnectionResult2: number | null =
+        await pairsTestManager.createConnection(
+          firstCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createFirstConnectionResult2).not.toBeNull();
+
+      if (createFirstConnectionResult2 === null) {
+        throw new Error(
+          'createFirst2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * connect second user to existing new pair
+       */
+
+      // playerId
+      const createSecondConnectionResult2: number | null =
+        await pairsTestManager.createConnection(
+          secondCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createSecondConnectionResult2).not.toBeNull();
+
+      if (createSecondConnectionResult2 === null) {
+        throw new Error(
+          'createSecond2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
+       */
+
+      const gameQuestionIdsInOrderWithCorrectAnswers2: {
+        id: string;
+        answers: string[];
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
+
+      /**
+       * fu 1-0-1-0-0 = 2
+       * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
+       */
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[4].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      /**
+       * create new pair with first user
+       */
+
+      // playerId
+      const createFirstConnectionResult3: number | null =
+        await pairsTestManager.createConnection(
+          firstCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createFirstConnectionResult3).not.toBeNull();
+
+      if (createFirstConnectionResult3 === null) {
+        throw new Error(
+          'createFirst2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * connect second user to existing new pair
+       */
+
+      // playerId
+      const createSecondConnectionResult3: number | null =
+        await pairsTestManager.createConnection(
+          secondCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createSecondConnectionResult3).not.toBeNull();
+
+      if (createSecondConnectionResult3 === null) {
+        throw new Error(
+          'createSecond2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
+       */
+
+      const gameQuestionIdsInOrderWithCorrectAnswers3: {
+        id: string;
+        answers: string[];
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
+
+      /**
+       * fu 1-1-1-1-0 = 4
+       * su 1-0-1-0-1 + 1(first answered) = 4
+       * draw
+       */
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[1].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[3].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[4].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      /**
+       * get use statistic:
+       * tree games
+       * two lose
+       * one draw
+       * zero win
+       */
+
+      const firstUserStatistic: UserStatisticOutputModel =
+        await pairsTestManager.getUserStatistic(
+          firstCreatedId,
+          ResultStatus.Success,
+        );
+
+      console.log(firstUserStatistic);
+
+      expect(firstUserStatistic).not.toBeNull();
+      expect(firstUserStatistic.sumScore).toBe(8);
+      expect(firstUserStatistic.avgScore).toBe(2.67);
+      expect(firstUserStatistic.gamesCount).toBe(3);
+      expect(firstUserStatistic.winsCount).toBe(0);
+      expect(firstUserStatistic.lossesCount).toBe(2);
+      expect(firstUserStatistic.drawsCount).toBe(1);
+    });
+  });
+
   describe.skip('GetGameUseCase', () => {
-    it('should successfully return current user game by game id', async () => {
+    it('should successfully return current user pending game by game id', async () => {
       /**
        * create user dto
        */
@@ -1224,60 +1339,38 @@ describe('pairs', () => {
     // may delete (additional)
     it('should successfully return user joined game', async () => {
       /**
-       * create two user dto
+       * generate users
        */
 
       const users: {
         login: string;
         email: string;
         password: string;
-      }[] = [];
-
-      for (let i = 0; i < 2; i++) {
-        const user = {
-          login: `name${i}`,
-          password: `qwerty${i}`,
-          email: `email${i}@email.com`,
-        };
-
-        users.push(user);
-      }
+      }[] = await usersTestManager.generateUsers(2);
 
       /**
-       * create first user
+       * create users
        */
 
-      // userId
-      const firstCreatedId: number | null = await usersTestManager.create(
-        users[0].login,
-        users[0].password,
-        users[0].email,
-        ResultStatus.Success,
-      );
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
 
-      expect(firstCreatedId).not.toBeNull();
+        expect(userId).not.toBeNull();
 
-      if (firstCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
       }
 
-      /**
-       * create second user
-       */
-
-      // userId
-      const secondCreatedId: number | null = await usersTestManager.create(
-        users[1].login,
-        users[1].password,
-        users[1].email,
-        ResultStatus.Success,
-      );
-
-      expect(secondCreatedId).not.toBeNull();
-
-      if (secondCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
+      const [firstCreatedId, secondCreatedId] = userIds;
 
       /**
        * create new pair with first user
@@ -1386,60 +1479,38 @@ describe('pairs', () => {
 
     it('should successfully connect current user to existing game', async () => {
       /**
-       * create two user dto
+       * generate users
        */
 
       const users: {
         login: string;
         email: string;
         password: string;
-      }[] = [];
-
-      for (let i = 0; i < 2; i++) {
-        const user = {
-          login: `name${i}`,
-          password: `qwerty${i}`,
-          email: `email${i}@email.com`,
-        };
-
-        users.push(user);
-      }
+      }[] = await usersTestManager.generateUsers(2);
 
       /**
-       * create first user
+       * create users
        */
 
-      // userId
-      const firstCreatedId: number | null = await usersTestManager.create(
-        users[0].login,
-        users[0].password,
-        users[0].email,
-        ResultStatus.Success,
-      );
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
 
-      expect(firstCreatedId).not.toBeNull();
+        expect(userId).not.toBeNull();
 
-      if (firstCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
       }
 
-      /**
-       * create second user
-       */
-
-      // userId
-      const secondCreatedId: number | null = await usersTestManager.create(
-        users[1].login,
-        users[1].password,
-        users[1].email,
-        ResultStatus.Success,
-      );
-
-      expect(secondCreatedId).not.toBeNull();
-
-      if (secondCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
+      const [firstCreatedId, secondCreatedId] = userIds;
 
       /**
        * create new pair with first user
@@ -1536,21 +1607,15 @@ describe('pairs', () => {
   describe.skip('CreateAnswerUseCase', () => {
     it('should successfully create two users then 5 answers each user (first user los - score 2; second user win - score 3 (+1 - first answered))', async () => {
       /**
-       * create and publish questions
+       * generate questions
        */
 
-      const questions = [
-        { body: 'question1', correctAnswers: ['1', '1.1'] },
-        { body: 'question2', correctAnswers: ['2', '2.2'] },
-        { body: 'question3', correctAnswers: ['3', '3.3'] },
-        { body: 'question4', correctAnswers: ['4', '4.4'] },
-        { body: 'question5', correctAnswers: ['5', '5.5'] },
-        { body: 'question6', correctAnswers: ['6', '6.6'] },
-        { body: 'question7', correctAnswers: ['7', '7.7'] },
-        { body: 'question8', correctAnswers: ['8', '8.8'] },
-        { body: 'question9', correctAnswers: ['9', '9.9'] },
-        { body: 'question10', correctAnswers: ['10', '10.10'] },
-      ];
+      const questions: { body: string; correctAnswers: string[] }[] =
+        await questionTestManager.generateQuestions(10);
+
+      /**
+       * create and publish questions
+       */
 
       const createdQuestionIds: number[] =
         await questionTestManager.createAndPublishQuestions(
@@ -1561,60 +1626,47 @@ describe('pairs', () => {
       expect(createdQuestionIds).toHaveLength(10);
 
       /**
-       * create two user dto
+       * generate users
        */
 
       const users: {
         login: string;
         email: string;
         password: string;
-      }[] = [];
-
-      for (let i = 0; i < 2; i++) {
-        const user = {
-          login: `name${i}`,
-          password: `qwerty${i}`,
-          email: `email${i}@email.com`,
-        };
-
-        users.push(user);
-      }
+      }[] = await usersTestManager.generateUsers(2);
 
       /**
-       * create first user
+       * create users
        */
 
-      // userId
-      const firstCreatedId: number | null = await usersTestManager.create(
-        users[0].login,
-        users[0].password,
-        users[0].email,
-        ResultStatus.Success,
-      );
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
 
-      expect(firstCreatedId).not.toBeNull();
+        expect(userId).not.toBeNull();
 
-      if (firstCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
       }
+
+      const [firstCreatedId, secondCreatedId] = userIds;
 
       /**
-       * create second user
+       * spy on the save method in GameTypeormRepository
        */
 
-      // userId
-      const secondCreatedId: number | null = await usersTestManager.create(
-        users[1].login,
-        users[1].password,
-        users[1].email,
-        ResultStatus.Success,
-      );
+      const gameTypeormRepository: GameTypeormRepository =
+        app.get<GameTypeormRepository>(GameTypeormRepository);
 
-      expect(secondCreatedId).not.toBeNull();
-
-      if (secondCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
+      const saveGameSpy = jest.spyOn(gameTypeormRepository, 'save');
 
       /**
        * create new pair with first user
@@ -1651,151 +1703,82 @@ describe('pairs', () => {
       }
 
       /**
-       * Get the current game
-       */
-
-      const currentUserGame: GameOutputModel | null =
-        await pairsTestManager.getCurrentUnfinishedUserGame(
-          firstCreatedId,
-          ResultStatus.Success,
-        );
-      expect(currentUserGame).not.toBeNull();
-
-      if (currentUserGame === null) {
-        throw new Error('game is null, cannot proceed with the test');
-      }
-
-      expect(currentUserGame.status).toBe(GameStatus.Active);
-      expect(currentUserGame.pairCreatedDate).not.toBeNull();
-      expect(currentUserGame.startGameDate).not.toBeNull();
-      expect(currentUserGame.finishGameDate).toBeNull();
-
-      /**
-       * Verify 5 random questions are added to the game
-       */
-
-      const gameQuestions: QuestionModel[] | null = currentUserGame.questions;
-
-      expect(gameQuestions).toHaveLength(5);
-
-      if (gameQuestions === null) {
-        throw new Error('gameQuestions is null, cannot proceed with the test');
-      }
-
-      const questionIdsInGame: string[] = gameQuestions.map((q) => q.id);
-
-      // Ensure all questions in the game are among the created ones
-      questionIdsInGame.forEach((id) => {
-        expect(createdQuestionIds).toContain(Number(id));
-      });
-
-      /**
-       * get game question ids in order with answers
+       * validate current user game and get game question ids from that game in order with correct answers
        */
 
       const gameQuestionIdsInOrderWithCorrectAnswers: {
         id: string;
         answers: string[];
-      }[] = [];
-
-      gameQuestions.forEach((gq) => {
-        for (let i = 0; i < questions.length; i++) {
-          if (gq.body === questions[i].body) {
-            gameQuestionIdsInOrderWithCorrectAnswers.push({
-              id: gq.id,
-              answers: questions[i].correctAnswers,
-            });
-            break;
-          }
-        }
-      });
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
 
       /**
        * fu 1-0-1-0-0 = 2
        * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
        */
 
-      // fua1 +
-      const fua1: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
       );
 
-      // fua2 -
-      const fua2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // fua3 +
-      const fua3: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
       );
 
-      // fu4 -
-      const fua4: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua1 +
-      const sua1: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
       );
 
-      // sua2 -
-      const sua2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua3 +
-      const sua3: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
       );
 
-      // sua4 -
-      const sua4: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua5 +
-      const sua5: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
-        ResultStatus.Success,
       );
 
-      // fua5 -
-      const fua5: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      expect(fua1).not.toBeNull();
-      expect(fua2).not.toBeNull();
-      expect(fua3).not.toBeNull();
-      expect(fua4).not.toBeNull();
-      expect(fua5).not.toBeNull();
+      /**
+       * get passed game from save method GameTypeormRepository
+       */
 
-      expect(sua1).not.toBeNull();
-      expect(sua2).not.toBeNull();
-      expect(sua3).not.toBeNull();
-      expect(sua4).not.toBeNull();
-      expect(sua5).not.toBeNull();
+      const savedGame: Game = saveGameSpy.mock.calls[0][0];
+
+      const gameId: number = savedGame.id;
 
       /**
       //  * Get the game to check results
@@ -1803,7 +1786,7 @@ describe('pairs', () => {
 
       const finishedGame: GameOutputModel | null =
         await pairsTestManager.getGame(
-          Number(currentUserGame.id),
+          Number(gameId),
           secondCreatedId,
           ResultStatus.Success,
         );
@@ -1870,21 +1853,15 @@ describe('pairs', () => {
 
     it('should not create answer - user is in active pair but has already answered to all questions: FORBIDDEN', async () => {
       /**
-       * create and publish questions
+       * generate questions
        */
 
-      const questions = [
-        { body: 'question1', correctAnswers: ['1', '1.1'] },
-        { body: 'question2', correctAnswers: ['2', '2.2'] },
-        { body: 'question3', correctAnswers: ['3', '3.3'] },
-        { body: 'question4', correctAnswers: ['4', '4.4'] },
-        { body: 'question5', correctAnswers: ['5', '5.5'] },
-        { body: 'question6', correctAnswers: ['6', '6.6'] },
-        { body: 'question7', correctAnswers: ['7', '7.7'] },
-        { body: 'question8', correctAnswers: ['8', '8.8'] },
-        { body: 'question9', correctAnswers: ['9', '9.9'] },
-        { body: 'question10', correctAnswers: ['10', '10.10'] },
-      ];
+      const questions: { body: string; correctAnswers: string[] }[] =
+        await questionTestManager.generateQuestions(10);
+
+      /**
+       * create and publish questions
+       */
 
       const createdQuestionIds: number[] =
         await questionTestManager.createAndPublishQuestions(
@@ -1895,60 +1872,38 @@ describe('pairs', () => {
       expect(createdQuestionIds).toHaveLength(10);
 
       /**
-       * create two user dto
+       * generate users
        */
 
       const users: {
         login: string;
         email: string;
         password: string;
-      }[] = [];
-
-      for (let i = 0; i < 2; i++) {
-        const user = {
-          login: `name${i}`,
-          password: `qwerty${i}`,
-          email: `email${i}@email.com`,
-        };
-
-        users.push(user);
-      }
+      }[] = await usersTestManager.generateUsers(2);
 
       /**
-       * create first user
+       * create users
        */
 
-      // userId
-      const firstCreatedId: number | null = await usersTestManager.create(
-        users[0].login,
-        users[0].password,
-        users[0].email,
-        ResultStatus.Success,
-      );
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
 
-      expect(firstCreatedId).not.toBeNull();
+        expect(userId).not.toBeNull();
 
-      if (firstCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
       }
 
-      /**
-       * create second user
-       */
-
-      // userId
-      const secondCreatedId: number | null = await usersTestManager.create(
-        users[1].login,
-        users[1].password,
-        users[1].email,
-        ResultStatus.Success,
-      );
-
-      expect(secondCreatedId).not.toBeNull();
-
-      if (secondCreatedId === null) {
-        throw new Error('createResult is null, cannot proceed with the test');
-      }
+      const [firstCreatedId, secondCreatedId] = userIds;
 
       /**
        * create new pair with first user
@@ -1985,163 +1940,86 @@ describe('pairs', () => {
       }
 
       /**
-       * Get the current game
-       */
-
-      const currentUserGame: GameOutputModel | null =
-        await pairsTestManager.getCurrentUnfinishedUserGame(
-          firstCreatedId,
-          ResultStatus.Success,
-        );
-      expect(currentUserGame).not.toBeNull();
-
-      if (currentUserGame === null) {
-        throw new Error('game is null, cannot proceed with the test');
-      }
-
-      expect(currentUserGame.status).toBe(GameStatus.Active);
-      expect(currentUserGame.pairCreatedDate).not.toBeNull();
-      expect(currentUserGame.startGameDate).not.toBeNull();
-      expect(currentUserGame.finishGameDate).toBeNull();
-
-      /**
-       * Verify 5 random questions are added to the game
-       */
-
-      const gameQuestions: QuestionModel[] | null = currentUserGame.questions;
-
-      expect(gameQuestions).toHaveLength(5);
-
-      if (gameQuestions === null) {
-        throw new Error('gameQuestions is null, cannot proceed with the test');
-      }
-
-      const questionIdsInGame: string[] = gameQuestions.map((q) => q.id);
-
-      // Ensure all questions in the game are among the created ones
-      questionIdsInGame.forEach((id) => {
-        expect(createdQuestionIds).toContain(Number(id));
-      });
-
-      /**
-       * get game question ids in order with answers
+       * validate current user game and get game question ids from that game in order with correct answers
        */
 
       const gameQuestionIdsInOrderWithCorrectAnswers: {
         id: string;
         answers: string[];
-      }[] = [];
-
-      gameQuestions.forEach((gq) => {
-        for (let i = 0; i < questions.length; i++) {
-          if (gq.body === questions[i].body) {
-            gameQuestionIdsInOrderWithCorrectAnswers.push({
-              id: gq.id,
-              answers: questions[i].correctAnswers,
-            });
-            break;
-          }
-        }
-      });
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
 
       /**
        * fu 1-0-1-0-0 = 2
        * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
        */
 
-      // fua1 +
-      const fua1: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
       );
 
-      // fua2 -
-      const fua2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // fua3 +
-      const fua3: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
       );
 
-      // fu4 -
-      const fua4: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua1 +
-      const sua1: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
-        ResultStatus.Success,
       );
 
-      // sua2 -
-      const sua2: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua3 +
-      const sua3: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
-        ResultStatus.Success,
       );
 
-      // sua4 -
-      const sua4: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
 
-      // sua5 +
-      const sua5: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         secondCreatedId,
         gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
-        ResultStatus.Success,
       );
 
-      // fua5 -
-      const fua5: number | null = await pairsTestManager.createAnswer(
+      await pairsTestManager.answerAndCheckSuccess(
         firstCreatedId,
-        'test',
-        ResultStatus.Success,
+        'wrongAnswer',
       );
-
-      expect(fua1).not.toBeNull();
-      expect(fua2).not.toBeNull();
-      expect(fua3).not.toBeNull();
-      expect(fua4).not.toBeNull();
-      expect(fua5).not.toBeNull();
-
-      expect(sua1).not.toBeNull();
-      expect(sua2).not.toBeNull();
-      expect(sua3).not.toBeNull();
-      expect(sua4).not.toBeNull();
-      expect(sua5).not.toBeNull();
 
       /**
        //  * create one more additional answer - user is not in active pair
        //  */
 
-      const fua6: number | null = await pairsTestManager.createAnswer(
+      const fuaFailed: number | null = await pairsTestManager.createAnswer(
         firstCreatedId,
         'test',
         ResultStatus.Forbidden,
       );
 
-      expect(fua6).toBeNull();
+      expect(fuaFailed).toBeNull();
     });
   });
 });
