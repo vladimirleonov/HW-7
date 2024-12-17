@@ -1,6 +1,7 @@
 import { PublishedStatus } from '../types/published-status';
 
 export class PaginationQuery {
+  sort?: string[];
   sortBy?: string;
   sortDirection?: string;
   pageNumber?: number;

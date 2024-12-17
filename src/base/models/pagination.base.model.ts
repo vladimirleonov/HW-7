@@ -24,8 +24,7 @@ export class PaginationOutput<D> {
 }
 
 export class Pagination<T extends PaginationQuery> {
-  public readonly sortBy: string;
-  public readonly sortDirection: SortDirectionType;
+  public sort: { field: string; direction: SortDirectionType }[];
   public readonly pageNumber: number;
   public readonly pageSize: number;
 
@@ -34,70 +33,130 @@ export class Pagination<T extends PaginationQuery> {
     sortProperties: string[],
     defaultSortBy: string = 'created_at',
   ) {
-    this.sortBy = this.getSortBy(query, sortProperties, defaultSortBy);
-    this.sortDirection = this.getSortDirection(query);
+    this.sort = this.getSortArray(query, sortProperties, defaultSortBy);
     this.pageNumber = Number(query.pageNumber ?? 1);
     this.pageSize = Number(query.pageSize ?? 10);
   }
 
-  public getSortDirectionInNumericFormat(): -1 | 1 {
-    return this.sortDirection === 'DESC' ? -1 : 1;
+  private getSortArray(
+    query: T,
+    sortProperties: string[],
+    defaultSortBy: string,
+  ): { field: string; direction: SortDirectionType }[] {
+    if (Array.isArray(query.sort)) {
+      // Новый формат: массив строк "field direction"
+      return query.sort
+        .map((s) => {
+          const [field, direction] = s.split(' ');
+
+          if (!field) return null;
+
+          return {
+            field: toSnakeCase(field),
+            direction: (direction?.toUpperCase() === 'ASC'
+              ? 'ASC'
+              : 'DESC') as SortDirectionType,
+          };
+        })
+        .filter(
+          (s): s is { field: string; direction: SortDirectionType } =>
+            !!s && sortProperties.includes(s.field),
+        );
+    }
+
+    // Старый формат: sortBy и sortDirection
+    const sortBy = query.sortBy || defaultSortBy;
+    const sortDirection: SortDirectionType =
+      query.sortDirection?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    return [
+      {
+        field: toSnakeCase(sortBy),
+        direction: sortDirection,
+      },
+    ];
   }
 
   public getSkipItemsCount() {
     return (this.pageNumber - 1) * this.pageSize;
   }
-
-  private getSortDirection(query: T): SortDirectionType {
-    let sortDirection: SortDirectionType = 'DESC';
-
-    switch (query.sortDirection?.toUpperCase()) {
-      case 'DESC': {
-        sortDirection = 'DESC';
-        break;
-      }
-      case 'ASC': {
-        sortDirection = 'ASC';
-        break;
-      }
-    }
-    return sortDirection;
-  }
-
-  private getSortBy(
-    query: T,
-    sortProperties: string[],
-    defaultSortBy: string,
-  ): string {
-    let result = defaultSortBy;
-
-    const querySortBy = query.sortBy;
-
-    if (querySortBy === undefined) {
-      return result;
-    }
-
-    // If query property sent as Array
-    if (Array.isArray(querySortBy)) {
-      for (let i: number = 0; i < querySortBy.length; i++) {
-        const param = querySortBy[i];
-
-        if (sortProperties.includes(param.toString())) {
-          // result = param.toString();
-          result = toSnakeCase(param.toString());
-          break;
-        }
-      }
-    } else {
-      if (sortProperties.includes(querySortBy.toString())) {
-        // result = querySortBy.toString();
-        result = toSnakeCase(querySortBy.toString());
-      }
-    }
-
-    return result;
-  }
 }
+
+// export class Pagination<T extends PaginationQuery> {
+//   public readonly sortBy: string;
+//   public readonly sortDirection: SortDirectionType;
+//   public readonly pageNumber: number;
+//   public readonly pageSize: number;
+//
+//   constructor(
+//     query: T,
+//     sortProperties: string[],
+//     defaultSortBy: string = 'created_at',
+//   ) {
+//     this.sortBy = this.getSortBy(query, sortProperties, defaultSortBy);
+//     this.sortDirection = this.getSortDirection(query);
+//     this.pageNumber = Number(query.pageNumber ?? 1);
+//     this.pageSize = Number(query.pageSize ?? 10);
+//   }
+//
+//   public getSortDirectionInNumericFormat(): -1 | 1 {
+//     return this.sortDirection === 'DESC' ? -1 : 1;
+//   }
+//
+//   public getSkipItemsCount() {
+//     return (this.pageNumber - 1) * this.pageSize;
+//   }
+//
+//   private getSortDirection(query: T): SortDirectionType {
+//     let sortDirection: SortDirectionType = 'DESC';
+//
+//     switch (query.sortDirection?.toUpperCase()) {
+//       case 'DESC': {
+//         sortDirection = 'DESC';
+//         break;
+//       }
+//       case 'ASC': {
+//         sortDirection = 'ASC';
+//         break;
+//       }
+//     }
+//     return sortDirection;
+//   }
+//
+//   private getSortBy(
+//     query: T,
+//     sortProperties: string[],
+//     defaultSortBy: string,
+//   ): string {
+//     let result = defaultSortBy;
+//
+//     const querySortBy = query.sortBy;
+//
+//     if (querySortBy === undefined) {
+//       return result;
+//     }
+//
+//     // If query property sent as Array
+//     if (Array.isArray(querySortBy)) {
+//       for (let i: number = 0; i < querySortBy.length; i++) {
+//         const param = querySortBy[i];
+//
+//         if (sortProperties.includes(param.toString())) {
+//           // result = param.toString();
+//           result = toSnakeCase(param.toString());
+//           break;
+//         }
+//       }
+//     } else {
+//       if (sortProperties.includes(querySortBy.toString())) {
+//         // result = querySortBy.toString();
+//         result = toSnakeCase(querySortBy.toString());
+//       }
+//     }
+//
+//     return result;
+//   }
+// }
 
 export class GamePagination<T extends PaginationQuery> extends Pagination<T> {
   constructor(query, sortProperties) {
