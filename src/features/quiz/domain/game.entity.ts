@@ -38,6 +38,7 @@ export class Game {
     type: 'enum',
     enum: GameStatus,
     default: GameStatus.Pending,
+    collation: 'C',
   })
   status: GameStatus | null;
 

@@ -1,6 +1,6 @@
 export class UserStatisticOutputModel {
   sumScore: number;
-  avgScore: number;
+  avgScores: number;
   gamesCount: number;
   winsCount: number;
   lossesCount: number;

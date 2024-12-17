@@ -33,7 +33,7 @@ export class PlayerTypeormQueryRepository {
 
     return {
       sumScore: customRound(sumScore),
-      avgScore: customRound(avgScore),
+      avgScores: customRound(avgScore),
       gamesCount: customRound(gamesCount),
       winsCount: customRound(winsCount),
       lossesCount: customRound(lossesCount),

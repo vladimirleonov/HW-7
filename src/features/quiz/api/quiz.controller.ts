@@ -46,14 +46,14 @@ export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
 ];
 
 @UseGuards(JwtAuthGuard)
-@Controller('pair-game-quiz/pairs')
+@Controller('pair-game-quiz')
 export class QuizController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
-  @Get('my')
+  @Get('pairs/my')
   async getAllMyGames(
     @Param() query: myGamesPaginationQuery,
     @CurrentUserId() userId: number,
@@ -63,16 +63,16 @@ export class QuizController {
       GAME_SORTING_PROPERTIES,
     );
 
-    const result: PaginationOutput<GameOutputModel> =
+    const result: Result<PaginationOutput<GameOutputModel>> =
       await this.queryBus.execute<
         GetAllUserGamesQuery,
-        PaginationOutput<GameOutputModel>
+        Result<PaginationOutput<GameOutputModel>>
       >(new GetAllUserGamesQuery(pagination, userId));
 
-    return result;
+    return result.data;
   }
 
-  @Get('my-statistic')
+  @Get('users/my-statistic')
   async myStatistic(@CurrentUserId() userId: number) {
     const result: Result<UserStatisticOutputModel> =
       await this.queryBus.execute<
@@ -83,7 +83,7 @@ export class QuizController {
     return result.data;
   }
 
-  @Get('my-current')
+  @Get('pairs/my-current')
   async getCurrentUnfinishedUserGame(@CurrentUserId() userId: number) {
     const result: Result<GameOutputModel | null> = await this.queryBus.execute<
       GetCurrentUnfinishedUserGameQuery,
@@ -97,7 +97,7 @@ export class QuizController {
     return result.data;
   }
 
-  @Get(':id')
+  @Get('pairs/:id')
   async getGameById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUserId() userId: number,
@@ -119,7 +119,7 @@ export class QuizController {
     }
   }
 
-  @Post('connection')
+  @Post('pairs/connection')
   @HttpCode(HttpStatus.OK)
   async createConnection(@CurrentUserId() userId: number) {
     const result: Result<number | null> = await this.commandBus.execute<
@@ -148,7 +148,7 @@ export class QuizController {
     }
   }
 
-  @Post('my-current/answers')
+  @Post('pairs/my-current/answers')
   @HttpCode(HttpStatus.OK)
   async createAnswer(
     @CurrentUserId() userId: number,

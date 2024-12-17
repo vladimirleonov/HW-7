@@ -11,10 +11,7 @@ import {
 } from '../../../../../src/features/quiz/domain/game.entity';
 import { GameTypeormRepository } from '../../../../../src/features/quiz/infrastructure/game/game-typeorm.repository';
 import { QuestionTestManager } from '../question/question-test-manager';
-import {
-  GameOutputModel,
-  QuestionModel,
-} from '../../../../../src/features/quiz/api/models/output/game.output.model';
+import { GameOutputModel } from '../../../../../src/features/quiz/api/models/output/game.output.model';
 import {
   GamePagination,
   PaginationOutput,
@@ -988,7 +985,7 @@ describe('pairs', () => {
 
       expect(firstUserStatistic).not.toBeNull();
       expect(firstUserStatistic.sumScore).toBe(8);
-      expect(firstUserStatistic.avgScore).toBe(2.67);
+      expect(firstUserStatistic.avgScores).toBe(2.67);
       expect(firstUserStatistic.gamesCount).toBe(3);
       expect(firstUserStatistic.winsCount).toBe(0);
       expect(firstUserStatistic.lossesCount).toBe(2);
