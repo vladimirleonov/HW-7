@@ -4,12 +4,12 @@ import {
 } from '../../../../../base/models/pagination.base.model';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { BlogsTypeormQueryRepository } from '../../infrastructure/typeorm/blogs-typeorm.query-repository';
-import { PaginationWithSearchNameTermQuery } from '../../../../../base/models/pagination-query.input.model';
 import { Blog } from '../../domain/blog.entity';
+import { SearchNameQueryParams } from '../../../../../base/models/pagination-query.input.model';
 
 export class GetAllBlogsQuery {
   constructor(
-    public readonly pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery>,
+    public readonly pagination: PaginationWithSearchNameTerm<SearchNameQueryParams>,
   ) {}
 }
 

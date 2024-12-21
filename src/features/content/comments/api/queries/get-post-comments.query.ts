@@ -1,4 +1,4 @@
-import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
+import { PaginationQueryParams } from '../../../../../base/models/pagination-query.input.model';
 import {
   Pagination,
   PaginationOutput,
@@ -9,7 +9,7 @@ import { CommentsTypeormQueryRepository } from '../../infrastructure/typeorm/com
 
 export class GetPostCommentsQuery {
   constructor(
-    public readonly pagination: Pagination<PaginationQuery>,
+    public readonly pagination: Pagination<PaginationQueryParams>,
     public readonly postId: number,
     public readonly userId: number,
   ) {}

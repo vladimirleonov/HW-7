@@ -29,9 +29,9 @@ import {
 } from '../../../core/exception-filters/http-exception-filter';
 import { DeleteUserCommand } from '../application/use-cases/delete-user.usecase';
 import { BasicAuthGuard } from '../../../core/guards/passport/basic-auth.guard';
-import { UsersPaginationQuery } from './models/input/users-pagination-query.input.model';
 import { User } from '../domain/user.entity';
 import { GetAllUsersQuery } from './queries/get-all-users.query';
+import { SearchLoginAndEmailQueryParams } from '../../../base/models/pagination-query.input.model';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -46,8 +46,8 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAll(@Query() query: UsersPaginationQuery) {
-    const pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery> =
+  async getAll(@Query() query: SearchLoginAndEmailQueryParams) {
+    const pagination: PaginationWithSearchLoginAndEmailTerm<SearchLoginAndEmailQueryParams> =
       new PaginationWithSearchLoginAndEmailTerm(
         query,
         USERS_SORTING_PROPERTIES,

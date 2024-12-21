@@ -1,3 +1,3 @@
-import { PaginationQuery } from '../../../../../../base/models/pagination-query.input.model';
-
-export class PostsPaginationQuery extends PaginationQuery {}
+// import { PaginationQuery } from '../../../../../../base/models/pagination-query.input.model';
+//
+// export class PostsPaginationQuery extends PaginationQuery {}

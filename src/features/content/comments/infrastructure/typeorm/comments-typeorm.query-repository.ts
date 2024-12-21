@@ -5,7 +5,7 @@ import {
   Pagination,
   PaginationOutput,
 } from '../../../../../base/models/pagination.base.model';
-import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
+import { PaginationQueryParams } from '../../../../../base/models/pagination-query.input.model';
 import { Comment } from '../../domain/comment.entity';
 import { CommentLike } from '../../../like/domain/like.entity';
 
@@ -19,7 +19,7 @@ export class CommentsTypeormQueryRepository {
   ) {}
 
   async getAllPostComments(
-    pagination: Pagination<PaginationQuery>,
+    pagination: Pagination<PaginationQueryParams>,
     postId: number,
     userId?: number,
   ): Promise<any> {
@@ -64,10 +64,14 @@ export class CommentsTypeormQueryRepository {
         ) as "likesInfo"`,
       )
       .where('c.post_id = :postId', { postId })
-      .orderBy(`c.${pagination.sortBy}`, pagination.sortDirection)
+      // .orderBy(`c.${pagination.sortBy}`, pagination.sortDirection)
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize)
       .setParameters({ userId });
+
+    for (const sortItem of pagination.sort) {
+      query.addOrderBy(`c.${sortItem.field}`, sortItem.direction);
+    }
 
     const posts = await query.getRawMany();
 

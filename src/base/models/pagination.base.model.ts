@@ -1,9 +1,10 @@
 import { toSnakeCase } from '../../core/utils/camel-case-to-snake-case';
 import {
-  PaginationQuery,
-  PaginationWithSearchBodyTermAndPublishedStatusQuery,
-  PaginationWithSearchLoginAndEmailTermQuery,
-  PaginationWithSearchNameTermQuery,
+  MultiSortQueryParams,
+  PaginationQueryBase,
+  SearchBodyAndPublishedStatusQueryParams,
+  SearchLoginAndEmailQueryParams,
+  SearchNameQueryParams,
 } from './pagination-query.input.model';
 import { PublishedStatus } from '../types/published-status';
 
@@ -23,7 +24,7 @@ export class PaginationOutput<D> {
   }
 }
 
-export class Pagination<T extends PaginationQuery> {
+export class Pagination<T extends PaginationQueryBase> {
   public sort: { field: string; direction: SortDirectionType }[];
   public readonly pageNumber: number;
   public readonly pageSize: number;
@@ -31,50 +32,74 @@ export class Pagination<T extends PaginationQuery> {
   constructor(
     query: T,
     sortProperties: string[],
-    defaultSortBy: string = 'created_at',
+    defaultSortBy:
+      | string
+      | { field: string; direction: SortDirectionType }[] = 'created_at',
   ) {
     this.sort = this.getSortArray(query, sortProperties, defaultSortBy);
     this.pageNumber = Number(query.pageNumber ?? 1);
     this.pageSize = Number(query.pageSize ?? 10);
   }
 
-  private getSortArray(
+  protected getSortArray(
     query: T,
     sortProperties: string[],
-    defaultSortBy: string,
+    defaultSortBy: string | { field: string; direction: SortDirectionType }[],
   ): { field: string; direction: SortDirectionType }[] {
-    if (Array.isArray(query.sort)) {
-      // Новый формат: массив строк "field direction"
+    if ('sort' in query && Array.isArray(query.sort)) {
+      // If query.sort is an array of strings in the format "field direction"
       return query.sort
         .map((s) => {
-          const [field, direction] = s.split(' ');
+          const [field, direction] = s.split(' '); // Split the string into field name and sort direction
 
-          if (!field) return null;
+          if (!field) return null; // Skip if the field is missing
 
           return {
-            field: toSnakeCase(field),
+            field: toSnakeCase(field), // Convert the field name to snake_case
             direction: (direction?.toUpperCase() === 'ASC'
               ? 'ASC'
-              : 'DESC') as SortDirectionType,
+              : 'DESC') as SortDirectionType, // Set the sort direction (default is DESC)
           };
         })
         .filter(
           (s): s is { field: string; direction: SortDirectionType } =>
-            !!s && sortProperties.includes(s.field),
+            !!s && sortProperties.includes(s.field), // Remove `null` and keep only valid fields
         );
     }
 
-    // Старый формат: sortBy и sortDirection
-    const sortBy = query.sortBy || defaultSortBy;
-    const sortDirection: SortDirectionType =
-      query.sortDirection?.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    // get sortBy and sortDirection from query or default values
+    const sortBy: string =
+      'sortBy' in query && typeof query.sortBy === 'string' && query.sortBy
+        ? query.sortBy
+        : Array.isArray(defaultSortBy)
+          ? ''
+          : defaultSortBy;
 
-    return [
-      {
-        field: toSnakeCase(sortBy),
-        direction: sortDirection,
-      },
-    ];
+    const sortDirection: SortDirectionType =
+      'sortDirection' in query &&
+      typeof query.sortDirection === 'string' &&
+      query.sortDirection.toUpperCase() === 'ASC'
+        ? 'ASC'
+        : 'DESC';
+
+    // If `defaultSortBy` is an array, use it as the default sort array.
+    // If it is a string, create a single sort object based on `sortBy` and `sortDirection`.
+    const defaultSortArray = Array.isArray(defaultSortBy)
+      ? defaultSortBy
+      : [
+          {
+            field: toSnakeCase(sortBy), // Convert the field name to snake_case
+            direction: sortDirection,
+          },
+        ];
+
+    // Filter the defaultSortArray:
+    // - Keep only elements that are objects and have a `field` property.
+    // - Ensure the `field` is in the list of allowed fields (`sortProperties`).
+    return defaultSortArray.filter(
+      (s): s is { field: string; direction: SortDirectionType } =>
+        sortProperties.includes(s?.field || ''),
+    );
   }
 
   public getSkipItemsCount() {
@@ -82,90 +107,19 @@ export class Pagination<T extends PaginationQuery> {
   }
 }
 
-// export class Pagination<T extends PaginationQuery> {
-//   public readonly sortBy: string;
-//   public readonly sortDirection: SortDirectionType;
-//   public readonly pageNumber: number;
-//   public readonly pageSize: number;
-//
-//   constructor(
-//     query: T,
-//     sortProperties: string[],
-//     defaultSortBy: string = 'created_at',
-//   ) {
-//     this.sortBy = this.getSortBy(query, sortProperties, defaultSortBy);
-//     this.sortDirection = this.getSortDirection(query);
-//     this.pageNumber = Number(query.pageNumber ?? 1);
-//     this.pageSize = Number(query.pageSize ?? 10);
-//   }
-//
-//   public getSortDirectionInNumericFormat(): -1 | 1 {
-//     return this.sortDirection === 'DESC' ? -1 : 1;
-//   }
-//
-//   public getSkipItemsCount() {
-//     return (this.pageNumber - 1) * this.pageSize;
-//   }
-//
-//   private getSortDirection(query: T): SortDirectionType {
-//     let sortDirection: SortDirectionType = 'DESC';
-//
-//     switch (query.sortDirection?.toUpperCase()) {
-//       case 'DESC': {
-//         sortDirection = 'DESC';
-//         break;
-//       }
-//       case 'ASC': {
-//         sortDirection = 'ASC';
-//         break;
-//       }
-//     }
-//     return sortDirection;
-//   }
-//
-//   private getSortBy(
-//     query: T,
-//     sortProperties: string[],
-//     defaultSortBy: string,
-//   ): string {
-//     let result = defaultSortBy;
-//
-//     const querySortBy = query.sortBy;
-//
-//     if (querySortBy === undefined) {
-//       return result;
-//     }
-//
-//     // If query property sent as Array
-//     if (Array.isArray(querySortBy)) {
-//       for (let i: number = 0; i < querySortBy.length; i++) {
-//         const param = querySortBy[i];
-//
-//         if (sortProperties.includes(param.toString())) {
-//           // result = param.toString();
-//           result = toSnakeCase(param.toString());
-//           break;
-//         }
-//       }
-//     } else {
-//       if (sortProperties.includes(querySortBy.toString())) {
-//         // result = querySortBy.toString();
-//         result = toSnakeCase(querySortBy.toString());
-//       }
-//     }
-//
-//     return result;
-//   }
-// }
-
-export class GamePagination<T extends PaginationQuery> extends Pagination<T> {
+export class PaginationWithScores<
+  T extends MultiSortQueryParams,
+> extends Pagination<T> {
   constructor(query, sortProperties) {
-    super(query, sortProperties, 'pair_created_date');
+    super(query, sortProperties, [
+      { field: 'avgScores', direction: 'DESC' },
+      { field: 'sumScore', direction: 'DESC' },
+    ]);
   }
 }
 
 export class PaginationWithSearchLoginAndEmailTerm<
-  T extends PaginationWithSearchLoginAndEmailTermQuery,
+  T extends SearchLoginAndEmailQueryParams,
 > extends Pagination<T> {
   public readonly searchLoginTerm: string | null;
   public readonly searchEmailTerm: string | null;
@@ -179,7 +133,7 @@ export class PaginationWithSearchLoginAndEmailTerm<
 }
 
 export class PaginationWithSearchNameTerm<
-  T extends PaginationWithSearchNameTermQuery,
+  T extends SearchNameQueryParams,
 > extends Pagination<T> {
   public readonly searchNameTerm: string | null;
 
@@ -190,7 +144,7 @@ export class PaginationWithSearchNameTerm<
 }
 
 export class PaginationWithBodySearchTermAndPublishedStatus<
-  T extends PaginationWithSearchBodyTermAndPublishedStatusQuery,
+  T extends SearchBodyAndPublishedStatusQueryParams,
 > extends Pagination<T> {
   public readonly bodySearchTerm: string | null;
   public readonly publishedStatus: PublishedStatus;

@@ -27,16 +27,14 @@ import { CreateAnswerCommand } from '../application/commands/create-answer.comma
 import { GetAnswerQuery } from '../application/queries/get-answer.query';
 import { AnswerOutputModel } from './models/output/answer.output.model';
 import { GameOutputModel } from './models/output/game.output.model';
-import { myGamesPaginationQuery } from './models/input/my-games-pagination-query.input.model';
 import {
-  GamePagination,
+  Pagination,
   PaginationOutput,
 } from '../../../base/models/pagination.base.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { GetAllUserGamesQuery } from '../application/queries/get-all-user-games.query';
-import { GamePaginationQuery } from './models/input/game-pagination-query.input.model';
-import { UserStatisticOutputModel } from './models/output/my-statistic.output.model';
-import { GetMyStatisticQuery } from '../application/queries/get-my-statistic.query';
+import { TopUserOutputModel } from './models/output/top-user.output.model';
+import { PaginationQueryParams } from '../../../base/models/pagination-query.input.model';
 
 export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
   'status',
@@ -45,20 +43,23 @@ export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
   'finishGameDate',
 ];
 
+export const TOP_USERS_SORTING_PROPERTIES: SortingPropertiesType<TopUserOutputModel> =
+  ['avgScores', 'sumScore', 'winsCount', 'lossesCount'];
+
 @UseGuards(JwtAuthGuard)
-@Controller('pair-game-quiz')
-export class QuizController {
+@Controller('pair-game-quiz/pairs')
+export class PairsController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
-  @Get('pairs/my')
+  @Get('my')
   async getAllMyGames(
-    @Param() query: myGamesPaginationQuery,
+    @Param() query: PaginationQueryParams,
     @CurrentUserId() userId: number,
   ) {
-    const pagination: GamePagination<GamePaginationQuery> = new GamePagination(
+    const pagination: Pagination<PaginationQueryParams> = new Pagination(
       query,
       GAME_SORTING_PROPERTIES,
     );
@@ -72,18 +73,7 @@ export class QuizController {
     return result.data;
   }
 
-  @Get('users/my-statistic')
-  async myStatistic(@CurrentUserId() userId: number) {
-    const result: Result<UserStatisticOutputModel> =
-      await this.queryBus.execute<
-        GetMyStatisticQuery,
-        Result<UserStatisticOutputModel>
-      >(new GetMyStatisticQuery(userId));
-
-    return result.data;
-  }
-
-  @Get('pairs/my-current')
+  @Get('my-current')
   async getCurrentUnfinishedUserGame(@CurrentUserId() userId: number) {
     const result: Result<GameOutputModel | null> = await this.queryBus.execute<
       GetCurrentUnfinishedUserGameQuery,
@@ -97,7 +87,7 @@ export class QuizController {
     return result.data;
   }
 
-  @Get('pairs/:id')
+  @Get(':id')
   async getGameById(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUserId() userId: number,
@@ -119,7 +109,7 @@ export class QuizController {
     }
   }
 
-  @Post('pairs/connection')
+  @Post('connection')
   @HttpCode(HttpStatus.OK)
   async createConnection(@CurrentUserId() userId: number) {
     const result: Result<number | null> = await this.commandBus.execute<
@@ -148,7 +138,7 @@ export class QuizController {
     }
   }
 
-  @Post('pairs/my-current/answers')
+  @Post('my-current/answers')
   @HttpCode(HttpStatus.OK)
   async createAnswer(
     @CurrentUserId() userId: number,

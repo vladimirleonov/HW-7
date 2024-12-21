@@ -4,9 +4,9 @@ import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../../base/models/pagination.base.model';
-import { UsersPaginationQuery } from '../../api/models/input/users-pagination-query.input.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/user.entity';
+import { SearchLoginAndEmailQueryParams } from '../../../../base/models/pagination-query.input.model';
 
 @Injectable()
 export class UsersTypeormQueryRepository {
@@ -15,7 +15,7 @@ export class UsersTypeormQueryRepository {
   ) {}
 
   async getAll(
-    pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery>,
+    pagination: PaginationWithSearchLoginAndEmailTerm<SearchLoginAndEmailQueryParams>,
   ): Promise<PaginationOutput<User>> {
     const query = this.usersRepository
       .createQueryBuilder('u')
@@ -25,9 +25,13 @@ export class UsersTypeormQueryRepository {
         'u.email as email',
         'u.createdAt as "createdAt"',
       ])
-      .orderBy(`u.${pagination.sortBy}`, pagination.sortDirection)
+      //.orderBy(`u.${pagination.sortBy}`, pagination.sortDirection)
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize);
+
+    for (const sortItem of pagination.sort) {
+      query.addOrderBy(`u.${sortItem.field}`, sortItem.direction);
+    }
 
     if (pagination.searchLoginTerm) {
       query.where('u.login ILIKE :searchLoginTerm', {

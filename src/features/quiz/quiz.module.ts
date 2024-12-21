@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { QuizSaController } from './api/quiz-sa.controller';
+import { PairsSaController } from './api/pairs-sa.controller';
 import { CreateQuestionUseCase } from './application/commands/create-question.command';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from './domain/question.entity';
@@ -11,7 +11,7 @@ import { DeleteQuestionUseCase } from './application/commands/delete-question.co
 import { UpdateQuestionUseCase } from './application/commands/update-question.command';
 import { UpdatePublishedStatusUseCase } from './application/commands/update-published-status.command';
 import { GetAllQuestionsUseCase } from './application/queries/get-all-questions.query';
-import { QuizController } from './api/quiz.controller';
+import { PairsController } from './api/pairs.controller';
 import { CreateConnectionUseCase } from './application/commands/create-connection.command';
 import { PlayerTypeormRepository } from './infrastructure/player/player-typeorm.repository';
 import { GameTypeormRepository } from './infrastructure/game/game-typeorm.repository';
@@ -31,6 +31,7 @@ import { AnswerTypeormQueryRepository } from './infrastructure/answer/answer-typ
 import { GetAnswerUseCase } from './application/queries/get-answer.query';
 import { GetAllUserGamesUseCase } from './application/queries/get-all-user-games.query';
 import { GetMyStatisticUseCase } from './application/queries/get-my-statistic.query';
+import { GetTopUsersUseCase } from './application/queries/get-top-users.query';
 
 const providers = [
   // command usecases
@@ -52,6 +53,7 @@ const providers = [
   GetAnswerUseCase,
   GetAllUserGamesUseCase,
   GetMyStatisticUseCase,
+  GetTopUsersUseCase,
 
   // repos
   QuestionsTypeormRepository,
@@ -70,7 +72,7 @@ const providers = [
     CqrsModule,
     TypeOrmModule.forFeature([Player, Game, GameQuestion, Answer, Question]),
   ],
-  controllers: [QuizController, QuizSaController],
+  controllers: [PairsController, PairsSaController],
   providers: [...providers],
 })
 export class QuizModule {}

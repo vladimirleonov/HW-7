@@ -36,15 +36,13 @@ import { BlogPostUpdateModel } from './models/input/update-blog-post.model';
 import { UpdateBlogPostCommand } from '../../posts/application/use-cases/update-blog-post.usecase';
 import { DeleteBlogPostCommand } from '../../posts/application/use-cases/delete-blog-post.usecase';
 import {
-  PaginationQuery,
-  PaginationWithSearchNameTermQuery,
+  PaginationQueryParams,
+  SearchNameQueryParams,
 } from '../../../../base/models/pagination-query.input.model';
 import { Blog } from '../domain/blog.entity';
 import { Post as PostEntity } from '../../posts/domain/post.entity';
 import { GetAllBlogPostsQuery } from '../../posts/api/queries/get-all-blog-posts.query';
 import { GetAllBlogsQuery } from './queries/get-all-blogs.query';
-import { BlogsPaginationQuery } from './models/input/blogs-pagination-query.input.model';
-import { PostsPaginationQuery } from '../../posts/api/models/input/posts-pagination-query.input.model';
 import { GetBlogQuery } from './queries/get-blog.query';
 import { PostOutputModel } from '../../posts/api/models/output/post.output.model';
 import { GetPostQuery } from '../../posts/api/queries/get-post.query';
@@ -63,8 +61,8 @@ export class BlogsSAController {
   ) {}
 
   @Get()
-  async getAll(@Query() query: BlogsPaginationQuery) {
-    const pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery> =
+  async getAll(@Query() query: SearchNameQueryParams) {
+    const pagination: PaginationWithSearchNameTerm<SearchNameQueryParams> =
       new PaginationWithSearchNameTerm(query, BLOGS_SORTING_PROPERTIES);
 
     const blogs: PaginationOutput<Blog> = await this.queryBus.execute<
@@ -127,7 +125,7 @@ export class BlogsSAController {
 
   @Get(':blogId/posts')
   async getAllBlogPosts(
-    @Query() query: PostsPaginationQuery,
+    @Query() query: PaginationQueryParams,
     @Param('blogId', new ParseIntPipe()) blogId: number,
   ) {
     // TODO: ask if is it ok to check blog is exists in controller here
@@ -143,7 +141,7 @@ export class BlogsSAController {
       throw new NotFoundException(`Blog with id ${blogId} not found`);
     }
 
-    const pagination: Pagination<PaginationQuery> = new Pagination(
+    const pagination: Pagination<PaginationQueryParams> = new Pagination(
       query,
       POSTS_SORTING_PROPERTIES,
     );

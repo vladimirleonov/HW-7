@@ -33,8 +33,7 @@ import { CreateCommentCommand } from '../../comments/application/use-cases/creat
 import { COMMENT_SORTING_PROPERTIES } from '../../comments/api/comments.controller';
 import { PostUpdateLikeStatusModel } from './models/input/update-post-like-status.model';
 import { UpdatePostLikeStatusCommand } from '../application/use-cases/update-post-like-status.usecase';
-import { PaginationQuery } from '../../../../base/models/pagination-query.input.model';
-import { PostsPaginationQuery } from './models/input/posts-pagination-query.input.model';
+import { PaginationQueryParams } from '../../../../base/models/pagination-query.input.model';
 import { Post as PostEntity } from './../domain/post.entity';
 import { GetAllPostsQuery } from './queries/get-all-posts.query';
 import { GetPostQuery } from './queries/get-post.query';
@@ -57,9 +56,9 @@ export class PostsController {
   @UseGuards(OptionalJwtAuthGuard)
   async getAll(
     @OptionalUserId() userId: number,
-    @Query() query: PostsPaginationQuery,
+    @Query() query: PaginationQueryParams,
   ) {
-    const pagination: Pagination<PaginationQuery> = new Pagination(
+    const pagination: Pagination<PaginationQueryParams> = new Pagination(
       query,
       POSTS_SORTING_PROPERTIES,
     );
@@ -94,10 +93,10 @@ export class PostsController {
   @UseGuards(OptionalJwtAuthGuard)
   async getPostComments(
     @Param('postId', new ParseIntPipe()) postId: number,
-    @Query() query: PaginationQuery,
+    @Query() query: PaginationQueryParams,
     @OptionalUserId() userId: number,
   ) {
-    const pagination: Pagination<PaginationQuery> = new Pagination(
+    const pagination: Pagination<PaginationQueryParams> = new Pagination(
       query,
       COMMENT_SORTING_PROPERTIES,
     );

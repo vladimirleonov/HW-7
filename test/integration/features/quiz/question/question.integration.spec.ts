@@ -10,8 +10,8 @@ import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
 } from '../../../../../src/base/models/pagination.base.model';
-import { QuestionsPaginationQuery } from '../../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
-import { QUESTIONS_SORTING_PROPERTIES } from '../../../../../src/features/quiz/api/quiz-sa.controller';
+import { QUESTIONS_SORTING_PROPERTIES } from '../../../../../src/features/quiz/api/pairs-sa.controller';
+import { SearchBodyAndPublishedStatusQueryParams } from '../../../../../src/base/models/pagination-query.input.model';
 
 describe.skip('question', () => {
   let app: INestApplication;
@@ -72,8 +72,8 @@ describe.skip('question', () => {
         // pageSize: 5,
       };
 
-      const pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery> =
-        new PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>(
+      const pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams> =
+        new PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>(
           query,
           QUESTIONS_SORTING_PROPERTIES,
         );
@@ -139,8 +139,8 @@ describe.skip('question', () => {
         pageSize: 3,
       };
 
-      const pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery> =
-        new PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>(
+      const pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams> =
+        new PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>(
           query,
           QUESTIONS_SORTING_PROPERTIES,
         );
@@ -206,8 +206,8 @@ describe.skip('question', () => {
         // pageSize: 5,
       };
 
-      const pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery> =
-        new PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>(
+      const pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams> =
+        new PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>(
           query,
           QUESTIONS_SORTING_PROPERTIES,
         );
@@ -273,8 +273,8 @@ describe.skip('question', () => {
         // pageSize: 5,
       };
 
-      const pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery> =
-        new PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>(
+      const pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams> =
+        new PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>(
           query,
           QUESTIONS_SORTING_PROPERTIES,
         );
@@ -340,8 +340,8 @@ describe.skip('question', () => {
         // pageSize: 5,
       };
 
-      const pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery> =
-        new PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>(
+      const pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams> =
+        new PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>(
           query,
           QUESTIONS_SORTING_PROPERTIES,
         );

@@ -5,8 +5,8 @@ import {
   PaginationOutput,
   PaginationWithSearchNameTerm,
 } from '../../../../../base/models/pagination.base.model';
-import { PaginationWithSearchNameTermQuery } from '../../../../../base/models/pagination-query.input.model';
 import { Blog } from '../../domain/blog.entity';
+import { SearchNameQueryParams } from '../../../../../base/models/pagination-query.input.model';
 @Injectable()
 export class BlogsTypeormQueryRepository {
   constructor(
@@ -14,7 +14,7 @@ export class BlogsTypeormQueryRepository {
   ) {}
 
   async getAll(
-    pagination: PaginationWithSearchNameTerm<PaginationWithSearchNameTermQuery>,
+    pagination: PaginationWithSearchNameTerm<SearchNameQueryParams>,
   ): Promise<PaginationOutput<Blog>> {
     const query = this.blogsRepository
       .createQueryBuilder('b')
@@ -26,9 +26,13 @@ export class BlogsTypeormQueryRepository {
         'b.createdAt as "createdAt"',
         'b.isMembership as "isMembership"',
       ])
-      .orderBy(`b.${pagination.sortBy}`, pagination.sortDirection)
+      // .orderBy(`b.${pagination.sortBy}`, pagination.sortDirection)
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize);
+
+    for (const sortItem of pagination.sort) {
+      query.addOrderBy(`b.${sortItem.field}`, sortItem.direction);
+    }
 
     if (pagination.searchNameTerm) {
       query.where('b.name ILIKE :name', {

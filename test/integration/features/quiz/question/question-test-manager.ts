@@ -28,17 +28,17 @@ import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
 } from '../../../../../src/base/models/pagination.base.model';
-import { QuestionsPaginationQuery } from '../../../../../src/features/quiz/api/models/input/questions-pagination-query.input.model';
 import {
   GetAllQuestionsQuery,
   GetAllQuestionsUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-all-questions.query';
+import { SearchBodyAndPublishedStatusQueryParams } from '../../../../../src/base/models/pagination-query.input.model';
 
 export class QuestionTestManager {
   constructor(protected readonly app: INestApplication) {}
 
   async getAll(
-    pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>,
+    pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>,
     expectedStatus: ResultStatus,
   ): Promise<PaginationOutput<QuestionOutputModel>> {
     const query: GetAllQuestionsQuery = new GetAllQuestionsQuery(pagination);

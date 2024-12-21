@@ -2,14 +2,14 @@ import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../../base/models/pagination.base.model';
-import { UsersPaginationQuery } from '../models/input/users-pagination-query.input.model';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { UsersTypeormQueryRepository } from '../../infrastructure/typeorm/users-typeorm.query-repository';
 import { User } from '../../domain/user.entity';
+import { SearchLoginAndEmailQueryParams } from '../../../../base/models/pagination-query.input.model';
 
 export class GetAllUsersQuery {
   constructor(
-    public readonly pagination: PaginationWithSearchLoginAndEmailTerm<UsersPaginationQuery>,
+    public readonly pagination: PaginationWithSearchLoginAndEmailTerm<SearchLoginAndEmailQueryParams>,
   ) {}
 }
 

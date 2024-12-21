@@ -29,28 +29,28 @@ import { UpdateQuestionCommand } from '../application/commands/update-question.c
 import { PublishedStatusUpdateModel } from './models/input/update-published-status.input.model';
 import { UpdatePublishedStatusCommand } from '../application/commands/update-published-status.command';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
-import { QuestionsPaginationQuery } from './models/input/questions-pagination-query.input.model';
 import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
 } from '../../../base/models/pagination.base.model';
 import { GetAllQuestionsQuery } from '../application/queries/get-all-questions.query';
+import { SearchBodyAndPublishedStatusQueryParams } from '../../../base/models/pagination-query.input.model';
 
 export const QUESTIONS_SORTING_PROPERTIES: SortingPropertiesType<QuestionOutputModel> =
   ['body'];
 
 @UseGuards(BasicAuthGuard)
 @Controller('sa/quiz/questions')
-export class QuizSaController {
+export class PairsSaController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
 
   @Get()
-  async getAll(@Query() query: QuestionsPaginationQuery) {
-    const pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery> =
-      new PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>(
+  async getAll(@Query() query: SearchBodyAndPublishedStatusQueryParams) {
+    const pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams> =
+      new PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>(
         query,
         QUESTIONS_SORTING_PROPERTIES,
       );

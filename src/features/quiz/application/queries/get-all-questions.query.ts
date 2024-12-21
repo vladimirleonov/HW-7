@@ -2,15 +2,15 @@ import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
 } from '../../../../base/models/pagination.base.model';
-import { QuestionsPaginationQuery } from '../../api/models/input/questions-pagination-query.input.model';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { QuestionTypeormQueryRepository } from '../../infrastructure/question/question-typeorm.query-repository';
 import { QuestionOutputModel } from '../../api/models/output/question.output.model';
 import { Result } from '../../../../base/types/object-result';
+import { SearchBodyAndPublishedStatusQueryParams } from '../../../../base/models/pagination-query.input.model';
 
 export class GetAllQuestionsQuery {
   constructor(
-    public readonly pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>,
+    public readonly pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>,
   ) {}
 }
 

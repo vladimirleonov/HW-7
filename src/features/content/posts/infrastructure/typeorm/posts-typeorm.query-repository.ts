@@ -5,7 +5,7 @@ import {
 } from '../../../../../base/models/pagination.base.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PaginationQuery } from '../../../../../base/models/pagination-query.input.model';
+import { PaginationQueryParams } from '../../../../../base/models/pagination-query.input.model';
 import { Post } from '../../domain/post.entity';
 import { mapSortFieldsMapper } from '../../../../../core/utils/sort-field-mapper';
 import { PostLike } from '../../../like/domain/like.entity';
@@ -25,7 +25,7 @@ export class PostsTypeormQueryRepository {
   ) {}
 
   async getAllPosts(
-    pagination: Pagination<PaginationQuery>,
+    pagination: Pagination<PaginationQueryParams>,
     userId?: number,
   ): Promise<PaginationOutput<Post>> {
     const likeCountSubquery = this.postLikeRepository
@@ -97,13 +97,20 @@ export class PostsTypeormQueryRepository {
       `,
       )
       .leftJoin('p.blog', 'b')
-      .orderBy(
-        mapSortFieldsMapper(pagination.sortBy, postsSortFieldMapping),
-        pagination.sortDirection,
-      )
+      // .orderBy(
+      //   mapSortFieldsMapper(pagination.sortBy, postsSortFieldMapping),
+      //   pagination.sortDirection,
+      // )
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize)
       .setParameters({ userId });
+
+    for (const sortItem of pagination.sort) {
+      query.addOrderBy(
+        mapSortFieldsMapper(sortItem.field, postsSortFieldMapping),
+        sortItem.direction,
+      );
+    }
 
     const posts: Post[] = await query.getRawMany();
 
@@ -121,7 +128,7 @@ export class PostsTypeormQueryRepository {
   }
 
   async getAllBlogPosts(
-    pagination: Pagination<PaginationQuery>,
+    pagination: Pagination<PaginationQueryParams>,
     blogId: number,
     userId?: number,
   ): Promise<PaginationOutput<Post>> {
@@ -194,13 +201,20 @@ export class PostsTypeormQueryRepository {
       )
       .leftJoin('p.blog', 'b')
       .where('p.blog_id = :blogId', { blogId })
-      .orderBy(
-        mapSortFieldsMapper(pagination.sortBy, postsSortFieldMapping),
-        pagination.sortDirection,
-      )
+      // .orderBy(
+      //   mapSortFieldsMapper(pagination.sortBy, postsSortFieldMapping),
+      //   pagination.sortDirection,
+      // )
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize)
       .setParameters({ userId });
+
+    for (const sortItem of pagination.sort) {
+      query.addOrderBy(
+        mapSortFieldsMapper(sortItem.field, postsSortFieldMapping),
+        sortItem.direction,
+      );
+    }
 
     const posts: Post[] = await query.getRawMany();
 

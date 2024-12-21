@@ -1,23 +1,29 @@
 import { PublishedStatus } from '../types/published-status';
 
-export class PaginationQuery {
-  sort?: string[];
-  sortBy?: string;
-  sortDirection?: string;
+export class PaginationQueryBase {
   pageNumber?: number;
   pageSize?: number;
 }
 
-export class PaginationWithSearchLoginAndEmailTermQuery extends PaginationQuery {
+export class PaginationQueryParams extends PaginationQueryBase {
+  sortBy?: string;
+  sortDirection?: string;
+}
+
+export class MultiSortQueryParams extends PaginationQueryBase {
+  sort?: string[];
+}
+
+export class SearchLoginAndEmailQueryParams extends PaginationQueryParams {
   searchLoginTerm?: string;
   searchEmailTerm?: string;
 }
 
-export class PaginationWithSearchNameTermQuery extends PaginationQuery {
+export class SearchNameQueryParams extends PaginationQueryParams {
   searchNameTerm?: string;
 }
 
-export class PaginationWithSearchBodyTermAndPublishedStatusQuery extends PaginationQuery {
+export class SearchBodyAndPublishedStatusQueryParams extends PaginationQueryParams {
   bodySearchTerm?: string;
   publishedStatus?: PublishedStatus;
 }

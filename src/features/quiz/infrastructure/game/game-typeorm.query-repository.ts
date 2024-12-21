@@ -6,10 +6,10 @@ import { Answer } from '../../domain/answer.entity';
 import { GameQuestion } from '../../domain/game-questions.entity';
 import { GameOutputModel } from '../../api/models/output/game.output.model';
 import {
-  GamePagination,
   PaginationOutput,
+  PaginationWithScores,
 } from '../../../../base/models/pagination.base.model';
-import { GamePaginationQuery } from '../../api/models/input/game-pagination-query.input.model';
+import { MultiSortQueryParams } from '../../../../base/models/pagination-query.input.model';
 
 export class GameTypeormQueryRepository {
   constructor(
@@ -24,7 +24,7 @@ export class GameTypeormQueryRepository {
   ) {}
 
   async getAllUserGames(
-    pagination: GamePagination<GamePaginationQuery>,
+    pagination: PaginationWithScores<MultiSortQueryParams>,
     userId: number,
   ): Promise<PaginationOutput<GameOutputModel>> {
     const query = await this.gameQueryRepository
@@ -122,10 +122,15 @@ export class GameTypeormQueryRepository {
       .groupBy(
         'g.id, g.status, g.pairCreatedDate, g.startGameDate, g.finishGameDate, fp.id, fpu.login, sp.id, spu.login',
       )
-      .orderBy(`g.${pagination.sortBy}`, pagination.sortDirection)
-      .addOrderBy('g.pairCreatedDate', 'DESC')
+      // .orderBy(`g.${pagination.sortBy}`, pagination.sortDirection)
+
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize);
+
+    for (const sortItem of pagination.sort) {
+      query.addOrderBy(`g.${sortItem.field}`, sortItem.direction);
+    }
+    query.addOrderBy('g.pairCreatedDate', 'DESC');
 
     const games: GameOutputModel[] = await query.getRawMany();
 

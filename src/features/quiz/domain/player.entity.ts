@@ -59,10 +59,8 @@ export class Player {
   // deletedAt: Date | null;
 
   static create(userId: number) {
-    console.log(userId);
     const newPlayer: Player = new this();
     //newPlayer.id = userId;
-    console.log('newPlayer', newPlayer);
     newPlayer.userId = userId;
     return newPlayer;
   }

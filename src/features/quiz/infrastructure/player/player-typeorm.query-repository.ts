@@ -3,12 +3,26 @@ import { Player, PlayerStatus } from '../../domain/player.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserStatisticOutputModel } from '../../api/models/output/my-statistic.output.model';
 import customRound from '../../../../core/utils/custom-round';
+import {
+  PaginationOutput,
+  PaginationWithScores,
+} from '../../../../base/models/pagination.base.model';
+import { TopUserOutputModel } from '../../api/models/output/top-user.output.model';
+import { MultiSortQueryParams } from '../../../../base/models/pagination-query.input.model';
+import { async } from 'rxjs';
 
 export class PlayerTypeormQueryRepository {
   constructor(
     @InjectRepository(Player)
     private readonly playerQueryRepository: Repository<Player>,
   ) {}
+
+  async getTopUsers(
+    pagination: PaginationWithScores<MultiSortQueryParams>,
+    //): Promise<PaginationOutput<TopUserOutputModel>> {
+  ): Promise<any> {
+    console.log(pagination);
+  }
 
   async getMyStatistic(userId: number): Promise<UserStatisticOutputModel> {
     const players: Player[] = await this.playerQueryRepository.find({

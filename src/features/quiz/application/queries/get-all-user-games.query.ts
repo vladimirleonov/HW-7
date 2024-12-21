@@ -1,16 +1,16 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import {
-  GamePagination,
   PaginationOutput,
+  PaginationWithScores,
 } from '../../../../base/models/pagination.base.model';
 import { Result } from '../../../../base/types/object-result';
-import { GamePaginationQuery } from '../../api/models/input/game-pagination-query.input.model';
 import { GameOutputModel } from '../../api/models/output/game.output.model';
 import { GameTypeormQueryRepository } from '../../infrastructure/game/game-typeorm.query-repository';
+import { MultiSortQueryParams } from '../../../../base/models/pagination-query.input.model';
 
 export class GetAllUserGamesQuery {
   constructor(
-    public readonly pagination: GamePagination<GamePaginationQuery>,
+    public readonly pagination: PaginationWithScores<MultiSortQueryParams>,
     public readonly userId: number,
   ) {}
 }

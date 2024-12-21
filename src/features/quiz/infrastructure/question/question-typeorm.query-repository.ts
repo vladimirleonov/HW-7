@@ -6,8 +6,8 @@ import {
   PaginationOutput,
   PaginationWithBodySearchTermAndPublishedStatus,
 } from '../../../../base/models/pagination.base.model';
-import { QuestionsPaginationQuery } from '../../api/models/input/questions-pagination-query.input.model';
 import { PublishedStatus } from '../../../../base/types/published-status';
+import { SearchBodyAndPublishedStatusQueryParams } from '../../../../base/models/pagination-query.input.model';
 
 export class QuestionTypeormQueryRepository {
   constructor(
@@ -16,7 +16,7 @@ export class QuestionTypeormQueryRepository {
   ) {}
 
   async getAll(
-    pagination: PaginationWithBodySearchTermAndPublishedStatus<QuestionsPaginationQuery>,
+    pagination: PaginationWithBodySearchTermAndPublishedStatus<SearchBodyAndPublishedStatusQueryParams>,
   ): Promise<PaginationOutput<QuestionOutputModel>> {
     const query = this.questionQueryRepository
       .createQueryBuilder('q')
@@ -28,9 +28,13 @@ export class QuestionTypeormQueryRepository {
         'q.createdAt as "createdAt"',
         'q.updatedAt as "updatedAt"',
       ])
-      .orderBy(`q.${pagination.sortBy}`, pagination.sortDirection)
+      //.orderBy(`q.${pagination.sortBy}`, pagination.sortDirection)
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize);
+
+    for (const sortItem of pagination.sort) {
+      query.addOrderBy(`g.${sortItem.field}`, sortItem.direction);
+    }
 
     if (pagination.publishedStatus !== PublishedStatus.ALL) {
       query.where('q.published = :publishedStatus', {
