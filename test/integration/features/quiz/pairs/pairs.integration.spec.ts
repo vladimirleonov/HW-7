@@ -57,7 +57,7 @@ describe('pairs', () => {
   });
 
   describe('GetTopUsersUseCase', () => {
-    it('should successfully return top users', async () => {
+    it('should successfully return top users with default pagination', async () => {
       /**
        * generate questions
        */
@@ -448,18 +448,33 @@ describe('pairs', () => {
       const pagination: PaginationWithScores<MultiSortQueryParams> =
         new PaginationWithScores(query, TOP_USERS_SORTING_PROPERTIES);
 
-      const firstUserStatistic: PaginationOutput<TopUserOutputModel> =
+      console.log('pagination', pagination);
+
+      const result: PaginationOutput<TopUserOutputModel> =
         await pairsTestManager.getTopUsers(pagination, ResultStatus.Success);
 
-      console.log(firstUserStatistic);
+      const topUsers: TopUserOutputModel[] = result.items;
 
-      // expect(firstUserStatistic).not.toBeNull();
-      // expect(firstUserStatistic.sumScore).toBe(8);
-      // expect(firstUserStatistic.avgScores).toBe(2.67);
-      // expect(firstUserStatistic.gamesCount).toBe(3);
-      // expect(firstUserStatistic.winsCount).toBe(0);
-      // expect(firstUserStatistic.lossesCount).toBe(2);
-      // expect(firstUserStatistic.drawsCount).toBe(1);
+      console.log('topUsers', topUsers);
+
+      expect(result).not.toBeNull();
+      expect(result.items).toHaveLength(2);
+
+      // second user first as sort by avgScores desc sumScore desc
+      expect(Number(result.items[0].sumScore)).toBe(12);
+      expect(Number(result.items[0].avgScores)).toBe(4);
+      expect(Number(result.items[0].gamesCount)).toBe(3);
+      expect(Number(result.items[0].winsCount)).toBe(2);
+      expect(Number(result.items[0].lossesCount)).toBe(0);
+      expect(Number(result.items[0].drawsCount)).toBe(1);
+
+      // first user
+      expect(Number(result.items[1].sumScore)).toBe(8);
+      expect(Number(result.items[1].avgScores)).toBe(2.67);
+      expect(Number(result.items[1].gamesCount)).toBe(3);
+      expect(Number(result.items[1].winsCount)).toBe(0);
+      expect(Number(result.items[1].lossesCount)).toBe(2);
+      expect(Number(result.items[1].drawsCount)).toBe(1);
     });
   });
 

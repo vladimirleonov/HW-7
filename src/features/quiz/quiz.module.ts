@@ -32,6 +32,7 @@ import { GetAnswerUseCase } from './application/queries/get-answer.query';
 import { GetAllUserGamesUseCase } from './application/queries/get-all-user-games.query';
 import { GetMyStatisticUseCase } from './application/queries/get-my-statistic.query';
 import { GetTopUsersUseCase } from './application/queries/get-top-users.query';
+import { UsersController } from './api/users.controller';
 
 const providers = [
   // command usecases
@@ -72,7 +73,7 @@ const providers = [
     CqrsModule,
     TypeOrmModule.forFeature([Player, Game, GameQuestion, Answer, Question]),
   ],
-  controllers: [PairsController, PairsSaController],
+  controllers: [PairsController, UsersController, PairsSaController],
   providers: [...providers],
 })
 export class QuizModule {}

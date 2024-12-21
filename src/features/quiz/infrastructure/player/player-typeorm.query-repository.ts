@@ -7,9 +7,9 @@ import {
   PaginationOutput,
   PaginationWithScores,
 } from '../../../../base/models/pagination.base.model';
-import { TopUserOutputModel } from '../../api/models/output/top-user.output.model';
 import { MultiSortQueryParams } from '../../../../base/models/pagination-query.input.model';
-import { async } from 'rxjs';
+import * as console from 'node:console';
+import { TopUserOutputModel } from '../../api/models/output/top-user.output.model';
 
 export class PlayerTypeormQueryRepository {
   constructor(
@@ -21,7 +21,54 @@ export class PlayerTypeormQueryRepository {
     pagination: PaginationWithScores<MultiSortQueryParams>,
     //): Promise<PaginationOutput<TopUserOutputModel>> {
   ): Promise<any> {
-    console.log(pagination);
+    const query = this.playerQueryRepository
+      .createQueryBuilder('p')
+      .select([
+        'CAST(SUM(p.score) as INTEGER) as "sumScore"',
+        `CASE 
+          WHEN ROUND(AVG(p.score), 2) = FLOOR(AVG(p.score)) THEN ROUND(AVG(p.score), 0)::DOUBLE PRECISION
+          ELSE ROUND(AVG(p.score), 2)::DOUBLE PRECISION
+        END AS "avgScores"
+        `,
+        'CAST(COUNT(p.id) as INTEGER) as "gamesCount"',
+        `CAST(COUNT(CASE WHEN p.status = '${PlayerStatus.Win}' THEN 1 END) as INTEGER) as "winsCount"`,
+        `CAST(COUNT(CASE WHEN p.status = '${PlayerStatus.Lose}' THEN 1 END) as INTEGER) as "lossesCount"`,
+        `CAST(COUNT(CASE WHEN p.status = '${PlayerStatus.Draw}' THEN 1 END) as INTEGER) as "drawsCount"`,
+        `json_build_object(
+          'id', u.id,
+          'login', u.login
+        ) as player`,
+      ])
+      .leftJoin('p.user', 'u')
+      .groupBy('u.id')
+      .offset(pagination.getSkipItemsCount())
+      .limit(pagination.pageSize);
+
+    for (const sortItem of pagination.sort) {
+      // will be avgScores not avgscores in addOrderBy
+      query.addOrderBy(`"${sortItem.field}"`, sortItem.direction);
+    }
+
+    const users: TopUserOutputModel[] = await query.getRawMany();
+
+    // count = 6
+    // const totalCount: number = await query.getCount();
+
+    const totalCountQuery = this.playerQueryRepository
+      .createQueryBuilder('p')
+      .select('CAST(COUNT(DISTINCT u.id) as INTEGER)') // count unique
+      .leftJoin('p.user', 'u');
+
+    const totalCount: number = await totalCountQuery
+      .getRawOne()
+      .then((result) => result.count);
+
+    return new PaginationOutput<TopUserOutputModel>(
+      users,
+      pagination.pageNumber,
+      pagination.pageSize,
+      totalCount,
+    );
   }
 
   async getMyStatistic(userId: number): Promise<UserStatisticOutputModel> {

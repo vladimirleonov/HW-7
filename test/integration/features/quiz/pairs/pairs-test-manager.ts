@@ -28,26 +28,56 @@ import {
   QuestionModel,
 } from '../../../../../src/features/quiz/api/models/output/game.output.model';
 import {
-  GamePagination,
+  Pagination,
   PaginationOutput,
+  PaginationWithScores,
 } from '../../../../../src/base/models/pagination.base.model';
 import {
   GetAllUserGamesQuery,
   GetAllUserGamesUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-all-user-games.query';
-import { GamePaginationQuery } from '../../../../../src/features/quiz/api/models/input/game-pagination-query.input.model';
 import {
   GetMyStatisticQuery,
   GetMyStatisticUseCase,
 } from '../../../../../src/features/quiz/application/queries/get-my-statistic.query';
 import { UserStatisticOutputModel } from '../../../../../src/features/quiz/api/models/output/my-statistic.output.model';
 import { GameStatus } from '../../../../../src/features/quiz/domain/game.entity';
+import {
+  MultiSortQueryParams,
+  PaginationQueryParams,
+} from '../../../../../src/base/models/pagination-query.input.model';
+import {
+  GetTopUsersQuery,
+  GetTopUsersUseCase,
+} from '../../../../../src/features/quiz/application/queries/get-top-users.query';
+import { TopUserOutputModel } from '../../../../../src/features/quiz/api/models/output/top-user.output.model';
 
 export class PairsTestManager {
   constructor(protected readonly app: INestApplication) {}
 
+  async getTopUsers(
+    pagination: PaginationWithScores<MultiSortQueryParams>,
+    expectedStatus: ResultStatus,
+  ) {
+    const getTopUsersQuery: GetTopUsersQuery = new GetTopUsersQuery(pagination);
+
+    const getTopUsersUseCase: GetTopUsersUseCase =
+      this.app.get<GetTopUsersUseCase>(GetTopUsersUseCase);
+
+    const result: Result<PaginationOutput<TopUserOutputModel>> =
+      await getTopUsersUseCase.execute(getTopUsersQuery);
+
+    if (result.status !== expectedStatus) {
+      throw new Error(
+        `Failed to get top users. Expected status: ${expectedStatus}, but got: ${result.status}`,
+      );
+    }
+
+    return result.data;
+  }
+
   async getAllMy(
-    pagination: GamePagination<GamePaginationQuery>,
+    pagination: Pagination<PaginationQueryParams>,
     userId: number,
     expectedStatus: ResultStatus,
   ): Promise<any> {
@@ -203,8 +233,6 @@ export class PairsTestManager {
     }
 
     const questionIdsInGame: string[] = currentGameQuestions.map((q) => q.id);
-    console.log('createdQuestionIds', createdQuestionIds);
-    console.log('questionIdsInGame', questionIdsInGame);
 
     // Ensure all questions in the game are among the created ones
     questionIdsInGame.forEach((id) => {
