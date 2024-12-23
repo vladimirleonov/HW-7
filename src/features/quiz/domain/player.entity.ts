@@ -54,10 +54,6 @@ export class Player {
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  // auto set when soft delete
-  // @DeleteDateColumn({ type: 'timestamptz', nullable: true })
-  // deletedAt: Date | null;
-
   static create(userId: number) {
     const newPlayer: Player = new this();
     //newPlayer.id = userId;

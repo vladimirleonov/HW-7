@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../core/guards/passport/jwt-auth.guard';
 import { CurrentUserId } from '../../../core/decorators/param-decorators/current-user-id.param.decorator';
 import { QueryBus } from '@nestjs/cqrs';
@@ -23,7 +23,7 @@ export class UsersController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get('top')
-  async topUsers(@Param() query: MultiSortQueryParams) {
+  async topUsers(@Query() query: MultiSortQueryParams) {
     const pagination: PaginationWithScores<MultiSortQueryParams> =
       new Pagination(query, TOP_USERS_SORTING_PROPERTIES);
 

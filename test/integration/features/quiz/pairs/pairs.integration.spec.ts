@@ -21,10 +21,8 @@ import { GAME_SORTING_PROPERTIES } from '../../../../../src/features/quiz/api/pa
 import { UserStatisticOutputModel } from '../../../../../src/features/quiz/api/models/output/my-statistic.output.model';
 import {
   MultiSortQueryParams,
-  PaginationQueryBase,
   PaginationQueryParams,
 } from '../../../../../src/base/models/pagination-query.input.model';
-import { GetTopUsersUseCase } from '../../../../../src/features/quiz/application/queries/get-top-users.query';
 import { TOP_USERS_SORTING_PROPERTIES } from '../../../../../src/features/quiz/api/users.controller';
 import { TopUserOutputModel } from '../../../../../src/features/quiz/api/models/output/top-user.output.model';
 
@@ -432,11 +430,11 @@ describe('pairs', () => {
       );
 
       /**
-       * get use statistic:
+       * get top users:
+       * two users
        * tree games
-       * two lose
-       * one draw
-       * zero win
+       * first lose 2
+       * draw 1
        */
 
       const query = {
@@ -448,33 +446,490 @@ describe('pairs', () => {
       const pagination: PaginationWithScores<MultiSortQueryParams> =
         new PaginationWithScores(query, TOP_USERS_SORTING_PROPERTIES);
 
-      console.log('pagination', pagination);
+      // console.log('pagination', pagination);
 
       const result: PaginationOutput<TopUserOutputModel> =
         await pairsTestManager.getTopUsers(pagination, ResultStatus.Success);
 
-      const topUsers: TopUserOutputModel[] = result.items;
+      // console.log('result', result);
 
-      console.log('topUsers', topUsers);
+      // manual sorting
 
-      expect(result).not.toBeNull();
-      expect(result.items).toHaveLength(2);
+      type SortField<T> = { field: keyof T; direction: 'ASC' | 'DESC' };
 
-      // second user first as sort by avgScores desc sumScore desc
-      expect(Number(result.items[0].sumScore)).toBe(12);
-      expect(Number(result.items[0].avgScores)).toBe(4);
-      expect(Number(result.items[0].gamesCount)).toBe(3);
-      expect(Number(result.items[0].winsCount)).toBe(2);
-      expect(Number(result.items[0].lossesCount)).toBe(0);
-      expect(Number(result.items[0].drawsCount)).toBe(1);
+      function sortItemsManually<T>(
+        items: T[],
+        sortFields: SortField<T>[], // Ограничиваем поля ключами модели
+      ): T[] {
+        return [...items].sort((a, b) => {
+          for (const { field, direction } of sortFields) {
+            const aValue = Number(a[field]) || 0; // Преобразуем к числу
+            const bValue = Number(b[field]) || 0;
 
-      // first user
-      expect(Number(result.items[1].sumScore)).toBe(8);
-      expect(Number(result.items[1].avgScores)).toBe(2.67);
-      expect(Number(result.items[1].gamesCount)).toBe(3);
-      expect(Number(result.items[1].winsCount)).toBe(0);
-      expect(Number(result.items[1].lossesCount)).toBe(2);
-      expect(Number(result.items[1].drawsCount)).toBe(1);
+            if (aValue !== bValue) {
+              return direction === 'ASC' ? aValue - bValue : bValue - aValue;
+            }
+          }
+          return 0; // If all fields the same
+        });
+      }
+
+      // Calling the sort function with an explicitly typed sort field
+      const manuallySortedItems = sortItemsManually(
+        result.items,
+        pagination.sort as SortField<TopUserOutputModel>[],
+      );
+
+      // Comparison of results
+      expect(result.items).toEqual(manuallySortedItems);
+
+      // Pagination meta information verification
+      expect(result.page).toBe(1);
+      expect(result.pageSize).toBe(10);
+      expect(result.totalCount).toBe(2);
+      expect(result.pagesCount).toBe(1);
+    });
+
+    it('should successfully return top users with specific pagination', async () => {
+      /**
+       * generate questions
+       */
+
+      const questions: { body: string; correctAnswers: string[] }[] =
+        await questionTestManager.generateQuestions(10);
+
+      /**
+       * create and publish questions
+       */
+
+      const createdQuestionIds: number[] =
+        await questionTestManager.createAndPublishQuestions(
+          questions,
+          ResultStatus.Success,
+        );
+
+      expect(createdQuestionIds).toHaveLength(10);
+
+      /**
+       * generate users
+       */
+
+      const users: {
+        login: string;
+        email: string;
+        password: string;
+      }[] = await usersTestManager.generateUsers(4);
+
+      /**
+       * create users
+       */
+
+      const userIds: number[] = [];
+      for (const user of users) {
+        const userId: number | null = await usersTestManager.create(
+          user.login,
+          user.password,
+          user.email,
+          ResultStatus.Success,
+        );
+
+        expect(userId).not.toBeNull();
+
+        if (userId === null) {
+          throw new Error('createResult is null, cannot proceed with the test');
+        }
+
+        userIds.push(userId);
+      }
+
+      const [firstCreatedId, secondCreatedId, thirdCreatedId, fourthCreatedId] =
+        userIds;
+
+      /**
+       * create new pair with first user
+       */
+
+      // playerId
+      const createFirstConnectionResult: number | null =
+        await pairsTestManager.createConnection(
+          firstCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createFirstConnectionResult).not.toBeNull();
+
+      if (createFirstConnectionResult === null) {
+        throw new Error('createResult is null, cannot proceed with the test');
+      }
+
+      /**
+       * connect second user to existing pair
+       */
+
+      // playerId
+      const createSecondConnectionResult: number | null =
+        await pairsTestManager.createConnection(
+          secondCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createSecondConnectionResult).not.toBeNull();
+
+      if (createSecondConnectionResult === null) {
+        throw new Error('createResult is null, cannot proceed with the test');
+      }
+
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
+       */
+
+      const gameQuestionIdsInOrderWithCorrectAnswers: {
+        id: string;
+        answers: string[];
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
+
+      /**
+       * fu 1-0-1-0-0 = 2
+       * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
+       */
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers[4].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      /**
+       * create new pair with first user
+       */
+
+      // playerId
+      const createFirstConnectionResult2: number | null =
+        await pairsTestManager.createConnection(
+          firstCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createFirstConnectionResult2).not.toBeNull();
+
+      if (createFirstConnectionResult2 === null) {
+        throw new Error(
+          'createFirst2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * connect second user to existing new pair
+       */
+
+      // playerId
+      const createSecondConnectionResult2: number | null =
+        await pairsTestManager.createConnection(
+          secondCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createSecondConnectionResult2).not.toBeNull();
+
+      if (createSecondConnectionResult2 === null) {
+        throw new Error(
+          'createSecond2ConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
+       */
+
+      const gameQuestionIdsInOrderWithCorrectAnswers2: {
+        id: string;
+        answers: string[];
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          firstCreatedId,
+          createdQuestionIds,
+        );
+
+      /**
+       * fu 1-0-1-0-0 = 2
+       * su 1-0-1-0-1 + 1(first answered) = 4
+       * second win
+       */
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        secondCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers2[4].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        firstCreatedId,
+        'wrongAnswer',
+      );
+
+      /**
+       * create new pair with third user
+       */
+
+      // playerId
+      const createThirdConnectionResult: number | null =
+        await pairsTestManager.createConnection(
+          thirdCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createThirdConnectionResult).not.toBeNull();
+
+      if (createThirdConnectionResult === null) {
+        throw new Error(
+          'createThirdConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * connect fourth user to existing new pair
+       */
+
+      // playerId
+      const createFourthConnectionResult: number | null =
+        await pairsTestManager.createConnection(
+          fourthCreatedId,
+          ResultStatus.Success,
+        );
+
+      expect(createFourthConnectionResult).not.toBeNull();
+
+      if (createFourthConnectionResult === null) {
+        throw new Error(
+          'createFourthConnectionResult is null, cannot proceed with the test',
+        );
+      }
+
+      /**
+       * validate current user game and get game question ids from that game in order with correct answers
+       */
+
+      const gameQuestionIdsInOrderWithCorrectAnswers3: {
+        id: string;
+        answers: string[];
+      }[] =
+        await pairsTestManager.validateCurrentUserGameAndGetGameQuestionIdsInOrderWithCorrectAnswers(
+          questions,
+          thirdCreatedId,
+          createdQuestionIds,
+        );
+
+      /**
+       * fu 1-1-1-1-1 + 1(first answered) = 6
+       * su 1-0-1-0-1 = 3
+       * first win
+       */
+
+      // third
+
+      await pairsTestManager.answerAndCheckSuccess(
+        thirdCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        thirdCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[1].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        thirdCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        thirdCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[3].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        thirdCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[4].answers[0],
+      );
+
+      // fourth
+
+      await pairsTestManager.answerAndCheckSuccess(
+        fourthCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[0].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        fourthCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        fourthCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[2].answers[0],
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        fourthCreatedId,
+        'wrongAnswer',
+      );
+
+      await pairsTestManager.answerAndCheckSuccess(
+        fourthCreatedId,
+        gameQuestionIdsInOrderWithCorrectAnswers3[4].answers[0],
+      );
+
+      /**
+       * get top users:
+       * four users
+       * six players
+       * tree games
+       * first lose 2
+       * third win 1
+       */
+
+      const query = {
+        sort: [
+          'avgScores desc',
+          'sumScore desc',
+          'winsCount desc',
+          'lossesCount asc',
+        ],
+        pageNumber: 1,
+        pageSize: 2,
+      };
+
+      const pagination: PaginationWithScores<MultiSortQueryParams> =
+        new PaginationWithScores(query, TOP_USERS_SORTING_PROPERTIES);
+
+      const result: PaginationOutput<TopUserOutputModel> =
+        await pairsTestManager.getTopUsers(pagination, ResultStatus.Success);
+
+      // manual sorting
+
+      type SortField<T> = { field: keyof T; direction: 'ASC' | 'DESC' };
+
+      function sortItemsManually<T>(
+        items: T[],
+        sortFields: SortField<T>[], // Ограничиваем поля ключами модели
+      ): T[] {
+        return [...items].sort((a, b) => {
+          for (const { field, direction } of sortFields) {
+            const aValue = Number(a[field]) || 0; // Преобразуем к числу
+            const bValue = Number(b[field]) || 0;
+
+            if (aValue !== bValue) {
+              return direction === 'ASC' ? aValue - bValue : bValue - aValue;
+            }
+          }
+          return 0; // If all fields the same
+        });
+      }
+
+      // Calling the sort function with an explicitly typed sort field
+      const manuallySortedItems = sortItemsManually(
+        result.items,
+        pagination.sort as SortField<TopUserOutputModel>[],
+      );
+
+      // Comparison of results
+      expect(result.items).toEqual(manuallySortedItems);
+
+      // Pagination meta information verification
+      expect(result.page).toBe(1);
+      expect(result.pageSize).toBe(2);
+      expect(result.totalCount).toBe(4);
+      expect(result.pagesCount).toBe(2);
     });
   });
 

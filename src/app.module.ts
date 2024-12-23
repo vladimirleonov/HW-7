@@ -70,7 +70,7 @@ import { GameQuestion } from './features/quiz/domain/game-questions.entity';
             Question,
           ],
           synchronize: false,
-          // logging: true,
+          logging: true,
           namingStrategy: new SnakeNamingStrategy(),
         };
       },

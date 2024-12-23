@@ -8,7 +8,6 @@ import {
   PaginationWithScores,
 } from '../../../../base/models/pagination.base.model';
 import { MultiSortQueryParams } from '../../../../base/models/pagination-query.input.model';
-import * as console from 'node:console';
 import { TopUserOutputModel } from '../../api/models/output/top-user.output.model';
 
 export class PlayerTypeormQueryRepository {
@@ -19,7 +18,6 @@ export class PlayerTypeormQueryRepository {
 
   async getTopUsers(
     pagination: PaginationWithScores<MultiSortQueryParams>,
-    //): Promise<PaginationOutput<TopUserOutputModel>> {
   ): Promise<any> {
     const query = this.playerQueryRepository
       .createQueryBuilder('p')
@@ -35,7 +33,7 @@ export class PlayerTypeormQueryRepository {
         `CAST(COUNT(CASE WHEN p.status = '${PlayerStatus.Lose}' THEN 1 END) as INTEGER) as "lossesCount"`,
         `CAST(COUNT(CASE WHEN p.status = '${PlayerStatus.Draw}' THEN 1 END) as INTEGER) as "drawsCount"`,
         `json_build_object(
-          'id', u.id,
+          'id', CAST(u.id as varchar), 
           'login', u.login
         ) as player`,
       ])

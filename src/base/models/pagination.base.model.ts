@@ -1,4 +1,3 @@
-import { toSnakeCase } from '../../core/utils/camel-case-to-snake-case';
 import {
   MultiSortQueryParams,
   PaginationQueryBase,
@@ -46,16 +45,33 @@ export class Pagination<T extends PaginationQueryBase> {
     sortProperties: string[],
     defaultSortBy: string | { field: string; direction: SortDirectionType }[],
   ): { field: string; direction: SortDirectionType }[] {
+    // if query.sort is string
+    if ('sort' in query && typeof query.sort === 'string') {
+      const [field, direction] = query.sort.split(' ');
+      if (sortProperties.includes(field)) {
+        return [
+          {
+            field: field, // Convert the field name to snake_case
+            direction: (direction?.toUpperCase() === 'ASC'
+              ? 'ASC'
+              : 'DESC') as SortDirectionType, // Set the sort direction (default is DESC)
+          },
+        ];
+      }
+      return [];
+    }
+
+    // if query.sort is array
     if ('sort' in query && Array.isArray(query.sort)) {
       // If query.sort is an array of strings in the format "field direction"
       return query.sort
         .map((s) => {
           const [field, direction] = s.split(' '); // Split the string into field name and sort direction
-
+          console.log(field, direction);
           if (!field) return null; // Skip if the field is missing
 
           return {
-            field: toSnakeCase(field), // Convert the field name to snake_case
+            field: field, // Convert the field name to snake_case
             direction: (direction?.toUpperCase() === 'ASC'
               ? 'ASC'
               : 'DESC') as SortDirectionType, // Set the sort direction (default is DESC)
@@ -67,7 +83,10 @@ export class Pagination<T extends PaginationQueryBase> {
         );
     }
 
-    // get sortBy and sortDirection from query or default values
+    // Determine the `sortBy` value from the query or default settings:
+    // 1. If `query.sortBy` exists and is a string, use it (e.g., sortBy = "avgScores").
+    // 2. If `defaultSortBy` is an array, set `sortBy` to an empty string (e.g., sortBy = "").
+    // 3. If `defaultSortBy` is a string, use it as `sortBy` (e.g., sortBy = "avgScores").
     const sortBy: string =
       'sortBy' in query && typeof query.sortBy === 'string' && query.sortBy
         ? query.sortBy
@@ -88,7 +107,7 @@ export class Pagination<T extends PaginationQueryBase> {
       ? defaultSortBy
       : [
           {
-            field: toSnakeCase(sortBy), // Convert the field name to snake_case
+            field: sortBy,
             direction: sortDirection,
           },
         ];
