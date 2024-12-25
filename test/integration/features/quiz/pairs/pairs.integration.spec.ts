@@ -933,7 +933,7 @@ describe('pairs', () => {
     });
   });
 
-  describe.skip('GetAllUserGamesUseCase', () => {
+  describe('GetAllUserGamesUseCase', () => {
     it('should successfully return two user games (finished and not finished) with default pagination', async () => {
       /**
        * generate questions
@@ -1481,7 +1481,7 @@ describe('pairs', () => {
     });
   });
 
-  describe.skip('GetMyStatisticUseCase', () => {
+  describe('GetMyStatisticUseCase', () => {
     it('should successfully return user statistics', async () => {
       /**
        * generate questions
@@ -1880,7 +1880,7 @@ describe('pairs', () => {
     });
   });
 
-  describe.skip('GetGameUseCase', () => {
+  describe('GetGameUseCase', () => {
     it('should successfully return current user pending game by game id', async () => {
       /**
        * create user dto
@@ -2090,7 +2090,7 @@ describe('pairs', () => {
     });
   });
 
-  describe.skip('GetCurrentUnfinishedUserGameUseCase', () => {
+  describe('GetCurrentUnfinishedUserGameUseCase', () => {
     it('should successfully return current user game', async () => {
       /**
        * create user dto
@@ -2162,7 +2162,7 @@ describe('pairs', () => {
     });
   });
 
-  describe.skip('GetPendingOrJoinedUserGameUseCase', () => {
+  describe('GetPendingOrJoinedUserGameUseCase', () => {
     it('should successfully return user pending game', async () => {
       /**
        * create user dto
@@ -2318,7 +2318,7 @@ describe('pairs', () => {
     });
   });
 
-  describe.skip('CreateConnectionUseCase', () => {
+  describe('CreateConnectionUseCase', () => {
     it('should successfully create new pair waiting second player', async () => {
       /**
        * create user dto
@@ -2488,7 +2488,7 @@ describe('pairs', () => {
     });
   });
 
-  describe.skip('CreateAnswerUseCase', () => {
+  describe('CreateAnswerUseCase', () => {
     it('should successfully create two users then 5 answers each user (first user los - score 2; second user win - score 3 (+1 - first answered))', async () => {
       /**
        * generate questions

@@ -24,6 +24,7 @@ export class GetCurrentUnfinishedUserGameUseCase
       await this.gameTypeormQueryRepository.getCurrentUnfinishedUserGame(
         userId,
       );
+
     if (!currentUnfinishedUserGame) {
       return Result.notFound(`There is no active pair for current user`);
     }

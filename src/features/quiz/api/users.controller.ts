@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../../core/guards/passport/jwt-auth.guard';
 import { CurrentUserId } from '../../../core/decorators/param-decorators/current-user-id.param.decorator';
 import { QueryBus } from '@nestjs/cqrs';

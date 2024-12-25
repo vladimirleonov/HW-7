@@ -32,7 +32,7 @@ export class Player {
   // @OneToOne(() => Game)
   // @JoinColumn()
   // game: Game;
-  //
+
   // @Column()
   // gameId: number;
 

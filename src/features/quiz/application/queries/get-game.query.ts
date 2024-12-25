@@ -21,6 +21,7 @@ export class GetGameUseCase implements IQueryHandler<GetGameQuery> {
 
     const gameExists: boolean =
       await this.gameTypeormQueryRepository.gameExists(gameId);
+
     if (!gameExists) {
       return Result.notFound();
     }
@@ -30,6 +31,7 @@ export class GetGameUseCase implements IQueryHandler<GetGameQuery> {
         gameId,
         userId,
       );
+
     if (!isParticipant) {
       return Result.forbidden();
     }

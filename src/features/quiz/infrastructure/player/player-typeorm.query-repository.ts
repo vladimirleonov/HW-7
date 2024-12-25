@@ -49,7 +49,7 @@ export class PlayerTypeormQueryRepository {
 
     const users: TopUserOutputModel[] = await query.getRawMany();
 
-    // count = 6
+    // count = all string count not grouped by
     // const totalCount: number = await query.getCount();
 
     const totalCountQuery = this.playerQueryRepository
@@ -98,22 +98,5 @@ export class PlayerTypeormQueryRepository {
       lossesCount: customRound(lossesCount),
       drawsCount: customRound(drawsCount),
     };
-  }
-
-  async checkPlayerExistsById(playerId: number): Promise<boolean> {
-    const player: Player | null = await this.playerQueryRepository.findOneBy({
-      id: playerId,
-    });
-
-    return !!player;
-  }
-
-  async checkActivePlayerExistsByUserId(userId: number): Promise<boolean> {
-    const player: Player | null = await this.playerQueryRepository.findOneBy({
-      userId: userId,
-      status: PlayerStatus.InProgress,
-    });
-
-    return !!player;
   }
 }

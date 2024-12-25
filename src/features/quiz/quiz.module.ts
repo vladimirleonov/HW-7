@@ -34,29 +34,28 @@ import { GetMyStatisticUseCase } from './application/queries/get-my-statistic.qu
 import { GetTopUsersUseCase } from './application/queries/get-top-users.query';
 import { UsersController } from './api/users.controller';
 
-const providers = [
-  // command usecases
+const CommandUseCases = [
   CreateQuestionUseCase,
+  CreateConnectionUseCase,
+  CreateAnswerUseCase,
   UpdateQuestionUseCase,
   UpdatePublishedStatusUseCase,
+];
 
-  CreateConnectionUseCase,
-  GetCurrentUnfinishedUserGameUseCase,
-
-  // query usecases
+const QueryUseCases = [
   GetAllQuestionsUseCase,
   GetQuestionUseCase,
-  DeleteQuestionUseCase,
-
   GetPendingOrJoinedUserGameUseCase,
+  GetCurrentUnfinishedUserGameUseCase,
   GetGameUseCase,
-  CreateAnswerUseCase,
+  DeleteQuestionUseCase,
   GetAnswerUseCase,
   GetAllUserGamesUseCase,
   GetMyStatisticUseCase,
   GetTopUsersUseCase,
+];
 
-  // repos
+const Repositories = [
   QuestionsTypeormRepository,
   QuestionTypeormQueryRepository,
   PlayerTypeormRepository,
@@ -74,6 +73,6 @@ const providers = [
     TypeOrmModule.forFeature([Player, Game, GameQuestion, Answer, Question]),
   ],
   controllers: [PairsController, UsersController, PairsSaController],
-  providers: [...providers],
+  providers: [...CommandUseCases, ...QueryUseCases, ...Repositories],
 })
 export class QuizModule {}

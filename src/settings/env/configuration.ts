@@ -32,7 +32,8 @@ export class Configuration {
 }
 
 export function validate(environmentVariables: Record<string, string>) {
-  const config = Configuration.createConfig(environmentVariables);
+  const config: Configuration =
+    Configuration.createConfig(environmentVariables);
 
   const errors = validateSync(config, { skipMissingProperties: false });
 
@@ -44,7 +45,8 @@ export function validate(environmentVariables: Record<string, string>) {
 }
 
 export default () => {
-  const environmentVariables = process.env as EnvironmentVariable;
+  const environmentVariables: EnvironmentVariable =
+    process.env as EnvironmentVariable;
   console.log('process.env.ENV =', environmentVariables.ENV);
   console.log('Database type:', environmentVariables.DB_TYPE);
   return Configuration.createConfig(environmentVariables);

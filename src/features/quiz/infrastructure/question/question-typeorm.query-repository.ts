@@ -28,7 +28,6 @@ export class QuestionTypeormQueryRepository {
         'q.createdAt as "createdAt"',
         'q.updatedAt as "updatedAt"',
       ])
-      //.orderBy(`q.${pagination.sortBy}`, pagination.sortDirection)
       .offset((pagination.pageNumber - 1) * pagination.pageSize)
       .limit(pagination.pageSize);
 

@@ -33,7 +33,6 @@ import {
 } from '../../../base/models/pagination.base.model';
 import { SortingPropertiesType } from '../../../base/types/sorting-properties.type';
 import { GetAllUserGamesQuery } from '../application/queries/get-all-user-games.query';
-import { TopUserOutputModel } from './models/output/top-user.output.model';
 import { PaginationQueryParams } from '../../../base/models/pagination-query.input.model';
 
 export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
@@ -42,9 +41,6 @@ export const GAME_SORTING_PROPERTIES: SortingPropertiesType<GameOutputModel> = [
   'startGameDate',
   'finishGameDate',
 ];
-
-export const TOP_USERS_SORTING_PROPERTIES: SortingPropertiesType<TopUserOutputModel> =
-  ['avgScores', 'sumScore', 'winsCount', 'lossesCount'];
 
 @UseGuards(JwtAuthGuard)
 @Controller('pair-game-quiz/pairs')

@@ -7,7 +7,7 @@ export class ApiSettings {
   // Application
   @IsNumber()
   APP_PORT: number = Number(this.envVariables.APP_PORT);
-  //используется только в тестовом окружении - значение берем из .env
+  // используется только в тестовом окружении - значение берем из .env
   @IsNumber()
   HASH_ROUNDS: number = Number(this.envVariables.HASH_ROUNDS);
   @IsString()
@@ -24,28 +24,18 @@ export class ApiSettings {
     this.envVariables.MONGO_CONNECTION_URI_FOR_TESTS;
 
   // Postgres settings
-  // @IsString()
-  // POSTGRESQL_CONNECTION_URI: string =
-  //   this.envVariables.POSTGRESQL_CONNECTION_URI;
-  // @IsString()
-  // @Optional()
-  // POSTGRESQL_CONNECTION_URI_FOR_TESTS: string =
-  //   this.envVariables.POSTGRESQL_CONNECTION_URI_FOR_TESTS;
-
-  // in DatabaseSettings
-
-  // @IsString()
-  // DB_TYPE: string = this.envVariables.DB_TYPE;
-  // @IsString()
-  // DB_HOST: string = this.envVariables.DB_HOST;
-  // @IsString()
-  // DB_PORT: string = this.envVariables.DB_PORT;
-  // @IsString()
-  // DB_USERNAME: string = this.envVariables.DB_USERNAME;
-  // @IsString()
-  // DB_PASSWORD: string = this.envVariables.DB_PASSWORD;
-  // @IsString()
-  // DB_DATABASE: string = this.envVariables.DB_DATABASE;
+  @IsString()
+  DB_TYPE: string = this.envVariables.DB_TYPE;
+  @IsString()
+  DB_HOST: string = this.envVariables.DB_HOST;
+  @IsString()
+  DB_PORT: string = this.envVariables.DB_PORT;
+  @IsString()
+  DB_USERNAME: string = this.envVariables.DB_USERNAME;
+  @IsString()
+  DB_PASSWORD: string = this.envVariables.DB_PASSWORD;
+  @IsString()
+  DB_DATABASE: string = this.envVariables.DB_DATABASE;
 
   // Email
   @IsString()

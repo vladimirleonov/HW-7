@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration, { ConfigurationType } from './settings/env/configuration';
+import configuration, {
+  ConfigurationType,
+  validate,
+} from './settings/env/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { ApiSettings } from './settings/env/api-settings';
 import { ThrottlerModule } from '@nestjs/throttler';

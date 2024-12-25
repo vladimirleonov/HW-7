@@ -96,6 +96,10 @@ export class CreateAnswerUseCase
       activeGame,
     );
 
+    /**
+     * change statuses
+     */
+
     await this.changePayerAndGameStatus(activeGame);
 
     return Result.success(answerId);
